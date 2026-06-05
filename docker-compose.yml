@@ -1,0 +1,13 @@
+services:
+  graphql:
+    build:
+      context: ./backend
+    container_name: showcase-graphql
+    ports:
+      - "4000:4000"
+    environment:
+      PORT: 4000
+      FRONTEND_URL: http://localhost:3000
+      DATABASE_URL: /app/data/showcase.sqlite
+    volumes:
+      - ./backend/data:/app/data
