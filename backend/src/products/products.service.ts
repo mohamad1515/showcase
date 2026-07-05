@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from "@nestjs/common";
 import { eq } from "drizzle-orm";
 import { DatabaseService } from "../db/database.service";
 import { NewProductRow, products } from "../db/schema";
@@ -24,8 +28,13 @@ export class ProductsService {
   }
 
   findBySlug(slug: string) {
-    const product = this.database.db.select().from(products).where(eq(products.slug, slug)).get();
-    if (!product) throw new NotFoundException(`Product with slug "${slug}" was not found.`);
+    const product = this.database.db
+      .select()
+      .from(products)
+      .where(eq(products.slug, slug))
+      .get();
+    if (!product)
+      throw new NotFoundException(`Product with slug "${slug}" was not found.`);
     return product;
   }
 
@@ -38,6 +47,8 @@ export class ProductsService {
       .values({
         ...input,
         category,
+        price: this.formatPrice(input.price),
+        images: this.normalizeImages(input.images),
         createdAt: now,
         updatedAt: now,
       })
@@ -47,10 +58,12 @@ export class ProductsService {
 
   update(slug: string, input: UpdateProductInput) {
     this.findBySlug(slug);
-    const { category, ...rest } = input;
+    const { category, price, images, ...rest } = input;
     const values: Partial<NewProductRow> = {
       ...rest,
       ...(category ? { category: this.toCategory(category) } : {}),
+      ...(price ? { price: this.formatPrice(price) } : {}),
+      ...(images ? { images: this.normalizeImages(images) } : {}),
       updatedAt: new Date().toISOString(),
     };
 
@@ -70,8 +83,21 @@ export class ProductsService {
 
   private toCategory(category: string): ProductCategory {
     if (!categories.includes(category as ProductCategory)) {
-      throw new BadRequestException(`Category must be one of: ${categories.join(", ")}`);
+      throw new BadRequestException(
+        `Category must be one of: ${categories.join(", ")}`,
+      );
     }
     return category as ProductCategory;
+  }
+
+  private formatPrice(price: string) {
+    const digits = price.replace(/[^\d]/g, "");
+    if (!digits) return price;
+    return Number(digits).toLocaleString("en-US");
+  }
+
+  private normalizeImages(images?: string[]) {
+    const cleaned = images?.map((image) => image.trim()).filter(Boolean) ?? [];
+    return cleaned.length > 0 ? cleaned : ["/images/product.png"];
   }
 }

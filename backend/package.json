@@ -10,8 +10,8 @@
     "db:seed": "tsx src/db/seed.ts"
   },
   "dependencies": {
-    "@as-integrations/express5": "^1.1.2",
     "@apollo/server": "^5.5.1",
+    "@as-integrations/express5": "^1.1.2",
     "@nestjs/apollo": "^13.4.2",
     "@nestjs/common": "^11.1.24",
     "@nestjs/core": "^11.1.24",
@@ -29,6 +29,8 @@
     "@nestjs/testing": "^11.1.24",
     "@types/better-sqlite3": "^7.6.13",
     "@types/node": "^20.19.25",
+    "@types/passport": "^1.0.17",
+    "@types/passport-oauth2": "^1.8.0",
     "eslint": "^9.39.1",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3"

@@ -1,25 +1,25 @@
-import { ApolloDriver, ApolloDriverConfig } from "@nestjs/apollo";
 import { Module } from "@nestjs/common";
 import { GraphQLModule } from "@nestjs/graphql";
-import { ApolloServerPluginLandingPageLocalDefault } from "@apollo/server/plugin/landingPage/default";
+import { ApolloDriver, ApolloDriverConfig } from "@nestjs/apollo";
+import { Request } from "express";
 import { DatabaseModule } from "./db/database.module";
-import { GraphiqlController } from "./graphiql.controller";
+import { AuthModule } from "./auth/auth.module";
 import { ProductsModule } from "./products/products.module";
+import { CategoriesModule } from "./categories/categories.module";
+import { SlidersModule } from "./sliders/sliders.module";
 
 @Module({
   imports: [
+    DatabaseModule,
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
       autoSchemaFile: true,
-      path: "/graphql",
-      sortSchema: true,
-      introspection: true,
-      playground: false,
-      plugins: [ApolloServerPluginLandingPageLocalDefault()],
+      context: ({ req }: { req: Request }) => ({ req }),
     }),
-    DatabaseModule,
+    AuthModule,
     ProductsModule,
+    CategoriesModule,
+    SlidersModule,
   ],
-  controllers: [GraphiqlController],
 })
 export class AppModule {}

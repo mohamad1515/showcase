@@ -6,10 +6,16 @@ import { useMemo, useState } from "react";
 import type { Product, ProductCategory } from "../lib/products";
 
 const filters: { label: string; value: ProductCategory }[] = [
-  { label: "پیش‌فرض", value: "default" },
-  { label: "محصولات محبوب", value: "popular" },
-  { label: "پرفروش‌ترین‌ها", value: "best-selling" },
+  { label: "همه", value: "default" },
+  { label: "محبوب", value: "popular" },
+  { label: "پرفروش", value: "best-selling" },
 ];
+
+const categoryLabels: Record<ProductCategory, string> = {
+  default: "پیشنهادی",
+  popular: "محبوب",
+  "best-selling": "پرفروش",
+};
 
 function orderProducts(products: Product[], filter: ProductCategory) {
   if (filter === "default") return products;
@@ -36,38 +42,21 @@ export default function ProductShowcase({ products }: { products: Product[] }) {
           </h2>
         </div>
 
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-          <div className="hidden rounded-full border border-border bg-surface p-1 sm:flex">
-            {filters.map((filter) => (
-              <button
-                key={filter.value}
-                type="button"
-                onClick={() => setActiveFilter(filter.value)}
-                className={`h-10 rounded-full px-4 text-sm font-bold transition ${
-                  activeFilter === filter.value
-                    ? "bg-accent text-white shadow-sm"
-                    : "text-muted hover:text-foreground"
-                }`}
-              >
-                {filter.label}
-              </button>
-            ))}
-          </div>
-
-          <select
-            value={activeFilter}
-            onChange={(event) =>
-              setActiveFilter(event.target.value as ProductCategory)
-            }
-            className="h-11 rounded-full border border-border bg-surface px-4 text-sm font-bold text-foreground outline-none transition focus:border-accent sm:hidden"
-            aria-label="فیلتر محصولات"
-          >
-            {filters.map((filter) => (
-              <option key={filter.value} value={filter.value}>
-                {filter.label}
-              </option>
-            ))}
-          </select>
+        <div className="flex rounded-md border border-border bg-surface p-1">
+          {filters.map((filter) => (
+            <button
+              key={filter.value}
+              type="button"
+              onClick={() => setActiveFilter(filter.value)}
+              className={`h-10 rounded px-4 text-sm font-bold transition ${
+                activeFilter === filter.value
+                  ? "bg-accent text-white shadow-sm"
+                  : "text-muted hover:text-foreground"
+              }`}
+            >
+              {filter.label}
+            </button>
+          ))}
         </div>
       </div>
 
@@ -80,18 +69,14 @@ export default function ProductShowcase({ products }: { products: Product[] }) {
             <Link href={`/products/${product.slug}`} className="block">
               <div className="relative aspect-[4/3] overflow-hidden bg-surface">
                 <Image
-                  src="/images/ganier.jpg"
+                  src={product.images?.[0] ?? "/images/product.png"}
                   alt={product.name}
                   fill
                   sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
                   className="object-cover transition duration-500 group-hover:scale-105"
                 />
-                <div className="absolute right-3 top-3 rounded-full bg-background/90 px-3 py-1 text-xs font-bold text-accent shadow-sm">
-                  {product.category === "best-selling"
-                    ? "پرفروش"
-                    : product.category === "popular"
-                      ? "محبوب"
-                      : "پیشنهادی"}
+                <div className="absolute right-3 top-3 rounded-md bg-background/90 px-3 py-1 text-xs font-bold text-accent shadow-sm">
+                  {categoryLabels[product.category]}
                 </div>
               </div>
               <div className="space-y-4 p-5">
@@ -105,16 +90,24 @@ export default function ProductShowcase({ products }: { products: Product[] }) {
                 </div>
                 <div className="flex items-center justify-between gap-3 border-t border-border pt-4">
                   <span className="text-sm font-black text-accent">
-                    {product.price}
+                    {product.price} تومان
                   </span>
                   <span className="text-xs font-bold text-muted">
-                    {product.weight}
+                    وزن: {product.weight} · تعداد: {product.quantity}
                   </span>
                 </div>
               </div>
             </Link>
           </article>
         ))}
+      </div>
+      <div className="flex justify-center">
+        <Link
+          href="/products"
+          className="inline-flex h-12 items-center justify-center rounded-md bg-accent px-6 text-sm font-black text-white transition hover:bg-accent-strong"
+        >
+          مشاهده محصولات بیشتر
+        </Link>
       </div>
     </section>
   );

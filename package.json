@@ -1,0 +1,14 @@
+{
+  "dependencies": {
+    "@nestjs/graphql": "^13.4.2",
+    "@nestjs/passport": "^11.0.5",
+    "@nestjs/typeorm": "^11.0.2",
+    "apollo-server-express": "^3.13.0",
+    "graphql": "^16.14.2",
+    "passport": "^0.7.0",
+    "passport-oauth2": "^1.8.0",
+    "pg": "^8.21.0",
+    "type-graphql": "^2.0.0-rc.3",
+    "typeorm": "^1.0.0"
+  }
+}

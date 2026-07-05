@@ -33,6 +33,12 @@ export class Product {
   weight!: string;
 
   @Field()
+  quantity!: string;
+
+  @Field(() => [String])
+  images!: string[];
+
+  @Field()
   createdAt!: string;
 
   @Field()

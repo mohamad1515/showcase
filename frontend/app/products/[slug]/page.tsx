@@ -8,8 +8,12 @@ type PageProps = {
 };
 
 export async function generateStaticParams() {
-  const products = await getProducts();
-  return products.map((product) => ({ slug: product.slug }));
+  try {
+    const products = await getProducts();
+    return products.map((product) => ({ slug: product.slug }));
+  } catch {
+    return [];
+  }
 }
 
 export async function generateMetadata({ params }: PageProps) {
@@ -35,7 +39,7 @@ export default async function ProductPage({ params }: PageProps) {
       <section className="grid gap-8 rounded-lg border border-border bg-surface p-6 shadow-sm lg:grid-cols-[0.9fr_1.1fr] lg:items-center lg:p-8">
         <div className="relative aspect-square overflow-hidden rounded-lg bg-card">
           <Image
-            src="/images/ganier.jpg"
+            src={product.images?.[0] ?? "/images/product.png"}
             alt={product.name}
             fill
             priority
@@ -63,13 +67,13 @@ export default async function ProductPage({ params }: PageProps) {
             <div className="rounded-lg border border-border bg-background p-4">
               <p className="text-xs font-bold text-muted">قیمت</p>
               <p className="mt-2 text-xl font-black text-accent">
-                {product.price}
+                {product.price} تومان
               </p>
             </div>
             <div className="rounded-lg border border-border bg-background p-4">
-              <p className="text-xs font-bold text-muted">حجم / تعداد</p>
+              <p className="text-xs font-bold text-muted">وزن و تعداد</p>
               <p className="mt-2 text-xl font-black text-foreground">
-                {product.weight}
+                وزن: {product.weight} · تعداد: {product.quantity}
               </p>
             </div>
           </div>
@@ -87,7 +91,7 @@ export default async function ProductPage({ params }: PageProps) {
                 key={feature}
                 className="flex items-start gap-4 rounded-lg border border-border bg-background p-4"
               >
-                <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-accent/10 text-sm font-black text-accent">
+                <span className="grid h-9 w-9 shrink-0 place-items-center rounded-md bg-accent/10 text-sm font-black text-accent">
                   ✓
                 </span>
                 <p className="text-sm leading-7 text-foreground">{feature}</p>
@@ -106,13 +110,13 @@ export default async function ProductPage({ params }: PageProps) {
           <div className="mt-6 flex flex-col gap-3">
             <Link
               href="/products"
-              className="inline-flex h-11 items-center justify-center rounded-full bg-accent px-5 text-sm font-black text-white transition hover:bg-accent-strong"
+              className="inline-flex h-11 items-center justify-center rounded-md bg-accent px-5 text-sm font-black text-white transition hover:bg-accent-strong"
             >
               مشاهده محصولات دیگر
             </Link>
             <Link
               href="/"
-              className="inline-flex h-11 items-center justify-center rounded-full border border-border bg-background px-5 text-sm font-black text-foreground transition hover:border-accent hover:text-accent"
+              className="inline-flex h-11 items-center justify-center rounded-md border border-border bg-background px-5 text-sm font-black text-foreground transition hover:border-accent hover:text-accent"
             >
               بازگشت به صفحه اصلی
             </Link>

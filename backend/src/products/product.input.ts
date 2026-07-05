@@ -28,6 +28,12 @@ export class CreateProductInput {
 
   @Field()
   weight!: string;
+
+  @Field()
+  quantity!: string;
+
+  @Field(() => [String], { nullable: true })
+  images?: string[];
 }
 
 @InputType()

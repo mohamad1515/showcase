@@ -1,4 +1,17 @@
+version: "3.8"
+
 services:
+  postgres:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: your_username
+      POSTGRES_PASSWORD: your_password
+      POSTGRES_DB: your_database
+    ports:
+      - 5432:5432
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
   graphql:
     build:
       context: ./backend
@@ -8,6 +21,9 @@ services:
     environment:
       PORT: 4000
       FRONTEND_URL: http://localhost:3000
-      DATABASE_URL: /app/data/showcase.sqlite
-    volumes:
-      - ./backend/data:/app/data
+      DATABASE_URL: postgresql://your_username:your_password@postgres:5432/your_database
+    depends_on:
+      - postgres
+
+volumes:
+  pgdata:
