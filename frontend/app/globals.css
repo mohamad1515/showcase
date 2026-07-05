@@ -1,25 +1,70 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: "Vazir";
+  src: url("/fonts/Vazir.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Vazir";
+  src: url("/fonts/Vazir.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
-  --background: #f6f8f5;
-  --foreground: #111827;
+  --background: #f5f6f4;
   --surface: #ffffff;
-  --card: #f9faf7;
-  --muted: #667085;
-  --border: #dfe5dc;
-  --accent: #12805c;
-  --accent-strong: #0f6b4d;
+  --card: #ffffff;
+  --border: #e3e6e2;
+  --foreground: #12181a;
+  --muted: #667079;
+
+  --accent: #0ea894; /* kinetic teal — primary actions, links, focus */
+  --accent-strong: #0b8a79;
+  --accent-soft: #0ea89417;
+
+  --gold: #dd9a3e; /* price / rating / highlight only */
+  --gold-soft: #dd9a3e1a;
+
+  --danger: #d1453b;
+  --danger-soft: #d1453b14;
+  --success: #1c9d6f;
+  --success-soft: #1c9d6f14;
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+}
+
+* {
+  border-color: var(--border);
+  box-sizing: border-box;
 }
 
 html.dark {
-  --background: #020617;
-  --foreground: #edf2f7;
-  --surface: #111827;
-  --card: #0f172a;
-  --muted: #94a3b8;
-  --border: #334155;
-  --accent: #34d399;
-  --accent-strong: #10b981;
+  --background: #0c1211;
+  --surface: #121a19;
+  --card: #16201e;
+  --border: #223330;
+  --foreground: #eef3f1;
+  --muted: #93a29c;
+
+  --accent: #1fd9bd;
+  --accent-strong: #17b39c;
+  --accent-soft: #1fd9bd1f;
+
+  --gold: #eab263;
+  --gold-soft: #eab2631f;
+
+  --danger: #ef6a60;
+  --danger-soft: #ef6a601a;
+  --success: #3fc78e;
+  --success-soft: #3fc78e1a;
 }
 
 @theme inline {
@@ -31,8 +76,8 @@ html.dark {
   --color-border: var(--border);
   --color-accent: var(--accent);
   --color-accent-strong: var(--accent-strong);
-  --font-sans: var(--font-vazir);
-  --font-mono: var(--font-vazir);
+  --font-sans: "Vazir";
+  --font-mono: "Vazir";
 }
 
 html {
@@ -52,6 +97,7 @@ body {
   background-attachment: fixed;
   color: var(--foreground);
   font-family:
+    "Vazir",
     var(--font-vazir),
     ui-sans-serif,
     system-ui,
@@ -59,10 +105,10 @@ body {
     BlinkMacSystemFont,
     "Segoe UI",
     sans-serif;
-}
-
-* {
-  box-sizing: border-box;
+  font-feature-settings:
+    "ss01" on,
+    "cv05" on;
+  -webkit-font-smoothing: antialiased;
 }
 
 ::selection {
@@ -105,4 +151,100 @@ body {
   transition:
     border-color 160ms ease,
     box-shadow 160ms ease;
+}
+
+/* Persian numerals read better slightly larger/looser in tabular contexts */
+.tabular-fa {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.01em;
+}
+
+/* Type scale helpers used across the app instead of ad-hoc text-3xl/4xl mixes */
+.h-display {
+  font-weight: 900;
+  letter-spacing: -0.01em;
+  line-height: 1.15;
+}
+.h-eyebrow {
+  font-weight: 700;
+  font-size: 0.8125rem;
+  letter-spacing: 0.02em;
+  color: var(--accent);
+}
+
+::selection {
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+}
+
+/* Focus ring, consistent everywhere */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* ---------- react-toastify RTL + brand skin ---------- */
+.Toastify__toast-container {
+  font-family: "Vazirmatn", sans-serif;
+  direction: rtl;
+}
+.Toastify__toast {
+  border-radius: var(--radius-md) !important;
+  border: 1px solid var(--border);
+  box-shadow: 0 8px 24px -8px rgba(0, 0, 0, 0.18);
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+.Toastify__toast--success {
+  background: var(--surface) !important;
+  color: var(--success) !important;
+  border-color: var(--success-soft) !important;
+}
+.Toastify__toast--error {
+  background: var(--surface) !important;
+  color: var(--danger) !important;
+  border-color: var(--danger-soft) !important;
+}
+.Toastify__toast--info,
+.Toastify__toast--warning {
+  background: var(--surface) !important;
+  color: var(--foreground) !important;
+}
+.Toastify__progress-bar--success {
+  background: var(--success) !important;
+}
+.Toastify__progress-bar--error {
+  background: var(--danger) !important;
+}
+
+/* ---------- AG Grid RTL + brand skin (ag-theme-fitmokamel) ---------- */
+.ag-theme-fitmokamel {
+  --ag-font-family: "Vazir", sans-serif;
+  --ag-font-size: 13.5px;
+  --ag-background-color: var(--surface);
+  --ag-odd-row-background-color: var(--background);
+  --ag-header-background-color: var(--surface);
+  --ag-header-foreground-color: var(--muted);
+  --ag-foreground-color: var(--foreground);
+  --ag-border-color: var(--border);
+  --ag-row-border-color: var(--border);
+  --ag-row-hover-color: var(--accent-soft);
+  --ag-selected-row-background-color: var(--accent-soft);
+  --ag-header-column-separator-display: none;
+  --ag-border-radius: var(--radius-md);
+  --ag-wrapper-border-radius: var(--radius-md);
+  --ag-cell-horizontal-padding: 16px;
+  --ag-header-height: 46px;
+  --ag-row-height: 56px;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+.ag-theme-fitmokamel .ag-header-cell-label {
+  font-weight: 800;
+}
+.ag-theme-fitmokamel .ag-cell {
+  display: flex;
+  align-items: center;
 }
