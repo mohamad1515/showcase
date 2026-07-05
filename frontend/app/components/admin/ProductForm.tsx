@@ -11,6 +11,13 @@ import type {
 } from "../../lib/products";
 import { errorMessage, notifyError, notifySuccess } from "../../lib/toast";
 import FormField, { inputClass, textareaClass } from "./FormField";
+import { FilePond, registerPlugin } from "react-filepond";
+import "filepond/dist/filepond.min.css";
+
+import FilePondPluginImagePreview from "filepond-plugin-image-preview";
+import "filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css";
+
+registerPlugin(FilePondPluginImagePreview);
 
 const categories: { value: ProductCategory; label: string }[] = [
   { value: "default", label: "پیشنهادی" },
@@ -63,8 +70,8 @@ export default function ProductForm({ mode, product }: Props) {
 
   const [form, setForm] = useState<ProductInput>(initial);
   const [featuresText, setFeaturesText] = useState(initial.features.join("\n"));
-  const [imagesText, setImagesText] = useState(initial.images.join("\n"));
   const [saving, setSaving] = useState(false);
+  const [files, setFiles] = useState<any[]>([]);
 
   function updateField<K extends keyof ProductInput>(
     key: K,
@@ -76,12 +83,13 @@ export default function ProductForm({ mode, product }: Props) {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setSaving(true);
-
+    const images = form.images.filter(
+      (image) => image !== "/images/product.png",
+    );
     const payload: ProductInput = {
       ...form,
-      slug: form.slug.trim(),
+      images,
       features: toLines(featuresText),
-      images: toLines(imagesText),
     };
 
     try {
@@ -207,13 +215,27 @@ export default function ProductForm({ mode, product }: Props) {
         </FormField>
       </div>
 
-      <FormField label="آدرس تصاویر" hint="هر آدرس را در یک خط جدا وارد کنید">
-        <textarea
-          value={imagesText}
-          onChange={(e) => setImagesText(e.target.value)}
-          rows={3}
-          className={textareaClass}
-          placeholder="/images/product.png"
+      <FormField label="تصاویر محصول">
+        <FilePond
+          files={files}
+          onupdatefiles={setFiles}
+          allowMultiple
+          name="file"
+          server={{
+            process: {
+              url: "http://localhost:4000/upload",
+
+              onload: (response) => {
+                const result = JSON.parse(response);
+                return result.url;
+              },
+            },
+          }}
+          onprocessfile={(error, file) => {
+            if (!error && file.serverId) {
+              updateField("images", [file.serverId as string]);
+            }
+          }}
         />
       </FormField>
 

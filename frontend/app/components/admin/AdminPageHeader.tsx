@@ -14,7 +14,7 @@ export default function AdminPageHeader({
   icon: IconType;
   eyebrow: string;
   title: string;
-  description: string;
+  description?: string;
   backHref?: string;
   backLabel?: string;
   action?: React.ReactNode;

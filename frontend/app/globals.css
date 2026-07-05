@@ -248,3 +248,28 @@ body {
   display: flex;
   align-items: center;
 }
+
+.swiper-pagination-bullet {
+  width: 10px;
+  height: 10px;
+  background: rgb(var(--color-border));
+  opacity: 1;
+  transition: all 0.3s;
+}
+
+.swiper-pagination-bullet-active {
+  background: rgb(var(--color-accent));
+  width: 24px;
+  border-radius: 999px;
+}
+
+.swiper-button-next,
+.swiper-button-prev {
+  color: rgb(var(--color-accent));
+}
+
+.swiper-button-next::after,
+.swiper-button-prev::after {
+  font-size: 22px;
+  font-weight: bold;
+}

@@ -146,7 +146,6 @@ export default function AdminProductsPage() {
           icon={FiGrid}
           eyebrow="پنل ادمین"
           title="مدیریت محصولات"
-          description="محصولات را از همین صفحه به سرویس GraphQL بک‌اند اضافه، ویرایش یا حذف کنید."
           action={
             <Link
               href="/admin/products/new"
