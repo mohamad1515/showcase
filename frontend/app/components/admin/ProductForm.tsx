@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import { FiPlusCircle, FiSave } from "react-icons/fi";
 import { createProduct, updateProduct } from "../../lib/graphql";
+import { UPLOAD_URL } from "../../lib/config";
 import type {
   Product,
   ProductCategory,
@@ -212,11 +213,7 @@ export default function ProductForm({ mode, product }: Props) {
           name="file"
           server={{
             process: {
-              url:
-                (process.env.NEXT_PUBLIC_GRAPHQL_ENDPOINT?.replace(
-                  /\/graphql\/?$/,
-                  "",
-                ) || "http://localhost:4000") + "/upload",
+              url: UPLOAD_URL,
 
               onload: (response) => {
                 const result = JSON.parse(response);

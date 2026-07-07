@@ -29,12 +29,14 @@ export class UploadController {
     }),
   )
   upload(@UploadedFile() file: Express.Multer.File) {
-    const backendHost = process.env.HOST ?? "localhost";
-    const backendPort = process.env.PORT ?? 4000;
+    // Use BACKEND_PUBLIC_URL if provided (should include protocol), otherwise construct from PORT
+    const backendPublicUrl =
+      process.env.BACKEND_PUBLIC_URL ??
+      `http://localhost:${process.env.PORT ?? 4000}`;
 
     return {
       success: true,
-      url: `http://${backendHost}:${backendPort}/uploads/${file.filename}`,
+      url: `${backendPublicUrl.replace(/\/$/, "")}/uploads/${file.filename}`,
     };
   }
 }

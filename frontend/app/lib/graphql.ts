@@ -5,9 +5,9 @@ import type {
   ProductInput,
   Slider,
 } from "./products";
+import { GRAPHQL_URL } from "./config";
 
-const graphqlUrl =
-  process.env.NEXT_PUBLIC_GRAPHQL_ENDPOINT || "http://localhost:4000/graphql";
+const graphqlUrl = GRAPHQL_URL;
 
 const productFields = `
   id

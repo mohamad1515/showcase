@@ -12,9 +12,14 @@ async function bootstrap() {
   app.useStaticAssets(join(process.cwd(), "public"));
   const port = Number(process.env.PORT ?? 4000);
   await app.listen(port);
-  console.log(`Backend is running on http://localhost:${port}`);
-  console.log(`GraphQL endpoint: http://localhost:${port}/graphql`);
-  console.log(`GraphiQL: http://localhost:${port}/graphiql`);
+
+  // Public backend URL (include protocol and host). If not provided, construct from port.
+  const backendPublic =
+    process.env.BACKEND_PUBLIC_URL ?? `http://localhost:${port}`;
+
+  console.log(`Backend is running on ${backendPublic}`);
+  console.log(`GraphQL endpoint: ${backendPublic}/graphql`);
+  console.log(`GraphiQL: ${backendPublic}/graphiql`);
 }
 
 bootstrap();
