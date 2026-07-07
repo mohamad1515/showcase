@@ -3,9 +3,6 @@ import { Field, InputType, PartialType } from "@nestjs/graphql";
 @InputType()
 export class CreateProductInput {
   @Field()
-  slug!: string;
-
-  @Field()
   name!: string;
 
   @Field()

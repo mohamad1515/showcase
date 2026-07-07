@@ -49,18 +49,18 @@ npm run start:dev
 npm start
 ```
 
-Server starts on `http://localhost:4000`
+Server starts on `http://localhost:5000`
 
 ## GraphQL Access Points
 
 ### GraphQL Endpoint
 
-- **URL**: http://localhost:4000/graphql
+- **URL**: http://localhost:5000/graphql
 - **Methods**: POST (mutations, queries)
 
 ### GraphiQL Playground
 
-- **URL**: http://localhost:4000/graphiql (interactive explorer)
+- **URL**: http://localhost:5000/graphiql (interactive explorer)
 
 ### Example Query
 
@@ -197,7 +197,7 @@ The backend allows requests from the frontend (port 3000) by default.
 Configure your frontend to use:
 
 ```
-http://localhost:4000/graphql
+http://localhost:5000/graphql
 ```
 
 See `../../frontend/lib/graphql.ts` for client setup example.

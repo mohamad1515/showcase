@@ -26,7 +26,6 @@ const categories: { value: ProductCategory; label: string }[] = [
 ];
 
 const emptyForm: ProductInput = {
-  slug: "",
   name: "",
   tagline: "",
   summary: "",
@@ -54,7 +53,6 @@ export default function ProductForm({ mode, product }: Props) {
   const router = useRouter();
   const initial = product
     ? {
-        slug: product.slug,
         name: product.name,
         tagline: product.tagline,
         summary: product.summary,
@@ -121,15 +119,6 @@ export default function ProductForm({ mode, product }: Props) {
             onChange={(e) => updateField("name", e.target.value)}
             required
             className={inputClass}
-          />
-        </FormField>
-        <FormField label="اسلاگ">
-          <input
-            value={form.slug}
-            onChange={(e) => updateField("slug", e.target.value)}
-            required
-            dir="ltr"
-            className={`${inputClass} text-left`}
           />
         </FormField>
       </div>
@@ -223,7 +212,11 @@ export default function ProductForm({ mode, product }: Props) {
           name="file"
           server={{
             process: {
-              url: "http://localhost:4000/upload",
+              url:
+                (process.env.NEXT_PUBLIC_GRAPHQL_ENDPOINT?.replace(
+                  /\/graphql\/?$/,
+                  "",
+                ) || "http://localhost:4000") + "/upload",
 
               onload: (response) => {
                 const result = JSON.parse(response);

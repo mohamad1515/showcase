@@ -42,12 +42,36 @@ export class ProductsService {
     const category = this.toCategory(input.category);
     const now = new Date().toISOString();
 
+    // generate unique slug from product name
+    const base = this.slugify(input.name);
+
+    // get existing slugs to avoid conflicts
+    const rows = this.database.db
+      .select({ slug: products.slug })
+      .from(products)
+      .all();
+    const existing = rows.map((r: any) => r.slug);
+
+    let slug = base;
+    let idx = 2;
+    while (existing.includes(slug)) {
+      slug = `${base}-${idx}`;
+      idx += 1;
+    }
+
     return this.database.db
       .insert(products)
       .values({
-        ...input,
+        slug,
+        name: input.name,
+        tagline: input.tagline,
+        summary: input.summary,
+        description: input.description,
+        features: input.features,
         category,
         price: this.formatPrice(input.price),
+        weight: input.weight,
+        quantity: input.quantity,
         images: this.normalizeImages(input.images),
         createdAt: now,
         updatedAt: now,
@@ -88,6 +112,16 @@ export class ProductsService {
       );
     }
     return category as ProductCategory;
+  }
+
+  private slugify(name: string) {
+    return name
+      .toString()
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9\u0600-\u06FF]+/g, "-")
+      .replace(/^-+|-+$/g, "")
+      .replace(/-+/g, "-");
   }
 
   private formatPrice(price: string) {

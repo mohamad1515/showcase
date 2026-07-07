@@ -7,7 +7,7 @@ import type {
 } from "./products";
 
 const graphqlUrl =
-  process.env.NEXT_PUBLIC_GRAPHQL_ENDPOINT || "http://localhost:5000/graphql";
+  process.env.NEXT_PUBLIC_GRAPHQL_ENDPOINT || "http://localhost:4000/graphql";
 
 const productFields = `
   id

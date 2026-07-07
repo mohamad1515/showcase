@@ -23,7 +23,6 @@ export type Product = {
 };
 
 export type ProductInput = {
-  slug: string;
   name: string;
   tagline: string;
   summary: string;
