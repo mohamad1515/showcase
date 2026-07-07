@@ -2,7 +2,7 @@
 
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { FiEdit2, FiLoader } from "react-icons/fi";
+import { FiEdit, FiLoader } from "react-icons/fi";
 import AdminPageHeader from "../../../../components/admin/AdminPageHeader";
 import UserForm from "../../../../components/admin/UserForm";
 import AdminGuard from "../../../../components/AdminGuard";
@@ -35,7 +35,7 @@ export default function EditUserPage() {
     <AdminGuard>
       <main className="mx-auto max-w-3xl px-5 py-10 sm:px-8 lg:px-12">
         <AdminPageHeader
-          icon={FiEdit2}
+          icon={FiEdit}
           eyebrow="ویرایش کاربر"
           title={user ? `ویرایش ${user.name}` : "ویرایش کاربر"}
           description="اطلاعات کاربر را تغییر دهید. رمز عبور را فقط در صورت نیاز به تغییر پر کنید."

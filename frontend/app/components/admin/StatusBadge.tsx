@@ -7,7 +7,11 @@ export function ActiveBadge({ active }: { active: boolean }) {
         active ? "bg-success-soft text-success" : "bg-danger-soft text-danger"
       }`}
     >
-      {active ? <FiCheckCircle aria-hidden /> : <FiXCircle aria-hidden />}
+      {active ? (
+        <FiCheckCircle aria-hidden className="text-green-500" />
+      ) : (
+        <FiXCircle aria-hidden className="text-red-500" />
+      )}
       {active ? "فعال" : "غیرفعال"}
     </span>
   );

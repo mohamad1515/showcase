@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import type { ColDef, ICellRendererParams } from "ag-grid-community";
 import {
   FiBox,
+  FiEdit,
   FiGrid,
   FiPlusCircle,
   FiStar,
@@ -62,6 +63,7 @@ function ActionsCell({
         href={`/admin/products/${data.slug}/edit`}
         className="inline-flex h-9 items-center gap-1.5 rounded-md border border-border bg-surface px-3 text-xs font-black text-foreground transition hover:border-accent hover:text-accent"
       >
+        <FiEdit aria-hidden />
         ویرایش
       </Link>
       <button
@@ -69,7 +71,7 @@ function ActionsCell({
         onClick={() => onRemove(data)}
         className="inline-flex h-9 items-center gap-1.5 rounded-md border border-danger-soft bg-danger-soft px-3 text-xs font-black text-danger transition hover:bg-danger/10"
       >
-        <FiTrash2 aria-hidden />
+        <FiTrash2 aria-hidden className="text-red-500" />
         حذف
       </button>
     </div>

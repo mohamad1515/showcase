@@ -9,6 +9,7 @@ import {
   updateCategory,
 } from "../../lib/graphql";
 import type { Category } from "../../lib/products";
+import { FiEdit, FiTrash2 } from "react-icons/fi";
 
 const emptyForm = {
   slug: "",
@@ -264,15 +265,17 @@ export default function AdminCategoriesPage() {
                         <button
                           type="button"
                           onClick={() => startEdit(category)}
-                          className="h-10 rounded-md border border-border bg-surface px-4 text-sm font-black text-foreground transition hover:border-accent hover:text-accent"
+                          className="h-10 rounded-md border border-border bg-surface px-4 text-sm font-black text-foreground transition hover:border-accent hover:text-amber-600 flex items-center justify-center"
                         >
+                          <FiEdit aria-hidden className="ml-1" />
                           ویرایش
                         </button>
                         <button
                           type="button"
                           onClick={() => handleDelete(category.slug)}
-                          className="h-10 rounded-md border border-red-200 bg-red-50 px-4 text-sm font-black text-red-700 transition hover:bg-red-100"
+                          className="h-10 rounded-md border border-red-200 bg-surface px-4 text-sm font-black text-foreground transition hover:bg-amber-700 flex items-center justify-center"
                         >
+                          <FiTrash2 aria-hidden className="text-red-500 ml-1" />
                           حذف
                         </button>
                       </div>

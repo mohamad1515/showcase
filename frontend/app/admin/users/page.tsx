@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import type { ColDef, ICellRendererParams } from "ag-grid-community";
-import { FiEdit2, FiPower, FiUserPlus, FiUsers } from "react-icons/fi";
+import { FiEdit, FiPower, FiUserPlus, FiUsers } from "react-icons/fi";
 import DataGrid from "../../components/admin/DataGrid";
 import AdminPageHeader from "../../components/admin/AdminPageHeader";
 import { ActiveBadge, Pill } from "../../components/admin/StatusBadge";
@@ -29,7 +29,7 @@ function ActionsCell({
             href={`/admin/users/${data.id}/edit`}
             className="inline-flex h-9 items-center gap-1.5 rounded-md border border-border bg-surface px-3 text-xs font-black text-foreground transition hover:border-accent hover:text-accent"
           >
-            <FiEdit2 aria-hidden />
+            <FiEdit aria-hidden />
             ویرایش
           </Link>
 
@@ -38,7 +38,7 @@ function ActionsCell({
             onClick={() => onToggle(data)}
             className="inline-flex h-9 items-center gap-1.5 rounded-md border border-border bg-surface px-3 text-xs font-black text-foreground transition hover:border-accent hover:text-accent"
           >
-            <FiPower aria-hidden />
+            <FiPower aria-hidden className="text-red-500" />
             {data.is_active ? "غیرفعال کردن" : "فعال کردن"}
           </button>
         </>

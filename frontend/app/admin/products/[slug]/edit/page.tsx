@@ -2,7 +2,7 @@
 
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { FiEdit2, FiLoader } from "react-icons/fi";
+import { FiEdit, FiLoader } from "react-icons/fi";
 import AdminPageHeader from "../../../../components/admin/AdminPageHeader";
 import ProductForm from "../../../../components/admin/ProductForm";
 import AdminGuard from "../../../../components/AdminGuard";
@@ -32,7 +32,7 @@ export default function EditProductPage() {
     <AdminGuard>
       <main className="mx-auto max-w-4xl px-5 py-10 sm:px-8 lg:px-12">
         <AdminPageHeader
-          icon={FiEdit2}
+          icon={FiEdit}
           eyebrow="ویرایش محصول"
           title={product ? `ویرایش ${product.name}` : "ویرایش محصول"}
           description="مشخصات محصول را تغییر دهید و ذخیره کنید."
