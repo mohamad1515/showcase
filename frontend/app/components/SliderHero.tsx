@@ -43,11 +43,11 @@ export default function SliderHero({ slides }: { slides: Slider[] }) {
           clickable: true,
         }}
         navigation
-        className="h-[520px]"
+        className="h-[460px]"
       >
         {validSlides.map((slide) => (
           <SwiperSlide key={slide.id}>
-            <div className="relative h-[520px] overflow-hidden">
+            <div className="relative h-[460px] overflow-hidden">
               <Image
                 src={slide.image}
                 alt={slide.title}
@@ -57,16 +57,16 @@ export default function SliderHero({ slides }: { slides: Slider[] }) {
                 className="object-cover"
               />
 
-              <div className="absolute inset-0 bg-background/35" />
-              <div className="absolute inset-y-0 right-0 w-full bg-gradient-to-l from-background via-background/90 to-transparent" />
+              <div className="absolute inset-0 bg-black/45" />
+              <div className="absolute inset-y-0 right-0 w-full bg-gradient-to-l from-background via-background/95 to-transparent" />
 
               <div className="relative z-10 mx-auto flex h-full max-w-7xl items-center px-5 sm:px-8 lg:px-12">
                 <div className="max-w-2xl space-y-6">
-                  <p className="inline-flex rounded-md border border-border bg-surface/90 px-4 py-2 text-sm font-bold text-accent shadow-sm">
+                  <p className="inline-flex border border-border bg-surface px-3 py-1 text-[11px] font-semibold tracking-wide text-muted">
                     انتخاب دقیق مکمل
                   </p>
 
-                  <h1 className="text-4xl font-black leading-tight text-foreground sm:text-5xl">
+                  <h1 className="text-3xl font-bold leading-tight text-foreground sm:text-5xl">
                     {slide.title}
                   </h1>
 
@@ -77,14 +77,14 @@ export default function SliderHero({ slides }: { slides: Slider[] }) {
                   <div className="flex flex-col gap-3 sm:flex-row">
                     <Link
                       href="/products"
-                      className="inline-flex h-12 items-center justify-center rounded-md bg-accent px-6 text-sm font-black text-white transition hover:bg-accent-strong"
+                      className="inline-flex h-8 items-center justify-center rounded-sm bg-[var(--brand)] px-4 text-sm font-bold text-white transition hover:bg-[var(--brand-hover)]"
                     >
                       مشاهده محصولات
                     </Link>
 
                     <Link
                       href={slide.link}
-                      className="inline-flex h-12 items-center justify-center rounded-md border border-border bg-surface/90 px-6 text-sm font-black text-foreground transition hover:border-accent hover:text-accent"
+                      className="inline-flex h-8 items-center justify-center rounded-sm border border-border bg-surface px-4 text-sm font-bold text-foreground transition hover:border-accent hover:text-accent"
                     >
                       جزئیات بیشتر
                     </Link>

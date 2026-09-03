@@ -8,8 +8,10 @@ export const API_URL = API_BASE; // full backend base URL
 export const GRAPHQL_URL = `${API_BASE}/graphql`;
 export const UPLOAD_URL = `${API_BASE}/upload`;
 
-export default {
+const config = {
   API_URL,
   GRAPHQL_URL,
   UPLOAD_URL,
 };
+
+export default config;

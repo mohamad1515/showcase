@@ -32,22 +32,22 @@ export default function ProductShowcase({ products }: { products: Product[] }) {
   );
 
   return (
-    <section id="products" className="space-y-6">
+    <section id="products" className="space-y-5">
       <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div>
           <p className="h-eyebrow">محصولات مکمل</p>
-          <h2 className="h-display mt-2 text-2xl text-foreground sm:text-3xl">
+          <h2 className="h-display mt-2 text-2xl text-foreground">
             مکمل مناسب هدفت را سریع پیدا کن
           </h2>
         </div>
 
-        <div className="flex rounded-md border border-border bg-surface p-1">
+          <div className="flex border border-border bg-surface p-1">
           {filters.map((filter) => (
             <button
               key={filter.value}
               type="button"
               onClick={() => setActiveFilter(filter.value)}
-              className={`flex h-10 items-center gap-2 rounded px-4 text-sm font-bold transition ${
+              className={`flex h-8 items-center gap-2 rounded-sm px-3 text-xs font-semibold transition ${
                 activeFilter === filter.value
                   ? "bg-accent text-white shadow-sm"
                   : "text-muted hover:text-foreground"
@@ -60,7 +60,7 @@ export default function ProductShowcase({ products }: { products: Product[] }) {
         </div>
       </div>
 
-      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
         {visibleProducts.map((product) => (
           <ProductCard key={product.slug} product={product} />
         ))}
@@ -69,7 +69,7 @@ export default function ProductShowcase({ products }: { products: Product[] }) {
       <div className="flex justify-center">
         <Link
           href="/products"
-          className="inline-flex h-12 items-center gap-2 rounded-md bg-accent px-6 text-sm font-black text-white transition hover:bg-accent-strong"
+          className="inline-flex h-8 items-center gap-2 rounded-sm bg-[var(--brand)] px-4 text-sm font-bold text-white transition hover:bg-[var(--brand-hover)]"
         >
           مشاهده محصولات بیشتر
           <FiArrowLeft aria-hidden />

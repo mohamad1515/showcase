@@ -41,9 +41,12 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
         description TEXT NOT NULL,
         features TEXT NOT NULL,
         category TEXT NOT NULL CHECK (category IN ('default', 'popular', 'best-selling')),
+        product_type TEXT NOT NULL DEFAULT 'powder',
         price TEXT NOT NULL,
         weight TEXT NOT NULL,
         quantity TEXT NOT NULL DEFAULT '1',
+        tags TEXT NOT NULL DEFAULT '[]',
+        stock INTEGER NOT NULL DEFAULT 100,
         images TEXT NOT NULL DEFAULT '["/images/product.png"]',
         created_at TEXT NOT NULL,
         updated_at TEXT NOT NULL
@@ -80,13 +83,81 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
         created_at TEXT NOT NULL,
         updated_at TEXT NOT NULL
       );
+
+      CREATE TABLE IF NOT EXISTS carts (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL UNIQUE,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL
+      );
+
+      CREATE TABLE IF NOT EXISTS cart_items (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        cart_id INTEGER NOT NULL,
+        product_id INTEGER NOT NULL,
+        quantity INTEGER NOT NULL DEFAULT 1,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL,
+        UNIQUE(cart_id, product_id)
+      );
+
+      CREATE TABLE IF NOT EXISTS orders (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL,
+        status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'paid', 'shipped', 'canceled')),
+        total TEXT NOT NULL,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL
+      );
+
+      CREATE TABLE IF NOT EXISTS order_items (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        order_id INTEGER NOT NULL,
+        product_id INTEGER NOT NULL,
+        product_name TEXT NOT NULL,
+        unit_price TEXT NOT NULL,
+        quantity INTEGER NOT NULL,
+        total TEXT NOT NULL
+      );
     `);
     this.ensureColumn("products", "quantity", "TEXT NOT NULL DEFAULT '1'");
+    this.ensureColumn(
+      "products",
+      "product_type",
+      "TEXT NOT NULL DEFAULT 'powder'",
+    );
+    this.ensureColumn("products", "tags", "TEXT NOT NULL DEFAULT '[]'");
+    this.ensureColumn("products", "stock", "INTEGER NOT NULL DEFAULT 100");
     this.ensureColumn(
       "products",
       "images",
       "TEXT NOT NULL DEFAULT '[\"/images/product.png\"]'",
     );
+    this.sqlite
+      .prepare(
+        "UPDATE products SET product_type = 'powder' WHERE product_type IS NULL OR TRIM(product_type) = ''",
+      )
+      .run();
+    this.sqlite
+      .prepare(
+        "UPDATE products SET tags = '[]' WHERE tags IS NULL OR TRIM(tags) = ''",
+      )
+      .run();
+    this.sqlite
+      .prepare(
+        "UPDATE products SET features = '[]' WHERE features IS NULL OR TRIM(features) = ''",
+      )
+      .run();
+    this.sqlite
+      .prepare(
+        "UPDATE products SET images = '[\"/images/product.png\"]' WHERE images IS NULL OR TRIM(images) = ''",
+      )
+      .run();
+    this.sqlite
+      .prepare(
+        "DELETE FROM products WHERE slug IS NULL OR TRIM(slug) = '' OR name IS NULL OR TRIM(name) = ''",
+      )
+      .run();
     this.ensureColumn("users", "role", "TEXT NOT NULL DEFAULT 'USER'");
     this.ensureColumn("users", "is_active", "INTEGER NOT NULL DEFAULT 1");
   }

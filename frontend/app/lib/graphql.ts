@@ -3,6 +3,8 @@ import type {
   Category,
   Product,
   ProductInput,
+  Cart,
+  Order,
   Slider,
 } from "./products";
 import { GRAPHQL_URL } from "./config";
@@ -18,12 +20,44 @@ const productFields = `
   description
   features
   category
+  productType
   price
   weight
   quantity
+  tags
+  stock
   images
   createdAt
   updatedAt
+`;
+
+const cartFields = `
+  id
+  total
+  itemCount
+  items {
+    id
+    quantity
+    lineTotal
+    product {
+      ${productFields}
+    }
+  }
+`;
+
+const orderFields = `
+  id
+  status
+  total
+  createdAt
+  items {
+    id
+    productId
+    productName
+    unitPrice
+    quantity
+    total
+  }
 `;
 
 const userFields = `
@@ -172,6 +206,81 @@ export async function removeProduct(slug: string) {
   );
 
   return data.removeProduct;
+}
+
+export async function getCart() {
+  const data = await graphqlRequest<{ myCart: Cart }>(`
+    query MyCart {
+      myCart {
+        ${cartFields}
+      }
+    }
+  `);
+  return data.myCart;
+}
+
+export async function addCartItem(productSlug: string, quantity = 1) {
+  const data = await graphqlRequest<{ addCartItem: Cart }>(
+    `
+      mutation AddCartItem($input: AddCartItemInput!) {
+        addCartItem(input: $input) {
+          ${cartFields}
+        }
+      }
+    `,
+    { input: { productSlug, quantity } },
+  );
+  return data.addCartItem;
+}
+
+export async function updateCartItem(itemId: string, quantity: number) {
+  const data = await graphqlRequest<{ updateCartItem: Cart }>(
+    `
+      mutation UpdateCartItem($input: UpdateCartItemInput!) {
+        updateCartItem(input: $input) {
+          ${cartFields}
+        }
+      }
+    `,
+    { input: { itemId: Number(itemId), quantity } },
+  );
+  return data.updateCartItem;
+}
+
+export async function removeCartItem(itemId: string) {
+  const data = await graphqlRequest<{ removeCartItem: Cart }>(
+    `
+      mutation RemoveCartItem($itemId: Float!) {
+        removeCartItem(itemId: $itemId) {
+          ${cartFields}
+        }
+      }
+    `,
+    { itemId: Number(itemId) },
+  );
+  return data.removeCartItem;
+}
+
+export async function createOrderFromCart() {
+  const data = await graphqlRequest<{ createOrderFromCart: Order }>(`
+    mutation CreateOrderFromCart {
+      createOrderFromCart {
+        ${orderFields}
+      }
+    }
+  `);
+  return data.createOrderFromCart;
+}
+
+export async function getOrders() {
+  const data = await graphqlRequest<{ myOrders: Order[] }>(`
+    query MyOrders {
+      myOrders {
+        ${orderFields}
+      }
+    }
+  `);
+  return data.myOrders;
 }
 
 export async function getUsers() {

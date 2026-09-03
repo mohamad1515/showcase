@@ -1,9 +1,23 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import {
+  FiChevronLeft,
+  FiLogOut,
+  FiMenu,
+  FiMinus,
+  FiPlus,
+  FiShoppingCart,
+  FiTrash2,
+  FiUser,
+  FiX,
+} from "react-icons/fi";
+import { getCart, removeCartItem, updateCartItem } from "../lib/graphql";
+import type { Cart } from "../lib/products";
+import { errorMessage, notifyError, notifySuccess } from "../lib/toast";
 import { useAuth } from "../providers/AuthProvider";
-import ThemeToggle from "./ThemeToggle";
+import SearchBox from "./SearchBox";
 
 export const navItems = [
   { href: "/", label: "خانه" },
@@ -12,136 +26,371 @@ export const navItems = [
   { href: "/#contact", label: "تماس با ما" },
 ];
 
+const actionClass =
+  "inline-flex h-8 items-center justify-center border border-border bg-surface px-3 text-xs font-bold text-foreground transition-colors hover:border-accent hover:text-accent";
+
+const emptyCart: Cart = { id: "0", items: [], total: "0", itemCount: 0 };
+
 export default function HeaderActions() {
   const { user, token, loading, logout } = useAuth();
-
   const [open, setOpen] = useState(false);
-
+  const [cartOpen, setCartOpen] = useState(false);
+  const [cart, setCart] = useState<Cart>(emptyCart);
+  const [busyId, setBusyId] = useState<string | null>(null);
   const isSignedIn = Boolean(token);
-  const isAdmin = user?.role === "ADMIN";
+
+  useEffect(() => {
+    if (!token) {
+      setCart(emptyCart);
+      return;
+    }
+
+    const refreshCart = async () => {
+      try {
+        const nextCart = await getCart();
+        setCart(nextCart ?? emptyCart);
+      } catch {
+        setCart(emptyCart);
+      }
+    };
+
+    refreshCart();
+    const handleCartRefresh = () => refreshCart();
+    window.addEventListener("cart:refresh", handleCartRefresh);
+    return () => window.removeEventListener("cart:refresh", handleCartRefresh);
+  }, [token]);
+
+  const handleDisabledCart = () => {
+    notifyError("برای مشاهده سبد خرید ابتدا وارد حساب کاربری خود شوید");
+  };
+
+  async function changeQuantity(itemId: string, quantity: number) {
+    if (quantity <= 0) {
+      await removeItem(itemId);
+      return;
+    }
+
+    setBusyId(itemId);
+    try {
+      const nextCart = await updateCartItem(itemId, quantity);
+      setCart(nextCart);
+      window.dispatchEvent(new CustomEvent("cart:refresh"));
+    } catch (err) {
+      notifyError(errorMessage(err, "به‌روزرسانی سبد خرید ناموفق بود."));
+    } finally {
+      setBusyId(null);
+    }
+  }
+
+  async function removeItem(itemId: string) {
+    setBusyId(itemId);
+    try {
+      const nextCart = await removeCartItem(itemId);
+      setCart(nextCart);
+      window.dispatchEvent(new CustomEvent("cart:refresh"));
+      notifySuccess("محصول از سبد خرید حذف شد.");
+    } catch (err) {
+      notifyError(errorMessage(err, "حذف محصول ناموفق بود."));
+    } finally {
+      setBusyId(null);
+    }
+  }
 
   return (
-    <div className="flex items-center gap-4">
-      {/* Desktop Navigation */}
-      <nav className="hidden md:flex items-center gap-6">
+    <div className="flex items-center gap-1 sm:gap-2">
+      {/* Navigation Menu */}
+      <nav
+        className="hidden items-center self-stretch md:flex"
+        aria-label="منوی اصلی"
+      >
         {navItems.map((item) => (
           <Link
             key={item.href}
             href={item.href}
-            className="text-sm font-bold text-foreground transition hover:text-accent"
+            className="flex h-full items-center border-x border-transparent px-3 text-xs font-bold text-muted transition-colors hover:border-border hover:bg-surface hover:text-foreground"
           >
             {item.label}
           </Link>
         ))}
       </nav>
 
-      <ThemeToggle />
+      {/* Divider */}
+      <span className="hidden h-5 w-px bg-border md:block" />
 
-      {!loading &&
-        (isSignedIn ? (
-          <>
-            {isAdmin && (
+      {/* Search Box */}
+      <div className="hidden sm:block">
+        <SearchBox />
+      </div>
+
+      {/* Cart Icon */}
+      {isSignedIn ? (
+        <button
+          type="button"
+          onClick={() => setCartOpen(true)}
+          title="سبد خرید"
+          aria-label="سبد خرید"
+          className="relative inline-flex h-8 w-8 items-center justify-center border border-border bg-surface text-foreground transition-colors hover:border-accent hover:text-accent"
+        >
+          <FiShoppingCart aria-hidden />
+          {cart.itemCount > 0 && (
+            <span className="absolute -left-1 -top-1 grid h-4 min-w-4 place-items-center rounded-full bg-accent px-1 text-[10px] font-black leading-none text-white">
+              {cart.itemCount}
+            </span>
+          )}
+        </button>
+      ) : (
+        <button
+          type="button"
+          onClick={handleDisabledCart}
+          title="سبد خرید"
+          aria-label="سبد خرید"
+          className="inline-flex h-8 w-8 items-center justify-center border border-border bg-surface text-muted opacity-50 cursor-not-allowed transition-colors"
+        >
+          <FiShoppingCart aria-hidden />
+        </button>
+      )}
+
+      {/* Profile / Login-Register */}
+      {!loading && (
+        <>
+          {isSignedIn ? (
+            <>
+              {/* Profile Icon */}
               <Link
-                href="/admin"
-                className="hidden sm:inline-flex h-10 items-center justify-center rounded-md border border-border bg-surface px-4 text-sm font-black text-foreground transition hover:border-accent hover:text-accent"
+                href="/orders"
+                title={user?.name || "پروفایل"}
+                className="hidden h-8 w-8 items-center justify-center border border-border bg-surface text-foreground transition-colors hover:border-accent hover:text-accent sm:inline-flex"
               >
-                پنل ادمین
+                <FiUser aria-hidden />
               </Link>
-            )}
 
-            <button
-              type="button"
-              onClick={logout}
-              title={user?.email || "خروج"}
-              className="hidden sm:inline-flex h-10 items-center justify-center rounded-md bg-foreground px-4 text-sm font-black text-background transition hover:bg-accent"
-            >
-              خروج
-            </button>
-          </>
-        ) : (
-          <>
-            <Link
-              href="/auth/login"
-              className="hidden sm:inline-flex h-10 items-center justify-center rounded-md border border-border bg-surface px-4 text-sm font-black text-foreground transition hover:border-accent hover:text-accent"
-            >
-              ورود
-            </Link>
-
-            <Link
-              href="/auth/register"
-              className="hidden sm:inline-flex h-10 items-center justify-center rounded-md bg-accent px-4 text-sm font-black text-white transition hover:bg-accent-strong"
-            >
-              عضویت
-            </Link>
-          </>
-        ))}
+              {/* Logout Icon */}
+              <button
+                type="button"
+                onClick={logout}
+                title="خروج"
+                aria-label="خروج"
+                className="hidden h-8 w-8 items-center justify-center border border-border bg-surface text-foreground transition-colors hover:border-red-500 hover:text-red-500 sm:inline-flex"
+              >
+                <FiLogOut aria-hidden />
+              </button>
+            </>
+          ) : (
+            <>
+              <Link
+                href="/auth?mode=login"
+                className={`${actionClass} hidden sm:inline-flex`}
+              >
+                ورود
+              </Link>
+              <Link
+                href="/auth?mode=register"
+                className="hidden h-8 items-center bg-[var(--brand)] px-3 text-xs font-bold text-white transition-colors hover:bg-[var(--brand-hover)] sm:inline-flex rounded"
+              >
+                عضویت
+              </Link>
+            </>
+          )}
+        </>
+      )}
 
       {/* Mobile Menu Button */}
       <button
         type="button"
-        onClick={() => setOpen((prev) => !prev)}
-        className="inline-flex md:hidden h-10 w-10 items-center justify-center rounded-md border border-border bg-surface text-xl font-black text-foreground"
-        aria-label="باز کردن منو"
+        onClick={() => setOpen((value) => !value)}
+        className="inline-flex h-8 w-8 items-center justify-center border border-border bg-surface text-foreground md:hidden"
+        aria-label={open ? "بستن منو" : "باز کردن منو"}
       >
-        {open ? "✕" : "☰"}
+        {open ? <FiX aria-hidden /> : <FiMenu aria-hidden />}
       </button>
 
       {/* Mobile Menu */}
       {open && (
-        <div className="absolute left-5 right-5 top-[72px] z-50 rounded-lg border border-border bg-surface p-3 shadow-xl md:hidden">
-          <div className="grid gap-1">
-            {navItems.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                onClick={() => setOpen(false)}
-                className="rounded-md px-3 py-3 text-sm font-bold text-foreground transition hover:bg-background"
-              >
-                {item.label}
-              </Link>
-            ))}
+        <div className="absolute inset-x-3 top-12 z-50 border border-border bg-surface p-2 shadow-[0_4px_16px_rgba(0,0,0,.3)] md:hidden">
+          {/* Mobile Search */}
+          <div className="mb-2 pb-2 border-b border-border">
+            <SearchBox />
+          </div>
 
-            {isAdmin && (
-              <Link
-                href="/admin"
-                onClick={() => setOpen(false)}
-                className="rounded-md px-3 py-3 text-sm font-bold text-accent transition hover:bg-background"
-              >
-                پنل ادمین
-              </Link>
-            )}
+          {/* Mobile Nav Items */}
+          {navItems.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              onClick={() => setOpen(false)}
+              className="flex h-10 items-center border-b border-border px-3 text-sm text-foreground last:border-0 hover:bg-[#3a3a3a]"
+            >
+              {item.label}
+            </Link>
+          ))}
 
+          {/* Mobile Auth Section */}
+          <div className="mt-2 flex gap-2">
             {!loading &&
               (isSignedIn ? (
-                <button
-                  type="button"
-                  onClick={() => {
-                    logout();
-                    setOpen(false);
-                  }}
-                  className="rounded-md px-3 py-3 text-right text-sm font-bold text-foreground transition hover:bg-background"
-                >
-                  خروج
-                </button>
+                <>
+                  <Link
+                    href="/orders"
+                    onClick={() => setOpen(false)}
+                    className="flex h-9 flex-1 items-center justify-center border border-border text-sm hover:bg-[#3a3a3a]"
+                  >
+                    سفارش‌ها
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      logout();
+                      setOpen(false);
+                    }}
+                    className="h-9 flex-1 bg-red-600 text-sm font-bold text-white hover:bg-red-700"
+                  >
+                    خروج
+                  </button>
+                </>
               ) : (
                 <>
                   <Link
-                    href="/auth/login"
+                    href="/auth?mode=login"
                     onClick={() => setOpen(false)}
-                    className="rounded-md px-3 py-3 text-sm font-bold text-foreground transition hover:bg-background"
+                    className="flex h-9 flex-1 items-center justify-center border border-border text-sm hover:bg-[#3a3a3a]"
                   >
                     ورود
                   </Link>
-
                   <Link
-                    href="/auth/register"
+                    href="/auth?mode=register"
                     onClick={() => setOpen(false)}
-                    className="rounded-md px-3 py-3 text-sm font-bold text-accent transition hover:bg-background"
+                    className="flex h-9 flex-1 items-center justify-center bg-[var(--brand)] text-sm font-bold text-white hover:bg-[var(--brand-hover)]"
                   >
                     عضویت
                   </Link>
                 </>
               ))}
+          </div>
+        </div>
+      )}
+
+      {/* Cart Drawer */}
+      {cartOpen && (
+        <div className="fixed inset-0 z-[60] bg-black/45 backdrop-blur-[1px]">
+          <div className="absolute left-0 top-0 flex h-full w-full max-w-md flex-col border-l border-border bg-background shadow-2xl">
+            {/* Header */}
+            <div className="flex items-center justify-between border-b border-border p-4">
+              <h2 className="text-lg font-black text-foreground">سبد خرید</h2>
+              <button
+                type="button"
+                onClick={() => setCartOpen(false)}
+                className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-border text-foreground transition hover:border-accent hover:text-accent"
+                aria-label="بستن سبد خرید"
+              >
+                <FiX aria-hidden />
+              </button>
+            </div>
+
+            {/* Cart Items */}
+            <div className="flex-1 space-y-3 overflow-y-auto p-4">
+              {cart.items.length === 0 ? (
+                <div className="flex h-full flex-col items-center justify-center rounded-lg border border-dashed border-border bg-surface p-6 text-center">
+                  <FiShoppingCart
+                    className="text-3xl text-accent"
+                    aria-hidden
+                  />
+                  <p className="mt-3 text-sm font-bold text-muted">
+                    سبد خرید شما خالی است.
+                  </p>
+                </div>
+              ) : (
+                cart.items.map((item) => (
+                  <div
+                    key={item.id}
+                    className="flex gap-3 rounded-lg border border-border bg-surface p-3"
+                  >
+                    <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-md bg-background">
+                      <img
+                        src={item.product.images?.[0] ?? "/images/product.png"}
+                        alt={item.product.name}
+                        className="h-full w-full object-cover"
+                      />
+                    </div>
+
+                    <div className="flex min-w-0 flex-1 flex-col justify-between">
+                      <div className="flex items-start justify-between gap-3">
+                        <p className="line-clamp-2 text-sm font-bold text-foreground">
+                          {item.product.name}
+                        </p>
+                        <button
+                          type="button"
+                          onClick={() => removeItem(item.id)}
+                          className="text-danger transition hover:text-red-500"
+                          aria-label="حذف محصول"
+                        >
+                          <FiTrash2 aria-hidden />
+                        </button>
+                      </div>
+
+                      <div className="mt-3 flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() =>
+                              changeQuantity(item.id, item.quantity + 1)
+                            }
+                            disabled={busyId === item.id}
+                            className="grid h-8 w-8 place-items-center rounded-md border border-border bg-background text-foreground transition hover:border-accent hover:text-accent disabled:opacity-60"
+                          >
+                            <FiPlus aria-hidden />
+                          </button>
+                          <span className="grid min-w-8 place-items-center text-sm font-black text-foreground">
+                            {item.quantity}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() =>
+                              changeQuantity(item.id, item.quantity - 1)
+                            }
+                            disabled={busyId === item.id}
+                            className="grid h-8 w-8 place-items-center rounded-md border border-border bg-background text-foreground transition hover:border-accent hover:text-accent disabled:opacity-60"
+                          >
+                            <FiMinus aria-hidden />
+                          </button>
+                        </div>
+
+                        <span className="text-sm font-black text-gold">
+                          {item.lineTotal} تومان
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+
+            {/* Footer */}
+            <div className="border-t border-border p-4">
+              <div className="mb-3 flex items-center justify-between text-sm font-bold text-muted">
+                <span>جمع کل</span>
+                <span className="text-lg font-black text-gold">
+                  {cart.total} تومان
+                </span>
+              </div>
+
+              <div className="grid gap-2 sm:grid-cols-2">
+                <Link
+                  href="/cart"
+                  onClick={() => setCartOpen(false)}
+                  className="inline-flex h-11 items-center justify-center rounded-md bg-accent px-4 text-sm font-black text-white transition hover:bg-accent-strong"
+                >
+                  مشاهده سبد خرید
+                </Link>
+                <button
+                  type="button"
+                  onClick={() => setCartOpen(false)}
+                  className="inline-flex h-11 items-center justify-center gap-2 rounded-md border border-border bg-background px-4 text-sm font-black text-foreground transition hover:border-accent hover:text-accent"
+                >
+                  ادامه خرید
+                  <FiChevronLeft aria-hidden />
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}

@@ -1,6 +1,9 @@
-import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { FiStar } from "react-icons/fi";
+
+import AddToCartButton from "../../components/AddToCartButton";
+import ProductImageGallery from "../../components/ProductImageGallery";
 import { getProductBySlug, getProducts } from "../../lib/graphql";
 
 type PageProps = {
@@ -34,48 +37,87 @@ export default async function ProductPage({ params }: PageProps) {
   const product = await getProductBySlug(slug);
   if (!product) notFound();
 
+  const typeLabel =
+    product.productType === "powder"
+      ? "پودر"
+      : product.productType === "liquid"
+        ? "مایع"
+        : product.productType === "tablet"
+          ? "قرص"
+          : "کپسول";
+
+  const details = [
+    { label: "قیمت", value: `${product.price} تومان` },
+    { label: "وزن", value: product.weight },
+    { label: "مقدار", value: product.quantity },
+    { label: "نوع محصول", value: typeLabel },
+    { label: "امتیاز", value: "4.5" },
+  ];
+
   return (
     <main className="mx-auto max-w-7xl px-5 py-10 sm:px-8 lg:px-12">
-      <section className="grid gap-8 rounded-lg border border-border bg-surface p-6 shadow-sm lg:grid-cols-[0.9fr_1.1fr] lg:items-center lg:p-8">
-        <div className="relative aspect-square overflow-hidden rounded-lg bg-card">
-          <Image
-            src={product.images?.[0] ?? "/images/product.png"}
-            alt={product.name}
-            fill
-            priority
-            sizes="(min-width: 1024px) 45vw, 100vw"
-            className="object-cover"
+      <section className="grid gap-8 rounded-lg border border-border bg-surface p-6 shadow-sm lg:grid-cols-[0.9fr_1.1fr] lg:items-start lg:p-8">
+        <div className="p-3 sm:p-4">
+          <ProductImageGallery
+            images={product.images}
+            productName={product.name}
           />
         </div>
 
         <div className="space-y-6">
           <div>
-            <p className="text-sm font-bold text-accent">صفحه محصول</p>
-            <h1 className="mt-3 text-3xl font-black text-foreground sm:text-5xl">
+            <h4 className="mt-3 text-3xl font-black text-foreground sm:text-5xl">
               {product.name}
-            </h1>
-            <p className="mt-4 text-lg leading-8 text-muted">
+            </h4>
+            {/* <p className="mt-4 text-lg leading-8 text-muted">
               {product.tagline}
-            </p>
+            </p> */}
+          </div>
+
+          <div className="flex items-center gap-2 rounded-lg border border-border bg-background px-4 py-3 text-sm font-bold text-foreground">
+            <span>4.5</span>
+            <FiStar className="text-yellow-400" aria-hidden />
           </div>
 
           <p className="text-base leading-8 text-foreground/90">
             {product.description}
           </p>
 
-          <div className="grid gap-3 sm:grid-cols-2">
-            <div className="rounded-lg border border-border bg-background p-4">
-              <p className="text-xs font-bold text-muted">قیمت</p>
-              <p className="mt-2 text-xl font-black text-accent">
-                {product.price} تومان
-              </p>
-            </div>
-            <div className="rounded-lg border border-border bg-background p-4">
-              <p className="text-xs font-bold text-muted">وزن و تعداد</p>
-              <p className="mt-2 text-xl font-black text-foreground">
-                وزن: {product.weight} · تعداد: {product.quantity}
-              </p>
-            </div>
+          <div className="space-y-3">
+            {details.map((detail) => (
+              <div
+                key={detail.label}
+                className="flex items-center justify-between rounded-lg border border-border bg-background p-4"
+              >
+                <span className="text-xs font-bold text-muted">
+                  {detail.label}
+                </span>
+                <span className="text-sm font-black text-foreground">
+                  {detail.label === "امتیاز" ? (
+                    <span className="inline-flex items-center gap-1 text-foreground">
+                      {detail.value}
+                      <FiStar className="text-yellow-400" aria-hidden />
+                    </span>
+                  ) : (
+                    detail.value
+                  )}
+                </span>
+              </div>
+            ))}
+          </div>
+
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <AddToCartButton
+              productSlug={product.slug}
+              disabled={product.stock <= 0}
+              className="flex-1"
+            />
+            <Link
+              href="/products"
+              className="inline-flex h-10 items-center justify-center rounded-md border border-border bg-background px-5 text-sm font-black text-foreground transition hover:border-accent hover:text-accent"
+            >
+              مشاهده محصولات دیگر
+            </Link>
           </div>
         </div>
       </section>
@@ -108,12 +150,6 @@ export default async function ProductPage({ params }: PageProps) {
             بگیرید.
           </p>
           <div className="mt-6 flex flex-col gap-3">
-            <Link
-              href="/products"
-              className="inline-flex h-11 items-center justify-center rounded-md bg-accent px-5 text-sm font-black text-white transition hover:bg-accent-strong"
-            >
-              مشاهده محصولات دیگر
-            </Link>
             <Link
               href="/"
               className="inline-flex h-11 items-center justify-center rounded-md border border-border bg-background px-5 text-sm font-black text-foreground transition hover:border-accent hover:text-accent"

@@ -27,6 +27,9 @@ export class Product {
   category!: string;
 
   @Field()
+  productType!: string;
+
+  @Field()
   price!: string;
 
   @Field()
@@ -34,6 +37,12 @@ export class Product {
 
   @Field()
   quantity!: string;
+
+  @Field(() => [String])
+  tags!: string[];
+
+  @Field()
+  stock!: number;
 
   @Field(() => [String])
   images!: string[];

@@ -4,6 +4,7 @@
  */
 
 export type ProductCategory = "default" | "popular" | "best-selling";
+export type ProductType = "powder" | "liquid" | "tablet" | "capsule";
 
 export type Product = {
   id?: string;
@@ -14,9 +15,12 @@ export type Product = {
   description: string;
   features: string[];
   category: ProductCategory;
+  productType: ProductType;
   price: string;
   weight: string;
   quantity: string;
+  tags: string[];
+  stock: number;
   images: string[];
   createdAt?: string;
   updatedAt?: string;
@@ -29,10 +33,44 @@ export type ProductInput = {
   description: string;
   features: string[];
   category: ProductCategory;
+  productType: ProductType;
   price: string;
   weight: string;
   quantity: string;
+  tags: string[];
+  stock?: number;
   images: string[];
+};
+
+export type CartItem = {
+  id: string;
+  quantity: number;
+  lineTotal: string;
+  product: Product;
+};
+
+export type Cart = {
+  id: string;
+  items: CartItem[];
+  total: string;
+  itemCount: number;
+};
+
+export type OrderItem = {
+  id: string;
+  productId: number;
+  productName: string;
+  unitPrice: string;
+  quantity: number;
+  total: string;
+};
+
+export type Order = {
+  id: string;
+  status: "pending" | "paid" | "shipped" | "canceled" | string;
+  total: string;
+  createdAt: string;
+  items: OrderItem[];
 };
 
 export type AdminUser = {

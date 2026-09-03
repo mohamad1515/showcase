@@ -35,7 +35,6 @@ export default function EditProductPage() {
           icon={FiEdit}
           eyebrow="ویرایش محصول"
           title={product ? `ویرایش ${product.name}` : "ویرایش محصول"}
-          description="مشخصات محصول را تغییر دهید و ذخیره کنید."
           backHref="/admin/products"
           backLabel="بازگشت به لیست محصولات"
         />

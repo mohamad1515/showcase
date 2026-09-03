@@ -9,10 +9,12 @@ import type {
   Product,
   ProductCategory,
   ProductInput,
+  ProductType,
 } from "../../lib/products";
 import { errorMessage, notifyError, notifySuccess } from "../../lib/toast";
 import FormField, { inputClass, textareaClass } from "./FormField";
 import { FilePond, registerPlugin } from "react-filepond";
+import type { FilePondFile } from "filepond";
 import "filepond/dist/filepond.min.css";
 
 import FilePondPluginImagePreview from "filepond-plugin-image-preview";
@@ -20,10 +22,21 @@ import "filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css";
 
 registerPlugin(FilePondPluginImagePreview);
 
+type FilePondFiles = NonNullable<
+  React.ComponentProps<typeof FilePond>["files"]
+>;
+
 const categories: { value: ProductCategory; label: string }[] = [
   { value: "default", label: "پیشنهادی" },
   { value: "popular", label: "محبوب" },
   { value: "best-selling", label: "پرفروش" },
+];
+
+const productTypes: { value: string; label: string }[] = [
+  { value: "powder", label: "پودر" },
+  { value: "liquid", label: "مایع" },
+  { value: "tablet", label: "قرص" },
+  { value: "capsule", label: "کپسول" },
 ];
 
 const emptyForm: ProductInput = {
@@ -33,9 +46,12 @@ const emptyForm: ProductInput = {
   description: "",
   features: [],
   category: "default",
+  productType: "powder",
   price: "",
   weight: "",
   quantity: "1",
+  tags: [],
+  stock: 100,
   images: [],
 };
 
@@ -44,6 +60,21 @@ const toLines = (value: string) =>
     .split("\n")
     .map((line) => line.trim())
     .filter(Boolean);
+
+const toTags = (value: string) =>
+  value
+    .split(",")
+    .map((tag) => tag.trim())
+    .filter(Boolean);
+
+const formatPrice = (value: string): string => {
+  // Remove non-digit characters
+  const digits = value.replace(/[^\d]/g, "");
+  if (!digits) return value;
+
+  // Convert to number and format with thousands separator
+  return Number(digits).toLocaleString("en-US");
+};
 
 type Props = {
   mode: "create" | "edit";
@@ -60,17 +91,25 @@ export default function ProductForm({ mode, product }: Props) {
         description: product.description,
         features: product.features,
         category: product.category,
+        productType: product.productType,
         price: product.price,
         weight: product.weight,
         quantity: product.quantity,
+        tags: product.tags ?? [],
+        stock: product.stock,
         images: product.images ?? [],
       }
     : emptyForm;
 
   const [form, setForm] = useState<ProductInput>(initial);
   const [featuresText, setFeaturesText] = useState(initial.features.join("\n"));
+  const [tagsText, setTagsText] = useState((initial.tags ?? []).join(", "));
   const [saving, setSaving] = useState(false);
-  const [files, setFiles] = useState<any[]>([]);
+  const [files, setFiles] = useState<FilePondFiles>([]);
+
+  function handleFileUpdate(nextFiles: FilePondFile[]) {
+    setFiles(nextFiles as unknown as FilePondFiles);
+  }
 
   function updateField<K extends keyof ProductInput>(
     key: K,
@@ -87,8 +126,9 @@ export default function ProductForm({ mode, product }: Props) {
     );
     const payload: ProductInput = {
       ...form,
-      images,
+      images: images.length > 0 ? images : ["/images/product.png"],
       features: toLines(featuresText),
+      tags: toTags(tagsText),
     };
 
     try {
@@ -163,7 +203,7 @@ export default function ProductForm({ mode, product }: Props) {
         />
       </FormField>
 
-      <div className="grid gap-4 sm:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-5">
         <FormField label="دسته‌بندی">
           <select
             value={form.category}
@@ -179,26 +219,74 @@ export default function ProductForm({ mode, product }: Props) {
             ))}
           </select>
         </FormField>
-        <FormField label="قیمت">
-          <input
-            value={form.price}
-            onChange={(e) => updateField("price", e.target.value)}
-            required
+        <FormField label="نوع محصول">
+          <select
+            value={form.productType}
+            onChange={(e) =>
+              updateField("productType", e.target.value as ProductType)
+            }
             className={inputClass}
-          />
+          >
+            {productTypes.map((type) => (
+              <option key={type.value} value={type.value}>
+                {type.label}
+              </option>
+            ))}
+          </select>
         </FormField>
-        <FormField label="وزن">
+        <FormField label="قیمت (تومان)">
+          <div className="relative">
+            <input
+              value={form.price}
+              onChange={(e) => {
+                const formatted = formatPrice(e.target.value);
+                updateField("price", formatted);
+              }}
+              required
+              className={inputClass}
+              placeholder="مثال: 100000"
+            />
+            <span className="absolute left-2 top-1/2 -translate-y-1/2 text-sm text-muted">
+              تومان
+            </span>
+          </div>
+        </FormField>
+        <FormField label="وزن/مقدار">
           <input
             value={form.weight}
             onChange={(e) => updateField("weight", e.target.value)}
             required
             className={inputClass}
+            placeholder={
+              form.productType === "powder"
+                ? "مثال: 500 یا 1.5"
+                : form.productType === "liquid"
+                  ? "میلی‌گرم"
+                  : "گرم"
+            }
           />
         </FormField>
         <FormField label="تعداد">
           <input
             value={form.quantity}
             onChange={(e) => updateField("quantity", e.target.value)}
+            required
+            className={inputClass}
+            placeholder={
+              form.productType === "tablet" || form.productType === "capsule"
+                ? "مثال: 30"
+                : form.productType === "liquid"
+                  ? "تعداد بطری"
+                  : "تعداد"
+            }
+          />
+        </FormField>
+        <FormField label="موجودی">
+          <input
+            type="number"
+            min={0}
+            value={form.stock ?? 0}
+            onChange={(e) => updateField("stock", Number(e.target.value))}
             required
             className={inputClass}
           />
@@ -208,7 +296,7 @@ export default function ProductForm({ mode, product }: Props) {
       <FormField label="تصاویر محصول">
         <FilePond
           files={files}
-          onupdatefiles={setFiles}
+          onupdatefiles={handleFileUpdate}
           allowMultiple
           name="file"
           server={{
@@ -223,9 +311,24 @@ export default function ProductForm({ mode, product }: Props) {
           }}
           onprocessfile={(error, file) => {
             if (!error && file.serverId) {
-              updateField("images", [file.serverId as string]);
+              updateField("images", [
+                ...(form.images || []),
+                file.serverId as string,
+              ]);
             }
           }}
+        />
+      </FormField>
+
+      <FormField
+        label="برچسب‌ها (تگ‌ها)"
+        hint="مثال: کاهش وزن، آنتی اکسیدان، ارگانیک"
+      >
+        <input
+          value={tagsText}
+          onChange={(e) => setTagsText(e.target.value)}
+          className={inputClass}
+          placeholder="برچسب‌ها را با کاما جدا کنید"
         />
       </FormField>
 

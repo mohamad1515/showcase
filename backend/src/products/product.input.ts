@@ -21,6 +21,9 @@ export class CreateProductInput {
   category!: string;
 
   @Field()
+  productType!: string;
+
+  @Field()
   price!: string;
 
   @Field()
@@ -28,6 +31,12 @@ export class CreateProductInput {
 
   @Field()
   quantity!: string;
+
+  @Field(() => [String], { nullable: true })
+  tags?: string[];
+
+  @Field({ nullable: true })
+  stock?: number;
 
   @Field(() => [String], { nullable: true })
   images?: string[];

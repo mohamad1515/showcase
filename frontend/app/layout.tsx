@@ -11,7 +11,7 @@ export const metadata = {
   description: "فروشگاه مکمل‌های بدنسازی با راهنمای انتخاب شفاف و ساده",
 };
 
-export default function RootLayout({ children }: PropsWithChildren<{}>) {
+export default function RootLayout({ children }: PropsWithChildren) {
   return (
     <html lang="fa" dir="rtl" suppressHydrationWarning>
       <body
