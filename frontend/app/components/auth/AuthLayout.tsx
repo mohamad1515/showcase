@@ -9,7 +9,7 @@ interface AuthLayoutProps {
 export default function AuthLayout({ children }: AuthLayoutProps) {
   return (
     <main className="min-h-[calc(100vh-88px)] bg-background">
-      <div className="mx-auto w-full max-w-[1400px] px-3 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-12">
+      <div className="mx-auto w-full max-w-[1400px] px-3 py-4 sm:px-4 sm:py-4 lg:px-4 lg:py-4">
         {children}
       </div>
     </main>

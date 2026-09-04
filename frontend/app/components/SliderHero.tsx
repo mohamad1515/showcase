@@ -4,11 +4,10 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Autoplay, Pagination, Navigation } from "swiper/modules";
+import { Autoplay, Pagination } from "swiper/modules";
 
 import "swiper/css";
 import "swiper/css/pagination";
-import "swiper/css/navigation";
 
 import type { Slider } from "../lib/products";
 
@@ -27,9 +26,9 @@ export default function SliderHero({ slides }: { slides: Slider[] }) {
         ];
 
   return (
-    <section className="relative overflow-hidden border-b border-border bg-surface">
+    <section className="relative mx-auto max-w-7xl space-y-14 overflow-hidden px-5 py-6 sm:px-8 lg:px-12">
       <Swiper
-        modules={[Autoplay, Pagination, Navigation]}
+        modules={[Autoplay, Pagination]}
         loop={validSlides.length > 1}
         autoplay={
           validSlides.length > 1
@@ -42,7 +41,6 @@ export default function SliderHero({ slides }: { slides: Slider[] }) {
         pagination={{
           clickable: true,
         }}
-        navigation
         className="h-[460px]"
       >
         {validSlides.map((slide) => (
@@ -56,11 +54,21 @@ export default function SliderHero({ slides }: { slides: Slider[] }) {
                 sizes="100vw"
                 className="object-cover"
               />
+            </div>
+          </SwiperSlide>
+        ))}
+      </Swiper>
+    </section>
+  );
+}
 
-              <div className="absolute inset-0 bg-black/45" />
-              <div className="absolute inset-y-0 right-0 w-full bg-gradient-to-l from-background via-background/95 to-transparent" />
+{
+  /* <div className="absolute inset-0 bg-black/45" />
+              <div className="absolute inset-y-0 right-0 w-full bg-gradient-to-l from-background via-background/95 to-transparent" /> */
+}
 
-              <div className="relative z-10 mx-auto flex h-full max-w-7xl items-center px-5 sm:px-8 lg:px-12">
+{
+  /* <div className="relative z-10 mx-auto flex h-full max-w-7xl items-center px-5 sm:px-8 lg:px-12">
                 <div className="max-w-2xl space-y-6">
                   <p className="inline-flex border border-border bg-surface px-3 py-1 text-[11px] font-semibold tracking-wide text-muted">
                     انتخاب دقیق مکمل
@@ -90,11 +98,5 @@ export default function SliderHero({ slides }: { slides: Slider[] }) {
                     </Link>
                   </div>
                 </div>
-              </div>
-            </div>
-          </SwiperSlide>
-        ))}
-      </Swiper>
-    </section>
-  );
+              </div> */
 }

@@ -96,13 +96,13 @@ export default function SearchBox() {
   return (
     <div ref={containerRef} className="relative w-full max-w-xs sm:max-w-sm">
       {/* Search Input */}
-      <div className="flex h-10 items-center gap-2 rounded-md border border-border bg-background px-3 transition-colors">
+      <div className="flex h-10 items-center gap-2 rounded-2xl border border-border bg-background px-3 transition-colors">
         <FiSearch className="shrink-0 text-muted" size={16} aria-hidden />
 
         <input
           ref={inputRef}
           type="text"
-          placeholder="جستجوی محصولات..."
+          placeholder="جستجو ..."
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onFocus={() => setIsFocused(true)}
@@ -121,7 +121,7 @@ export default function SearchBox() {
             focus-visible:border-0
             focus-visible:outline-none
             focus-visible:ring-0
-            placeholder:text-muted
+            placeholder:text-xs
           "
           dir="rtl"
         />
@@ -152,14 +152,14 @@ export default function SearchBox() {
 
       {/* Search Dropdown */}
       {isFocused && (
-        <div className="absolute top-full right-0 z-50 mt-2 w-full min-w-60 rounded-md border border-border bg-surface shadow-lg">
+        <div className="absolute top-full right-0 z-50 mt-2 border-0 w-full min-w-60 rounded-md bg-surface shadow-lg">
           {!isInitialized ? (
             <div className="p-4 text-center text-sm text-muted">
               درحال بارگیری...
             </div>
           ) : !query.trim() ? (
-            <div className="p-4 text-center text-sm text-muted">
-              برای جستجو کلماتی را وارد کنید
+            <div className="p-4 text-center text-xs text-muted">
+              جستجو در همه محصولات
             </div>
           ) : loading ? (
             <div className="flex items-center justify-center gap-2 p-4 text-sm text-muted">
