@@ -111,14 +111,17 @@ export default function RegisterForm({ onSwitchToLogin }: RegisterFormProps) {
   }
 
   return (
-    <div className="flex h-full min-h-[620px] w-full max-w-[520px] flex-col justify-center rounded-lg border border-border bg-surface p-6 shadow-sm sm:p-8 md:p-10 lg:px-6">
+    <div
+      dir="rtl"
+      className="flex h-full min-h-[620px] w-full max-w-[520px] flex-col justify-center rounded-none bg-surface p-6 sm:p-8 md:p-10 lg:px-6"
+    >
       <div className="mb-8">
         <h1 className="text-3xl font-black text-foreground max-sm:text-2xl md:text-4xl">
           ایجاد حساب کاربری
         </h1>
-        <p className="mt-2 text-xs text-muted sm:text-sm md:text-base">
+        {/* <p className="mt-2 text-xs text-muted sm:text-sm md:text-base">
           برای شروع مسیر تمرینی خود، یک حساب جدید بسازید.
-        </p>
+        </p> */}
       </div>
 
       <form onSubmit={handleSubmit} className="flex-1 space-y-5">

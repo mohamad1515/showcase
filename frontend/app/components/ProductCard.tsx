@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { FiBox, FiPackage, FiStar } from "react-icons/fi";
+import { FiStar } from "react-icons/fi";
 import type { Product, ProductCategory } from "../lib/products";
 import AddToCartButton from "./AddToCartButton";
 
@@ -13,8 +13,10 @@ const categoryLabels: Record<ProductCategory, string> = {
 };
 
 export default function ProductCard({ product }: { product: Product }) {
+  const inStock = product.stock > 0;
+
   return (
-    <article className="group flex h-full flex-col overflow-hidden rounded-lg border border-border bg-card transition duration-100 hover:border-accent">
+    <article className="group flex h-full flex-col overflow-hidden rounded-lg border border-border bg-card transition duration-150 hover:-translate-y-0.5 hover:border-accent hover:shadow-md">
       <Link href={`/products/${product.slug}`} className="block">
         <div className="relative aspect-[4/3] overflow-hidden bg-background p-2">
           <Image
@@ -24,57 +26,55 @@ export default function ProductCard({ product }: { product: Product }) {
             sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
             className="rounded-md object-cover transition duration-500 group-hover:scale-[1.06]"
           />
-          <span className="absolute right-4 top-4 rounded-sm border border-border bg-surface/95 px-2 py-1 text-[10px] font-semibold text-foreground">
+          <span className="absolute right-3 top-3 rounded-sm border border-border bg-surface/95 px-2 py-1 text-[10px] font-bold text-foreground">
             {categoryLabels[product.category]}
           </span>
+          {!inStock && (
+            <span className="absolute left-3 top-3 rounded-sm bg-red-500/90 px-2 py-1 text-[10px] font-bold text-white">
+              ناموجود
+            </span>
+          )}
         </div>
       </Link>
 
-      <div className="flex flex-1 flex-col gap-2 p-3">
-        <div>
-          <Link href={`/products/${product.slug}`}>
-            <h3 className="text-sm font-black leading-6 text-foreground transition group-hover:text-accent">
-              {product.name}
-            </h3>
-          </Link>
+      <div className="flex flex-1 flex-col p-3.5">
+        <Link href={`/products/${product.slug}`}>
+          <h3 className="text-sm font-black leading-6 text-foreground transition group-hover:text-accent">
+            {product.name}
+          </h3>
+        </Link>
 
-          <div className="mt-2 flex items-center gap-1 text-xs font-bold text-foreground">
-            <span>4.5</span>
-            <FiStar className="text-yellow-400" aria-hidden />
-          </div>
-
-          <p className="mt-2 line-clamp-2 min-h-8 text-xs leading-5 text-muted">
-            {product.tagline}
-          </p>
-        </div>
-
-        <div className="mt-auto grid gap-2 border-t border-border pt-3">
-          <div className="flex items-center justify-between gap-3">
-            <span className="tabular-fa text-base font-black text-gold">
-              {product.price}
-              <span className="mr-1 text-[10px] font-bold text-muted">
-                تومان
-              </span>
-            </span>
-
-            <div className="flex items-center gap-2 text-[10px] font-bold text-muted">
-              <span className="inline-flex items-center gap-1">
-                <FiBox className="text-accent" aria-hidden />
-                {product.weight}
-              </span>
-              <span className="inline-flex items-center gap-1">
-                <FiPackage className="text-accent" aria-hidden />
-                {product.quantity}
-              </span>
-            </div>
-          </div>
-
-          <AddToCartButton
-            productSlug={product.slug}
-            disabled={product.stock <= 0}
-            className="w-full"
+        <div className="mt-1.5 flex items-center gap-1 text-xs">
+          <FiStar
+            className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400"
+            aria-hidden
           />
+          <span className="font-bold text-foreground">4.5</span>
         </div>
+
+        <p className="mt-2 line-clamp-2 min-h-8 text-xs leading-5 text-muted">
+          {product.tagline}
+        </p>
+
+        {/* Compact spec strip — echoes the facts-panel styling on the product page */}
+        <div className="mt-3 flex items-center gap-3 border-y border-border py-2 text-[11px] font-bold text-muted">
+          <span>{product.weight}</span>
+          <span className="h-3 w-px bg-border" aria-hidden />
+          <span>{product.quantity}</span>
+        </div>
+
+        <div className="mt-3 flex items-center justify-between gap-2">
+          <span className="tabular-fa text-base font-black text-gold">
+            {product.price}
+            <span className="mr-1 text-[10px] font-bold text-muted">تومان</span>
+          </span>
+        </div>
+
+        <AddToCartButton
+          productSlug={product.slug}
+          disabled={!inStock}
+          className="mt-3 w-full"
+        />
       </div>
     </article>
   );

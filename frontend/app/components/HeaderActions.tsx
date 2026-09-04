@@ -13,6 +13,7 @@ import {
   FiUser,
   FiX,
 } from "react-icons/fi";
+import { SiInstagram, SiTelegram } from "react-icons/si";
 import { getCart, removeCartItem, updateCartItem } from "../lib/graphql";
 import type { Cart } from "../lib/products";
 import { errorMessage, notifyError, notifySuccess } from "../lib/toast";
@@ -24,6 +25,19 @@ export const navItems = [
   { href: "/products", label: "محصولات" },
   { href: "/#about", label: "درباره ما" },
   { href: "/#contact", label: "تماس با ما" },
+];
+
+export const socialLinks = [
+  {
+    href: "https://t.me/fitmokamel",
+    label: "تلگرام",
+    icon: SiTelegram,
+  },
+  {
+    href: "https://instagram.com/fitmokamel",
+    label: "اینستاگرام",
+    icon: SiInstagram,
+  },
 ];
 
 const actionClass =
@@ -97,31 +111,7 @@ export default function HeaderActions() {
   }
 
   return (
-    <div className="flex items-center gap-1 sm:gap-2">
-      {/* Navigation Menu */}
-      <nav
-        className="hidden items-center self-stretch md:flex"
-        aria-label="منوی اصلی"
-      >
-        {navItems.map((item) => (
-          <Link
-            key={item.href}
-            href={item.href}
-            className="flex h-full items-center border-x border-transparent px-3 text-xs font-bold text-muted transition-colors hover:border-border hover:bg-surface hover:text-foreground"
-          >
-            {item.label}
-          </Link>
-        ))}
-      </nav>
-
-      {/* Divider */}
-      <span className="hidden h-5 w-px bg-border md:block" />
-
-      {/* Search Box */}
-      <div className="hidden sm:block">
-        <SearchBox />
-      </div>
-
+    <div className="flex items-center gap-2 sm:gap-3">
       {/* Cart Icon */}
       {isSignedIn ? (
         <button
@@ -129,7 +119,7 @@ export default function HeaderActions() {
           onClick={() => setCartOpen(true)}
           title="سبد خرید"
           aria-label="سبد خرید"
-          className="relative inline-flex h-8 w-8 items-center justify-center border border-border bg-surface text-foreground transition-colors hover:border-accent hover:text-accent"
+          className="relative inline-flex h-10 w-10 items-center justify-center rounded-md border border-border bg-surface text-foreground transition-colors hover:border-accent hover:text-accent"
         >
           <FiShoppingCart aria-hidden />
           {cart.itemCount > 0 && (
@@ -144,7 +134,7 @@ export default function HeaderActions() {
           onClick={handleDisabledCart}
           title="سبد خرید"
           aria-label="سبد خرید"
-          className="inline-flex h-8 w-8 items-center justify-center border border-border bg-surface text-muted opacity-50 cursor-not-allowed transition-colors"
+          className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-border bg-surface text-muted opacity-50 cursor-not-allowed transition-colors"
         >
           <FiShoppingCart aria-hidden />
         </button>
@@ -155,22 +145,20 @@ export default function HeaderActions() {
         <>
           {isSignedIn ? (
             <>
-              {/* Profile Icon */}
               <Link
                 href="/orders"
                 title={user?.name || "پروفایل"}
-                className="hidden h-8 w-8 items-center justify-center border border-border bg-surface text-foreground transition-colors hover:border-accent hover:text-accent sm:inline-flex"
+                className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-border bg-surface text-foreground transition-colors hover:border-accent hover:text-accent"
               >
                 <FiUser aria-hidden />
               </Link>
 
-              {/* Logout Icon */}
               <button
                 type="button"
                 onClick={logout}
                 title="خروج"
                 aria-label="خروج"
-                className="hidden h-8 w-8 items-center justify-center border border-border bg-surface text-foreground transition-colors hover:border-red-500 hover:text-red-500 sm:inline-flex"
+                className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-border bg-surface text-foreground transition-colors hover:border-red-500 hover:text-red-500"
               >
                 <FiLogOut aria-hidden />
               </button>
@@ -179,15 +167,24 @@ export default function HeaderActions() {
             <>
               <Link
                 href="/auth?mode=login"
-                className={`${actionClass} hidden sm:inline-flex`}
+                className="
+    hidden sm:inline-flex
+    h-9 items-center justify-center
+    rounded-md
+    border border-accent
+    bg-accent
+    px-4
+    text-sm font-bold
+    text-white
+    shadow-sm
+    transition-all duration-200
+    hover:bg-accent-strong
+    hover:border-accent-strong
+    hover:shadow-[0_4px_14px_rgb(75_156_245_/_20%)]
+    active:scale-[0.97]
+  "
               >
-                ورود
-              </Link>
-              <Link
-                href="/auth?mode=register"
-                className="hidden h-8 items-center bg-[var(--brand)] px-3 text-xs font-bold text-white transition-colors hover:bg-[var(--brand-hover)] sm:inline-flex rounded"
-              >
-                عضویت
+                ورود / عضویت
               </Link>
             </>
           )}
@@ -198,7 +195,7 @@ export default function HeaderActions() {
       <button
         type="button"
         onClick={() => setOpen((value) => !value)}
-        className="inline-flex h-8 w-8 items-center justify-center border border-border bg-surface text-foreground md:hidden"
+        className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-border bg-surface text-foreground md:hidden"
         aria-label={open ? "بستن منو" : "باز کردن منو"}
       >
         {open ? <FiX aria-hidden /> : <FiMenu aria-hidden />}
