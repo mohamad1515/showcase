@@ -1,45 +1,64 @@
+export type ProductCategory = string;
+
 /**
  * Product types and interfaces
  * Data is fetched from GraphQL backend (app/lib/graphql.ts)
  */
 
-export type ProductCategory = "default" | "popular" | "best-selling";
-export type ProductType = "powder" | "liquid" | "tablet" | "capsule";
-
 export type Product = {
   id?: string;
   slug: string;
-  name: string;
-  tagline: string;
+  persianName: string;
+  englishName: string;
+  brand: string;
+  brands: string[];
+  status: string;
+  rating: number;
+  flavor: string;
+  flavors: string[];
+  productType: "powder" | "liquid" | "beverage" | "tablet" | "capsule" | string;
   summary: string;
   description: string;
   features: string[];
-  category: ProductCategory;
-  productType: ProductType;
+  category: string;
   price: string;
+  compareAtPrice?: string;
   weight: string;
-  quantity: string;
+  reviewCount: number;
   tags: string[];
   stock: number;
+  mainImage: string;
+  galleryImages: string[];
+  name: string;
+  tagline: string;
+  quantity: string;
   images: string[];
   createdAt?: string;
   updatedAt?: string;
 };
 
 export type ProductInput = {
-  name: string;
-  tagline: string;
+  persianName: string;
+  englishName: string;
+  brand: string;
+  brands?: string[];
+  status: string;
+  rating: number;
+  flavor: string;
+  flavors?: string[];
+  productType: "powder" | "liquid" | "beverage" | "tablet" | "capsule" | string;
   summary: string;
   description: string;
   features: string[];
-  category: ProductCategory;
-  productType: ProductType;
+  category: string;
   price: string;
+  compareAtPrice?: string;
   weight: string;
-  quantity: string;
+  reviewCount: number;
   tags: string[];
   stock?: number;
-  images: string[];
+  mainImage: string;
+  galleryImages: string[];
 };
 
 export type CartItem = {
@@ -87,6 +106,16 @@ export type Category = {
   slug: string;
   name: string;
   description: string;
+};
+
+export type Flavor = {
+  id: string;
+  name: string;
+};
+
+export type Brand = {
+  id: string;
+  name: string;
 };
 
 export type Slider = {

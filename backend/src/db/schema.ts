@@ -3,21 +3,33 @@ import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 export const products = sqliteTable("products", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   slug: text("slug").notNull().unique(),
-  name: text("name").notNull(),
-  tagline: text("tagline").notNull(),
+  persianName: text("persian_name").notNull(),
+  englishName: text("english_name").notNull(),
+  brand: text("brand").notNull(),
+  brands: text("brands", { mode: "json" })
+    .$type<string[]>()
+    .notNull()
+    .default([]),
+  status: text("status").notNull().default("active"),
+  rating: integer("rating").notNull().default(0),
+  flavor: text("flavor").notNull().default(""),
+  flavors: text("flavors", { mode: "json" })
+    .$type<string[]>()
+    .notNull()
+    .default([]),
+  productType: text("product_type").notNull().default("powder"),
+  category: text("category").notNull(),
   summary: text("summary").notNull(),
   description: text("description").notNull(),
   features: text("features", { mode: "json" }).$type<string[]>().notNull(),
-  category: text("category", {
-    enum: ["default", "popular", "best-selling"],
-  }).notNull(),
-  productType: text("product_type").notNull().default("powder"),
   price: text("price").notNull(),
+  compareAtPrice: text("compare_at_price"),
   weight: text("weight").notNull(),
-  quantity: text("quantity").notNull().default("1"),
+  reviewCount: integer("review_count").notNull().default(0),
   tags: text("tags", { mode: "json" }).$type<string[]>().notNull().default([]),
   stock: integer("stock").notNull().default(100),
-  images: text("images", { mode: "json" })
+  mainImage: text("main_image").notNull().default("/images/product.png"),
+  galleryImages: text("gallery_images", { mode: "json" })
     .$type<string[]>()
     .notNull()
     .default(["/images/product.png"]),
@@ -46,7 +58,9 @@ export const orders = sqliteTable("orders", {
   userId: integer("user_id").notNull(),
   status: text("status", {
     enum: ["pending", "paid", "shipped", "canceled"],
-  }).notNull().default("pending"),
+  })
+    .notNull()
+    .default("pending"),
   total: text("total").notNull(),
   createdAt: text("created_at").notNull(),
   updatedAt: text("updated_at").notNull(),
@@ -81,6 +95,20 @@ export const sliders = sqliteTable("sliders", {
   updatedAt: text("updated_at").notNull(),
 });
 
+export const flavors = sqliteTable("flavors", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  name: text("name").notNull().unique(),
+  createdAt: text("created_at").notNull(),
+  updatedAt: text("updated_at").notNull(),
+});
+
+export const brands = sqliteTable("brands", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  name: text("name").notNull().unique(),
+  createdAt: text("created_at").notNull(),
+  updatedAt: text("updated_at").notNull(),
+});
+
 export type ProductRow = typeof products.$inferSelect;
 export type NewProductRow = typeof products.$inferInsert;
 export type CartRow = typeof carts.$inferSelect;
@@ -91,3 +119,7 @@ export type CategoryRow = typeof categories.$inferSelect;
 export type NewCategoryRow = typeof categories.$inferInsert;
 export type SliderRow = typeof sliders.$inferSelect;
 export type NewSliderRow = typeof sliders.$inferInsert;
+export type FlavorRow = typeof flavors.$inferSelect;
+export type NewFlavorRow = typeof flavors.$inferInsert;
+export type BrandRow = typeof brands.$inferSelect;
+export type NewBrandRow = typeof brands.$inferInsert;

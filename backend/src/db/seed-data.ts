@@ -1,8 +1,8 @@
 import { NewProductRow } from "./schema";
 
-const now = new Date().toISOString();
-
-export const seedProducts: NewProductRow[] = [
+export const seedProducts: NewProductRow[] = [];
+/*
+export const legacySeedProducts: NewProductRow[] = [
   {
     slug: "whey-protein-gold",
     name: "Whey Protein Gold",
@@ -65,3 +65,4 @@ export const seedProducts: NewProductRow[] = [
     updatedAt: now,
   },
 ];
+*/

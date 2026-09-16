@@ -230,19 +230,18 @@ export class ShopService {
           ci.quantity,
           p.id AS product_id,
           p.slug,
-          p.name,
-          p.tagline,
+          p.persian_name AS name,
+          p.english_name AS tagline,
           p.summary,
           p.description,
           p.features,
           p.category,
-          COALESCE(p.product_type, 'powder') AS productType,
           COALESCE(p.tags, '[]') AS tags,
           p.price,
           p.weight,
-          p.quantity AS productQuantity,
+          '1' AS productQuantity,
           p.stock,
-          p.images,
+          p.main_image AS images,
           p.created_at AS createdAt,
           p.updated_at AS updatedAt
         FROM cart_items ci
@@ -317,10 +316,9 @@ export class ShopService {
     const product = this.sqlite
       .prepare(
         `SELECT
-          id, slug, name, tagline, summary, description, features, category,
-          COALESCE(product_type, 'powder') AS productType,
+          id, slug, persian_name AS name, english_name AS tagline, summary, description, features, category,
           COALESCE(tags, '[]') AS tags,
-          price, weight, quantity, stock, images, created_at AS createdAt,
+          price, weight, '1' AS quantity, stock, main_image AS images, created_at AS createdAt,
           updated_at AS updatedAt
          FROM products WHERE slug = ?`,
       )

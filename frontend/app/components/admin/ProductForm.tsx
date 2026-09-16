@@ -3,13 +3,20 @@
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import { FiPlusCircle, FiSave } from "react-icons/fi";
-import { createProduct, updateProduct } from "../../lib/graphql";
+import {
+  createProduct,
+  getBrands,
+  getCategories,
+  getFlavors,
+  updateProduct,
+} from "../../lib/graphql";
 import { UPLOAD_URL } from "../../lib/config";
 import type {
   Product,
-  ProductCategory,
   ProductInput,
-  ProductType,
+  Category,
+  Flavor,
+  Brand,
 } from "../../lib/products";
 import { errorMessage, notifyError, notifySuccess } from "../../lib/toast";
 import FormField, { inputClass, textareaClass } from "./FormField";
@@ -26,33 +33,28 @@ type FilePondFiles = NonNullable<
   React.ComponentProps<typeof FilePond>["files"]
 >;
 
-const categories: { value: ProductCategory; label: string }[] = [
-  { value: "default", label: "پیشنهادی" },
-  { value: "popular", label: "محبوب" },
-  { value: "best-selling", label: "پرفروش" },
-];
-
-const productTypes: { value: string; label: string }[] = [
-  { value: "powder", label: "پودر" },
-  { value: "liquid", label: "مایع" },
-  { value: "tablet", label: "قرص" },
-  { value: "capsule", label: "کپسول" },
-];
-
 const emptyForm: ProductInput = {
-  name: "",
-  tagline: "",
+  persianName: "",
+  englishName: "",
+  brand: "",
+  brands: [],
+  status: "active",
+  rating: 0,
+  flavor: "",
+  flavors: [],
+  productType: "powder",
   summary: "",
   description: "",
   features: [],
-  category: "default",
-  productType: "powder",
+  category: "",
   price: "",
   weight: "",
-  quantity: "1",
+  compareAtPrice: "",
+  reviewCount: 0,
   tags: [],
   stock: 100,
-  images: [],
+  mainImage: "/images/product.png",
+  galleryImages: [],
 };
 
 const toLines = (value: string) =>
@@ -85,19 +87,27 @@ export default function ProductForm({ mode, product }: Props) {
   const router = useRouter();
   const initial = product
     ? {
-        name: product.name,
-        tagline: product.tagline,
+        persianName: product.persianName,
+        englishName: product.englishName,
+        brand: product.brand,
+        brands: product.brands ?? (product.brand ? [product.brand] : []),
+        status: product.status,
+        rating: product.rating,
+        flavor: product.flavor,
+        flavors: product.flavors ?? (product.flavor ? [product.flavor] : []),
+        productType: product.productType,
         summary: product.summary,
         description: product.description,
         features: product.features,
         category: product.category,
-        productType: product.productType,
         price: product.price,
+        compareAtPrice: product.compareAtPrice ?? "",
         weight: product.weight,
-        quantity: product.quantity,
+        reviewCount: product.reviewCount,
         tags: product.tags ?? [],
         stock: product.stock,
-        images: product.images ?? [],
+        mainImage: product.mainImage,
+        galleryImages: product.galleryImages ?? [],
       }
     : emptyForm;
 
@@ -105,7 +115,24 @@ export default function ProductForm({ mode, product }: Props) {
   const [featuresText, setFeaturesText] = useState(initial.features.join("\n"));
   const [tagsText, setTagsText] = useState((initial.tags ?? []).join(", "));
   const [saving, setSaving] = useState(false);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [flavors, setFlavors] = useState<Flavor[]>([]);
+  const [brands, setBrands] = useState<Brand[]>([]);
   const [files, setFiles] = useState<FilePondFiles>([]);
+
+  React.useEffect(() => {
+    Promise.all([getCategories(), getFlavors(), getBrands()])
+      .then(([nextCategories, nextFlavors, nextBrands]) => {
+        setCategories(nextCategories);
+        setFlavors(nextFlavors);
+        setBrands(nextBrands);
+      })
+      .catch(() => {
+        setCategories([]);
+        setFlavors([]);
+        setBrands([]);
+      });
+  }, []);
 
   function handleFileUpdate(nextFiles: FilePondFile[]) {
     setFiles(nextFiles as unknown as FilePondFiles);
@@ -121,12 +148,15 @@ export default function ProductForm({ mode, product }: Props) {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setSaving(true);
-    const images = form.images.filter(
+    const images = form.galleryImages.filter(
       (image) => image !== "/images/product.png",
     );
     const payload: ProductInput = {
       ...form,
-      images: images.length > 0 ? images : ["/images/product.png"],
+      mainImage: images.includes(form.mainImage)
+        ? form.mainImage
+        : (images[0] ?? "/images/product.png"),
+      galleryImages: images.length > 0 ? images : ["/images/product.png"],
       features: toLines(featuresText),
       tags: toTags(tagsText),
     };
@@ -154,24 +184,96 @@ export default function ProductForm({ mode, product }: Props) {
       className="grid gap-4 rounded-lg border border-border bg-surface p-6 shadow-sm sm:p-8"
     >
       <div className="grid gap-4 sm:grid-cols-2">
-        <FormField label="نام محصول">
+        <FormField label="نام فارسی">
           <input
-            value={form.name}
-            onChange={(e) => updateField("name", e.target.value)}
+            value={form.persianName}
+            onChange={(e) => updateField("persianName", e.target.value)}
             required
             className={inputClass}
           />
         </FormField>
       </div>
 
-      <FormField label="تیتر کوتاه">
+      <FormField label="نام انگلیسی">
         <input
-          value={form.tagline}
-          onChange={(e) => updateField("tagline", e.target.value)}
+          value={form.englishName}
+          onChange={(e) => updateField("englishName", e.target.value)}
           required
           className={inputClass}
         />
       </FormField>
+
+      <div className="grid gap-4 sm:grid-cols-3">
+        <FormField label="برند">
+          <select
+            value={form.brand}
+            onChange={(e) => {
+              updateField("brand", e.target.value);
+              updateField("brands", e.target.value ? [e.target.value] : []);
+            }}
+            required
+            className={inputClass}
+          >
+            <option value="">انتخاب برند</option>
+            {brands.map((brand) => (
+              <option key={brand.id} value={brand.name}>
+                {brand.name}
+              </option>
+            ))}
+          </select>
+        </FormField>
+        <FormField label="نوع محصول">
+          <select
+            value={form.productType}
+            onChange={(e) => updateField("productType", e.target.value)}
+            required
+            className={inputClass}
+          >
+            <option value="powder">پودر</option>
+            <option value="liquid">مایع</option>
+            <option value="beverage">نوشیدنی</option>
+            <option value="tablet">قرص</option>
+            <option value="capsule">کپسول</option>
+          </select>
+        </FormField>
+        <FormField label="طعم‌ها" hint="یک یا چند طعم را انتخاب کنید">
+          <div className="grid gap-2 rounded-md border border-border p-3 sm:grid-cols-2">
+            {flavors.map((flavor) => (
+              <label
+                key={flavor.id}
+                className="flex items-center gap-2 text-sm font-bold"
+              >
+                <input
+                  type="checkbox"
+                  checked={(form.flavors ?? []).includes(flavor.name)}
+                  onChange={(event) => {
+                    const nextFlavors = event.target.checked
+                      ? [...new Set([...(form.flavors ?? []), flavor.name])]
+                      : (form.flavors ?? []).filter(
+                          (name) => name !== flavor.name,
+                        );
+                    updateField("flavors", nextFlavors);
+                    updateField("flavor", nextFlavors[0] ?? "");
+                  }}
+                  className="h-4 w-4 accent-[var(--brand)]"
+                />
+                {flavor.name}
+              </label>
+            ))}
+          </div>
+        </FormField>
+        <FormField label="وضعیت">
+          <select
+            value={form.status}
+            onChange={(e) => updateField("status", e.target.value)}
+            className={inputClass}
+          >
+            <option value="active">فعال</option>
+            <option value="inactive">غیرفعال</option>
+            <option value="out_of_stock">ناموجود</option>
+          </select>
+        </FormField>
+      </div>
 
       <FormField label="خلاصه">
         <textarea
@@ -203,33 +305,18 @@ export default function ProductForm({ mode, product }: Props) {
         />
       </FormField>
 
-      <div className="grid gap-4 sm:grid-cols-5">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <FormField label="دسته‌بندی">
           <select
             value={form.category}
-            onChange={(e) =>
-              updateField("category", e.target.value as ProductCategory)
-            }
+            onChange={(e) => updateField("category", e.target.value)}
+            required
             className={inputClass}
           >
+            <option value="">انتخاب دسته‌بندی</option>
             {categories.map((category) => (
-              <option key={category.value} value={category.value}>
-                {category.label}
-              </option>
-            ))}
-          </select>
-        </FormField>
-        <FormField label="نوع محصول">
-          <select
-            value={form.productType}
-            onChange={(e) =>
-              updateField("productType", e.target.value as ProductType)
-            }
-            className={inputClass}
-          >
-            {productTypes.map((type) => (
-              <option key={type.value} value={type.value}>
-                {type.label}
+              <option key={category.slug} value={category.slug}>
+                {category.name}
               </option>
             ))}
           </select>
@@ -257,29 +344,22 @@ export default function ProductForm({ mode, product }: Props) {
             onChange={(e) => updateField("weight", e.target.value)}
             required
             className={inputClass}
-            placeholder={
-              form.productType === "powder"
-                ? "مثال: 500 یا 1.5"
-                : form.productType === "liquid"
-                  ? "میلی‌گرم"
-                  : "گرم"
-            }
+            placeholder="مثال: ۱ کیلوگرم"
           />
         </FormField>
-        <FormField label="تعداد">
-          <input
-            value={form.quantity}
-            onChange={(e) => updateField("quantity", e.target.value)}
-            required
-            className={inputClass}
-            placeholder={
-              form.productType === "tablet" || form.productType === "capsule"
-                ? "مثال: 30"
-                : form.productType === "liquid"
-                  ? "تعداد بطری"
-                  : "تعداد"
-            }
-          />
+        <FormField label="قیمت قبل از تخفیف">
+          <div className="relative">
+            <input
+              value={form.compareAtPrice ?? ""}
+              onChange={(e) =>
+                updateField("compareAtPrice", formatPrice(e.target.value))
+              }
+              className={inputClass}
+            />
+            <span className="absolute left-2 top-1/2 -translate-y-1/2 text-sm text-muted">
+              تومان
+            </span>
+          </div>
         </FormField>
         <FormField label="موجودی">
           <input
@@ -291,13 +371,39 @@ export default function ProductForm({ mode, product }: Props) {
             className={inputClass}
           />
         </FormField>
+        <FormField label="امتیاز">
+          <input
+            type="number"
+            min={0}
+            max={5}
+            step={0.1}
+            value={form.rating}
+            onChange={(e) => updateField("rating", Number(e.target.value))}
+            className={inputClass}
+          />
+        </FormField>
+        <FormField label="تعداد review">
+          <input
+            type="number"
+            min={0}
+            value={form.reviewCount}
+            onChange={(e) => updateField("reviewCount", Number(e.target.value))}
+            className={inputClass}
+          />
+        </FormField>
       </div>
 
-      <FormField label="تصاویر محصول">
+      <FormField
+        label="تصویر محصول"
+        hint="تصویر اصلی را با کلیک روی یکی از تصاویر انتخاب کنید."
+      >
         <FilePond
           files={files}
           onupdatefiles={handleFileUpdate}
           allowMultiple
+          labelIdle="تصویر مورد نظر را آپلود کنید"
+          labelButtonRemoveItem="حذف"
+          labelButtonAbortItemProcessing="لغو"
           name="file"
           server={{
             process: {
@@ -311,13 +417,51 @@ export default function ProductForm({ mode, product }: Props) {
           }}
           onprocessfile={(error, file) => {
             if (!error && file.serverId) {
-              updateField("images", [
-                ...(form.images || []),
-                file.serverId as string,
-              ]);
+              setForm((current) => {
+                const nextImage = file.serverId as string;
+                const galleryImages = [
+                  ...new Set([...(current.galleryImages || []), nextImage]),
+                ];
+                return {
+                  ...current,
+                  galleryImages,
+                  mainImage:
+                    current.mainImage === "/images/product.png"
+                      ? nextImage
+                      : current.mainImage,
+                };
+              });
             }
           }}
         />
+        {form.galleryImages.filter((image) => image !== "/images/product.png")
+          .length > 0 && (
+          <div className="mt-3 grid grid-cols-3 gap-3 sm:grid-cols-5">
+            {form.galleryImages
+              .filter((image) => image !== "/images/product.png")
+              .map((image) => (
+                <button
+                  key={image}
+                  type="button"
+                  title="انتخاب به عنوان تصویر اصلی"
+                  onClick={() => updateField("mainImage", image)}
+                  aria-pressed={form.mainImage === image}
+                  className={`relative aspect-square overflow-hidden rounded-md border-2 ${form.mainImage === image ? "border-accent ring-2 ring-accent ring-offset-2" : "border-border"}`}
+                >
+                  <img
+                    src={image}
+                    alt={`پیش‌نمایش ${product?.persianName ?? "محصول"}`}
+                    className="h-full w-full object-cover"
+                  />
+                  {form.mainImage === image && (
+                    <span className="absolute inset-x-1 bottom-1 rounded bg-accent px-1 py-0.5 text-[10px] font-black text-white">
+                      تصویر اصلی
+                    </span>
+                  )}
+                </button>
+              ))}
+          </div>
+        )}
       </FormField>
 
       <FormField

@@ -3,10 +3,37 @@ import { Field, InputType, PartialType } from "@nestjs/graphql";
 @InputType()
 export class CreateProductInput {
   @Field()
-  name!: string;
+  persianName!: string;
 
   @Field()
-  tagline!: string;
+  englishName!: string;
+
+  @Field()
+  brand!: string;
+
+  @Field(() => [String], { nullable: true })
+  brands?: string[];
+
+  @Field({ defaultValue: "active" })
+  status!: string;
+
+  @Field({ defaultValue: 0 })
+  rating!: number;
+
+  @Field({ nullable: true })
+  flavor?: string;
+
+  @Field(() => [String], { nullable: true })
+  flavors?: string[];
+
+  @Field()
+  productType!: string;
+
+  @Field()
+  category!: string;
+
+  @Field(() => [String])
+  features!: string[];
 
   @Field()
   summary!: string;
@@ -14,23 +41,17 @@ export class CreateProductInput {
   @Field()
   description!: string;
 
-  @Field(() => [String])
-  features!: string[];
-
-  @Field()
-  category!: string;
-
-  @Field()
-  productType!: string;
-
   @Field()
   price!: string;
 
   @Field()
   weight!: string;
 
-  @Field()
-  quantity!: string;
+  @Field({ nullable: true })
+  compareAtPrice?: string;
+
+  @Field({ defaultValue: 0 })
+  reviewCount!: number;
 
   @Field(() => [String], { nullable: true })
   tags?: string[];
@@ -38,8 +59,11 @@ export class CreateProductInput {
   @Field({ nullable: true })
   stock?: number;
 
+  @Field({ nullable: true })
+  mainImage?: string;
+
   @Field(() => [String], { nullable: true })
-  images?: string[];
+  galleryImages?: string[];
 }
 
 @InputType()

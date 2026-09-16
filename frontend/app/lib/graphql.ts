@@ -6,6 +6,8 @@ import type {
   Cart,
   Order,
   Slider,
+  Flavor,
+  Brand,
 } from "./products";
 import { GRAPHQL_URL } from "./config";
 
@@ -14,19 +16,27 @@ const graphqlUrl = GRAPHQL_URL;
 const productFields = `
   id
   slug
-  name
-  tagline
+  persianName
+  englishName
+  brand
+  brands
+  status
+  rating
+  flavor
+  flavors
+  productType
   summary
   description
   features
   category
-  productType
   price
+  compareAtPrice
   weight
-  quantity
+  reviewCount
   tags
   stock
-  images
+  mainImage
+  galleryImages
   createdAt
   updatedAt
 `;
@@ -74,6 +84,16 @@ const categoryFields = `
   slug
   name
   description
+`;
+
+const flavorFields = `
+  id
+  name
+`;
+
+const brandFields = `
+  id
+  name
 `;
 
 const sliderFields = `
@@ -352,6 +372,68 @@ export async function getCategories() {
     }
   `);
   return data.categories;
+}
+
+export async function getFlavors() {
+  const data = await graphqlRequest<{ flavors: Flavor[] }>(`
+    query Flavors { flavors { ${flavorFields} } }
+  `);
+  return data.flavors;
+}
+
+export async function getBrands() {
+  const data = await graphqlRequest<{ brands: Brand[] }>(`
+    query Brands { brands { ${brandFields} } }
+  `);
+  return data.brands;
+}
+
+export async function createBrand(name: string) {
+  const data = await graphqlRequest<{ createBrand: Brand }>(
+    `mutation CreateBrand($input: CreateBrandInput!) { createBrand(input: $input) { ${brandFields} } }`,
+    { input: { name } },
+  );
+  return data.createBrand;
+}
+
+export async function updateBrand(id: string, name: string) {
+  const data = await graphqlRequest<{ updateBrand: Brand }>(
+    `mutation UpdateBrand($id: Float!, $input: UpdateBrandInput!) { updateBrand(id: $id, input: $input) { ${brandFields} } }`,
+    { id: Number(id), input: { name } },
+  );
+  return data.updateBrand;
+}
+
+export async function removeBrand(id: string) {
+  const data = await graphqlRequest<{ removeBrand: Brand }>(
+    `mutation RemoveBrand($id: Float!) { removeBrand(id: $id) { ${brandFields} } }`,
+    { id: Number(id) },
+  );
+  return data.removeBrand;
+}
+
+export async function createFlavor(name: string) {
+  const data = await graphqlRequest<{ createFlavor: Flavor }>(
+    `mutation CreateFlavor($input: CreateFlavorInput!) { createFlavor(input: $input) { ${flavorFields} } }`,
+    { input: { name } },
+  );
+  return data.createFlavor;
+}
+
+export async function updateFlavor(id: string, name: string) {
+  const data = await graphqlRequest<{ updateFlavor: Flavor }>(
+    `mutation UpdateFlavor($id: Float!, $input: UpdateFlavorInput!) { updateFlavor(id: $id, input: $input) { ${flavorFields} } }`,
+    { id: Number(id), input: { name } },
+  );
+  return data.updateFlavor;
+}
+
+export async function removeFlavor(id: string) {
+  const data = await graphqlRequest<{ removeFlavor: Flavor }>(
+    `mutation RemoveFlavor($id: Float!) { removeFlavor(id: $id) { ${flavorFields} } }`,
+    { id: Number(id) },
+  );
+  return data.removeFlavor;
 }
 
 export async function createCategory(input: {

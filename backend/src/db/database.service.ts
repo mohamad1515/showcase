@@ -4,7 +4,6 @@ import { mkdirSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { drizzle, BetterSQLite3Database } from "drizzle-orm/better-sqlite3";
 import * as schema from "./schema";
-import { seedProducts } from "./seed-data";
 
 @Injectable()
 export class DatabaseService implements OnModuleInit, OnModuleDestroy {
@@ -31,23 +30,38 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
   }
 
   private createTables() {
+    const existingProductColumns = this.sqlite
+      .prepare("PRAGMA table_info(products)")
+      .all() as { name: string }[];
+    const shouldResetProducts =
+      existingProductColumns.length > 0 &&
+      !existingProductColumns.some((column) => column.name === "persian_name");
+    if (shouldResetProducts) {
+      this.sqlite.exec("DROP TABLE products");
+    }
     this.sqlite.exec(`
       CREATE TABLE IF NOT EXISTS products (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         slug TEXT NOT NULL UNIQUE,
-        name TEXT NOT NULL,
-        tagline TEXT NOT NULL,
+        persian_name TEXT NOT NULL,
+        english_name TEXT NOT NULL,
+        brand TEXT NOT NULL,
+        status TEXT NOT NULL DEFAULT 'active',
+        rating INTEGER NOT NULL DEFAULT 0,
+        flavor TEXT NOT NULL DEFAULT '',
+        product_type TEXT NOT NULL DEFAULT 'powder',
+        category TEXT NOT NULL,
         summary TEXT NOT NULL,
         description TEXT NOT NULL,
         features TEXT NOT NULL,
-        category TEXT NOT NULL CHECK (category IN ('default', 'popular', 'best-selling')),
-        product_type TEXT NOT NULL DEFAULT 'powder',
         price TEXT NOT NULL,
+        compare_at_price TEXT,
         weight TEXT NOT NULL,
-        quantity TEXT NOT NULL DEFAULT '1',
+        review_count INTEGER NOT NULL DEFAULT 0,
         tags TEXT NOT NULL DEFAULT '[]',
         stock INTEGER NOT NULL DEFAULT 100,
-        images TEXT NOT NULL DEFAULT '["/images/product.png"]',
+        main_image TEXT NOT NULL DEFAULT '/images/product.png',
+        gallery_images TEXT NOT NULL DEFAULT '["/images/product.png"]',
         created_at TEXT NOT NULL,
         updated_at TEXT NOT NULL
       );
@@ -80,6 +94,20 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
         subtitle TEXT NOT NULL,
         image TEXT NOT NULL,
         link TEXT NOT NULL DEFAULT '/products',
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL
+      );
+
+      CREATE TABLE IF NOT EXISTS flavors (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL UNIQUE,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL
+      );
+
+      CREATE TABLE IF NOT EXISTS brands (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL UNIQUE,
         created_at TEXT NOT NULL,
         updated_at TEXT NOT NULL
       );
@@ -120,48 +148,50 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
         total TEXT NOT NULL
       );
     `);
-    this.ensureColumn("products", "quantity", "TEXT NOT NULL DEFAULT '1'");
+    if (shouldResetProducts) this.sqlite.prepare("DELETE FROM products").run();
+    this.ensureColumn("users", "role", "TEXT NOT NULL DEFAULT 'USER'");
+    this.ensureColumn("users", "is_active", "INTEGER NOT NULL DEFAULT 1");
     this.ensureColumn(
       "products",
       "product_type",
       "TEXT NOT NULL DEFAULT 'powder'",
     );
-    this.ensureColumn("products", "tags", "TEXT NOT NULL DEFAULT '[]'");
-    this.ensureColumn("products", "stock", "INTEGER NOT NULL DEFAULT 100");
-    this.ensureColumn(
-      "products",
-      "images",
-      "TEXT NOT NULL DEFAULT '[\"/images/product.png\"]'",
-    );
-    this.sqlite
-      .prepare(
-        "UPDATE products SET product_type = 'powder' WHERE product_type IS NULL OR TRIM(product_type) = ''",
-      )
-      .run();
-    this.sqlite
-      .prepare(
-        "UPDATE products SET tags = '[]' WHERE tags IS NULL OR TRIM(tags) = ''",
-      )
-      .run();
-    this.sqlite
-      .prepare(
-        "UPDATE products SET features = '[]' WHERE features IS NULL OR TRIM(features) = ''",
-      )
-      .run();
-    this.sqlite
-      .prepare(
-        "UPDATE products SET images = '[\"/images/product.png\"]' WHERE images IS NULL OR TRIM(images) = ''",
-      )
-      .run();
-    this.sqlite
-      .prepare(
-        "DELETE FROM products WHERE slug IS NULL OR TRIM(slug) = '' OR name IS NULL OR TRIM(name) = ''",
-      )
-      .run();
-    this.ensureColumn("users", "role", "TEXT NOT NULL DEFAULT 'USER'");
-    this.ensureColumn("users", "is_active", "INTEGER NOT NULL DEFAULT 1");
+    this.ensureColumn("products", "brands", "TEXT NOT NULL DEFAULT '[]'");
+    this.ensureColumn("products", "flavors", "TEXT NOT NULL DEFAULT '[]'");
+    this.migrateProductSlugs();
   }
 
+  private migrateProductSlugs() {
+    const rows = this.sqlite
+      .prepare("SELECT id, slug, english_name FROM products")
+      .all() as { id: number; slug: string; english_name: string }[];
+    const used = new Set<string>();
+    for (const row of rows) {
+      const base =
+        row.english_name
+          .trim()
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, "-")
+          .replace(/^-+|-+$/g, "") || "product";
+      let slug = base;
+      let suffix = 2;
+      while (
+        used.has(slug) ||
+        (slug !== row.slug &&
+          this.sqlite
+            .prepare("SELECT id FROM products WHERE slug = ?")
+            .get(slug))
+      ) {
+        slug = `${base}-${suffix++}`;
+      }
+      used.add(slug);
+      if (slug !== row.slug) {
+        this.sqlite
+          .prepare("UPDATE products SET slug = ? WHERE id = ?")
+          .run(slug, row.id);
+      }
+    }
+  }
   private seed() {
     const now = new Date().toISOString();
     this.sqlite
@@ -206,13 +236,6 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
         now,
         now,
       );
-
-    const count = this.sqlite
-      .prepare("SELECT COUNT(*) AS count FROM products")
-      .get() as { count: number };
-    if (count.count > 0) return;
-
-    this.db.insert(schema.products).values(seedProducts).run();
   }
 
   private ensureColumn(table: string, column: string, definition: string) {

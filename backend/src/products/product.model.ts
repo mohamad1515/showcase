@@ -9,10 +9,31 @@ export class Product {
   slug!: string;
 
   @Field()
-  name!: string;
+  persianName!: string;
 
   @Field()
-  tagline!: string;
+  englishName!: string;
+
+  @Field()
+  brand!: string;
+
+  @Field(() => [String])
+  brands!: string[];
+
+  @Field()
+  status!: string;
+
+  @Field()
+  rating!: number;
+
+  @Field()
+  flavor!: string;
+
+  @Field(() => [String])
+  flavors!: string[];
+
+  @Field()
+  productType!: string;
 
   @Field()
   summary!: string;
@@ -27,25 +48,40 @@ export class Product {
   category!: string;
 
   @Field()
-  productType!: string;
-
-  @Field()
   price!: string;
+
+  @Field({ nullable: true })
+  compareAtPrice?: string;
 
   @Field()
   weight!: string;
 
   @Field()
-  quantity!: string;
-
-  @Field(() => [String])
-  tags!: string[];
+  reviewCount!: number;
 
   @Field()
   stock!: number;
 
+  @Field()
+  mainImage!: string;
+
   @Field(() => [String])
-  images!: string[];
+  galleryImages!: string[];
+
+  @Field(() => [String])
+  tags!: string[];
+
+  @Field({ nullable: true })
+  name?: string;
+
+  @Field({ nullable: true })
+  tagline?: string;
+
+  @Field({ nullable: true })
+  quantity?: string;
+
+  @Field(() => [String], { nullable: true })
+  images?: string[];
 
   @Field()
   createdAt!: string;

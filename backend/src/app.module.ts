@@ -9,6 +9,8 @@ import { CategoriesModule } from "./categories/categories.module";
 import { SlidersModule } from "./sliders/sliders.module";
 import { UploadModule } from "./upload/upload.module";
 import { ShopModule } from "./shop/shop.module";
+import { FlavorsModule } from "./flavors/flavors.module";
+import { BrandsModule } from "./brands/brands.module";
 
 @Module({
   imports: [
@@ -24,6 +26,8 @@ import { ShopModule } from "./shop/shop.module";
     SlidersModule,
     UploadModule,
     ShopModule,
+    FlavorsModule,
+    BrandsModule,
   ],
 })
 export class AppModule {}

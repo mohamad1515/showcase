@@ -7,6 +7,8 @@ import {
   FiGrid,
   FiImage,
   FiLayers,
+  FiCoffee,
+  FiAward,
   FiUsers,
 } from "react-icons/fi";
 import AdminGuard from "../components/AdminGuard";
@@ -35,6 +37,18 @@ const sections: {
     title: "دسته‌بندی‌ها",
     description: "دسته‌بندی جدید بسازید، ویرایش کنید و دسته‌ها را حذف کنید.",
     icon: FiLayers,
+  },
+  {
+    href: "/admin/flavors",
+    title: "طعم‌ها",
+    description: "طعم‌های قابل انتخاب برای محصولات را مدیریت کنید.",
+    icon: FiCoffee,
+  },
+  {
+    href: "/admin/brands",
+    title: "برندها",
+    description: "برندهای قابل انتخاب برای محصولات را مدیریت کنید.",
+    icon: FiAward,
   },
   {
     href: "/admin/sliders",

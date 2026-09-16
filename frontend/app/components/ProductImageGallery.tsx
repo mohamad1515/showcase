@@ -14,7 +14,15 @@ export default function ProductImageGallery({ images, productName }: Props) {
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
 
   const displayImages =
-    images && images.length > 0 ? images : ["/images/product.png"];
+    (images ?? []).filter(
+      (image): image is string =>
+        typeof image === "string" && image.trim().length > 0,
+    ).length > 0
+      ? (images ?? []).filter(
+          (image): image is string =>
+            typeof image === "string" && image.trim().length > 0,
+        )
+      : ["/images/product.png"];
   const currentImage = displayImages[selectedIndex];
 
   const handlePrevious = () => {

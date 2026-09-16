@@ -20,12 +20,6 @@ import { getProducts, removeProduct } from "../../lib/graphql";
 import type { Product } from "../../lib/products";
 import { errorMessage, notifyError, notifySuccess } from "../../lib/toast";
 
-const categoryLabels: Record<Product["category"], string> = {
-  default: "پیشنهادی",
-  popular: "محبوب",
-  "best-selling": "پرفروش",
-};
-
 function StatCard({
   icon: Icon,
   label,
@@ -85,8 +79,8 @@ export default function AdminProductsPage() {
   const stats = useMemo(
     () => ({
       total: products.length,
-      popular: products.filter((p) => p.category === "popular").length,
-      bestSelling: products.filter((p) => p.category === "best-selling").length,
+      popular: products.filter((p) => p.rating >= 4).length,
+      bestSelling: products.filter((p) => p.reviewCount >= 10).length,
     }),
     [products],
   );
@@ -107,7 +101,7 @@ export default function AdminProductsPage() {
   }, [refresh]);
 
   async function handleRemove(product: Product) {
-    if (!window.confirm(`محصول «${product.name}» حذف شود؟`)) return;
+    if (!window.confirm(`محصول «${product.persianName}» حذف شود؟`)) return;
     try {
       await removeProduct(product.slug);
       await refresh();
@@ -118,19 +112,18 @@ export default function AdminProductsPage() {
   }
 
   const columnDefs: ColDef<Product>[] = [
-    { field: "name", headerName: "نام محصول", minWidth: 200 },
+    { field: "persianName", headerName: "نام محصول", minWidth: 200 },
     { field: "slug", headerName: "اسلاگ", minWidth: 150 },
     {
       field: "category",
       headerName: "دسته‌بندی",
       maxWidth: 140,
       cellRenderer: (p: ICellRendererParams<Product>) => (
-        <Pill>{categoryLabels[p.value as Product["category"]]}</Pill>
+        <Pill>{p.value as string}</Pill>
       ),
     },
     { field: "price", headerName: "قیمت (تومان)", maxWidth: 150 },
     { field: "weight", headerName: "وزن", maxWidth: 120 },
-    { field: "quantity", headerName: "تعداد", maxWidth: 100 },
     {
       headerName: "عملیات",
       minWidth: 200,

@@ -2,10 +2,9 @@ import Database from "better-sqlite3";
 import { drizzle } from "drizzle-orm/better-sqlite3";
 import { mkdirSync } from "node:fs";
 import { dirname, join } from "node:path";
-import { products } from "./schema";
-import { seedProducts } from "./seed-data";
 
-const dbPath = process.env.DATABASE_URL ?? join(process.cwd(), "data", "showcase.sqlite");
+const dbPath =
+  process.env.DATABASE_URL ?? join(process.cwd(), "data", "showcase.sqlite");
 mkdirSync(dirname(dbPath), { recursive: true });
 
 const sqlite = new Database(dbPath);
@@ -15,20 +14,37 @@ sqlite.exec(`
   CREATE TABLE IF NOT EXISTS products (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     slug TEXT NOT NULL UNIQUE,
-    name TEXT NOT NULL,
-    tagline TEXT NOT NULL,
+    persian_name TEXT NOT NULL,
+    english_name TEXT NOT NULL,
+    brand TEXT NOT NULL,
+    status TEXT NOT NULL DEFAULT 'active',
+    rating INTEGER NOT NULL DEFAULT 0,
+    flavor TEXT NOT NULL DEFAULT '',
+    product_type TEXT NOT NULL DEFAULT 'powder',
+    category TEXT NOT NULL,
     summary TEXT NOT NULL,
     description TEXT NOT NULL,
     features TEXT NOT NULL,
-    category TEXT NOT NULL CHECK (category IN ('default', 'popular', 'best-selling')),
     price TEXT NOT NULL,
+    compare_at_price TEXT,
     weight TEXT NOT NULL,
+    review_count INTEGER NOT NULL DEFAULT 0,
+    tags TEXT NOT NULL DEFAULT '[]',
+    stock INTEGER NOT NULL DEFAULT 100,
+    main_image TEXT NOT NULL DEFAULT '/images/product.png',
+    gallery_images TEXT NOT NULL DEFAULT '["/images/product.png"]',
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL
+  );
+
+  CREATE TABLE IF NOT EXISTS flavors (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL UNIQUE,
     created_at TEXT NOT NULL,
     updated_at TEXT NOT NULL
   );
 `);
 
-db.insert(products).values(seedProducts).onConflictDoNothing({ target: products.slug }).run();
 sqlite.close();
 
-console.log(`Seeded ${seedProducts.length} products into ${dbPath}`);
+console.log(`Product table ready with no seeded products in ${dbPath}`);

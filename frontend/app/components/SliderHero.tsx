@@ -26,7 +26,7 @@ export default function SliderHero({ slides }: { slides: Slider[] }) {
         ];
 
   return (
-    <section className="relative mx-auto max-w-7xl space-y-14 overflow-hidden px-5 py-6 sm:px-8 lg:px-12">
+    <section className="relative mx-auto max-w-7xl overflow-hidden px-4 py-5 sm:px-8 lg:px-12">
       <Swiper
         modules={[Autoplay, Pagination]}
         loop={validSlides.length > 1}
@@ -41,11 +41,11 @@ export default function SliderHero({ slides }: { slides: Slider[] }) {
         pagination={{
           clickable: true,
         }}
-        className="h-[460px]"
+        className="h-[290px] rounded-xl sm:h-[420px]"
       >
         {validSlides.map((slide) => (
           <SwiperSlide key={slide.id}>
-            <div className="relative h-[460px] overflow-hidden">
+            <div className="relative h-[290px] overflow-hidden rounded-xl sm:h-[420px]">
               <Image
                 src={slide.image}
                 alt={slide.title}

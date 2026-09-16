@@ -5,13 +5,16 @@ import {
 } from "@nestjs/common";
 import { eq } from "drizzle-orm";
 import { DatabaseService } from "../db/database.service";
-import { NewProductRow, products } from "../db/schema";
+import { categories, NewProductRow, products } from "../db/schema";
 import { CreateProductInput, UpdateProductInput } from "./product.input";
 
-const categories = ["default", "popular", "best-selling"] as const;
-type ProductCategory = (typeof categories)[number];
-const productTypes = ["powder", "liquid", "tablet", "capsule"] as const;
-type ProductType = (typeof productTypes)[number];
+const productTypes = [
+  "powder",
+  "liquid",
+  "beverage",
+  "tablet",
+  "capsule",
+] as const;
 
 @Injectable()
 export class ProductsService {
@@ -45,27 +48,38 @@ export class ProductsService {
   create(input: CreateProductInput) {
     const category = this.toCategory(input.category);
     const productType = this.toProductType(input.productType);
+    const flavor = this.toFlavor(input.flavor, productType);
     const now = new Date().toISOString();
 
-    const slug = this.generateSlug();
+    const slug = this.generateSlug(input.englishName);
 
     return this.database.db
       .insert(products)
       .values({
         slug,
-        name: input.name,
-        tagline: input.tagline,
+        persianName: input.persianName,
+        englishName: input.englishName,
+        brand: input.brands?.[0]?.trim() || input.brand,
+        brands: this.normalizeNames(input.brands, input.brand),
+        status: input.status,
+        rating: input.rating,
+        flavor: input.flavors?.[0]?.trim() || flavor,
+        flavors: this.normalizeNames(input.flavors, input.flavor),
+        productType,
         summary: input.summary,
         description: input.description,
         features: input.features,
         category,
-        productType,
         price: this.formatPrice(input.price),
-        weight: this.formatMeasurement(input.weight, productType),
-        quantity: this.formatQuantity(input.quantity, productType),
+        compareAtPrice: input.compareAtPrice
+          ? this.formatPrice(input.compareAtPrice)
+          : null,
+        weight: input.weight.trim(),
+        reviewCount: input.reviewCount,
         tags: this.normalizeTags(input.tags),
         stock: input.stock ?? 100,
-        images: this.normalizeImages(input.images),
+        mainImage: input.mainImage?.trim() || "/images/product.png",
+        galleryImages: this.normalizeImages(input.galleryImages),
         createdAt: now,
         updatedAt: now,
       })
@@ -77,31 +91,51 @@ export class ProductsService {
     this.findBySlug(slug);
     const {
       category,
-      productType,
       price,
-      images,
+      galleryImages,
+      mainImage,
       tags,
-      weight,
-      quantity,
+      productType,
+      flavor,
+      brands,
+      flavors,
+      englishName,
       ...rest
     } = input;
     const current = this.findBySlug(slug);
     const resolvedType = productType
       ? this.toProductType(productType)
-      : this.toProductType(current.productType);
+      : current.productType;
     const values: Partial<NewProductRow> = {
       ...rest,
       ...(category ? { category: this.toCategory(category) } : {}),
-      ...(productType ? { productType: resolvedType } : {}),
       ...(price ? { price: this.formatPrice(price) } : {}),
-      ...(weight !== undefined
-        ? { weight: this.formatMeasurement(weight, resolvedType) }
+      ...(productType ? { productType: resolvedType } : {}),
+      ...(flavor !== undefined || productType
+        ? { flavor: this.toFlavor(flavor ?? current.flavor, resolvedType) }
         : {}),
-      ...(quantity !== undefined
-        ? { quantity: this.formatQuantity(quantity, resolvedType) }
+      ...(brands !== undefined
+        ? {
+            brands: this.normalizeNames(brands, brands[0] ?? current.brand),
+            brand: brands[0] ?? current.brand,
+          }
+        : {}),
+      ...(flavors !== undefined
+        ? {
+            flavors: this.normalizeNames(flavors, flavors[0] ?? current.flavor),
+            flavor: flavors[0] ?? current.flavor,
+          }
+        : {}),
+      ...(englishName !== undefined
+        ? { englishName, slug: this.generateSlug(englishName, slug) }
         : {}),
       ...(tags !== undefined ? { tags: this.normalizeTags(tags) } : {}),
-      ...(images ? { images: this.normalizeImages(images) } : {}),
+      ...(mainImage !== undefined
+        ? { mainImage: mainImage.trim() || "/images/product.png" }
+        : {}),
+      ...(galleryImages
+        ? { galleryImages: this.normalizeImages(galleryImages) }
+        : {}),
       updatedAt: new Date().toISOString(),
     };
 
@@ -119,27 +153,56 @@ export class ProductsService {
     return product;
   }
 
-  private toCategory(category: string): ProductCategory {
-    if (!categories.includes(category as ProductCategory)) {
-      throw new BadRequestException(
-        `Category must be one of: ${categories.join(", ")}`,
-      );
+  private toCategory(category: string) {
+    const exists = this.database.db
+      .select({ slug: categories.slug })
+      .from(categories)
+      .where(eq(categories.slug, category.trim()))
+      .get();
+    if (!exists) {
+      throw new BadRequestException("دسته‌بندی انتخاب‌شده معتبر نیست.");
     }
-    return category as ProductCategory;
+    return exists.slug;
   }
 
-  private toProductType(productType?: string | null): ProductType {
-    const normalized = productType ?? "powder";
-    if (!productTypes.includes(normalized as ProductType)) {
-      throw new BadRequestException(
-        `Product type must be one of: ${productTypes.join(", ")}`,
-      );
+  private generateSlug(englishName: string, currentSlug?: string) {
+    const base =
+      englishName
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "") || "product";
+    let candidate = base;
+    let suffix = 2;
+    while (
+      candidate !== currentSlug &&
+      this.database.db
+        .select({ slug: products.slug })
+        .from(products)
+        .where(eq(products.slug, candidate))
+        .get()
+    ) {
+      candidate = `${base}-${suffix++}`;
     }
-    return normalized as ProductType;
+    return candidate;
   }
 
-  private generateSlug() {
-    return `product-${Date.now().toString(36)}-${crypto.randomUUID().slice(0, 8)}`;
+  private toProductType(value?: string | null) {
+    const normalized = value?.trim() || "powder";
+    if (!productTypes.includes(normalized as (typeof productTypes)[number])) {
+      throw new BadRequestException(
+        `نوع محصول باید یکی از این موارد باشد: ${productTypes.join(", ")}`,
+      );
+    }
+    return normalized as (typeof productTypes)[number];
+  }
+
+  private toFlavor(value: string | undefined | null, productType: string) {
+    const flavor = value?.trim() ?? "";
+    if (productType === "powder" && !flavor) {
+      throw new BadRequestException("برای محصول پودری انتخاب طعم الزامی است.");
+    }
+    return flavor;
   }
 
   private decodeSlug(slug: string) {
@@ -154,42 +217,6 @@ export class ProductsService {
     const digits = this.toEnglishDigits(price).replace(/[^\d]/g, "");
     if (!digits) return price;
     return Number(digits).toLocaleString("en-US");
-  }
-
-  private formatMeasurement(value: string, productType: ProductType) {
-    const normalized = this.toEnglishDigits(value)
-      .trim()
-      .replace(/\s*(گرم|کیلوگرم|میلی(?:‌| )?گرم|ml)\s*/gi, "");
-    if (!normalized)
-      throw new BadRequestException("Product measurement is required.");
-
-    if (productType === "powder") {
-      if (/[./]/.test(normalized)) {
-        return `${normalized.replace("/", ".")} کیلوگرم`;
-      }
-      const grams = Number(normalized.replace(/[^\d]/g, ""));
-      if (!grams)
-        throw new BadRequestException("Powder weight must be a number.");
-      return grams >= 1000 ? `${grams / 1000} کیلوگرم` : `${grams} گرم`;
-    }
-
-    const amount = normalized.replace(/[^\d.]/g, "");
-    if (!amount)
-      throw new BadRequestException("Product measurement must be a number.");
-    if (productType === "liquid") return `${amount} میلی‌گرم`;
-    return `${amount} گرم`;
-  }
-
-  private formatQuantity(value: string, productType: ProductType) {
-    const amount = this.toEnglishDigits(value).replace(/[^\d]/g, "");
-    if (!amount || Number(amount) < 1) {
-      throw new BadRequestException("Product quantity must be at least 1.");
-    }
-    return productType === "tablet" ||
-      productType === "liquid" ||
-      productType === "capsule"
-      ? `${amount} عددی`
-      : amount;
   }
 
   private normalizeTags(tags?: string[]) {
@@ -223,10 +250,32 @@ export class ProductsService {
 
     return {
       ...product,
-      productType: product.productType ?? "powder",
       tags: parseList(product.tags, []),
+      brands: parseList(product.brands, product.brand ? [product.brand] : []),
+      flavors: parseList(
+        product.flavors,
+        product.flavor ? [product.flavor] : [],
+      ),
       features: parseList(product.features, []),
-      images: parseList(product.images, ["/images/product.png"]),
+      galleryImages: parseList(product.galleryImages, ["/images/product.png"]),
+      mainImage: product.mainImage ?? "/images/product.png",
+      images: parseList(product.galleryImages, [
+        product.mainImage ?? "/images/product.png",
+      ]),
+      name: product.persianName,
+      tagline: product.englishName,
+      productType: product.productType ?? "powder",
+      quantity: "1",
     };
+  }
+
+  private normalizeNames(values?: string[], fallback?: string) {
+    return [
+      ...new Set(
+        (values?.length ? values : fallback ? [fallback] : [])
+          .map((value) => value.trim())
+          .filter(Boolean),
+      ),
+    ];
   }
 }

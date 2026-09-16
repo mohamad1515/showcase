@@ -3,31 +3,30 @@
 import Image from "next/image";
 import Link from "next/link";
 import { FiStar } from "react-icons/fi";
-import type { Product, ProductCategory } from "../lib/products";
+import type { Product } from "../lib/products";
 import AddToCartButton from "./AddToCartButton";
-
-const categoryLabels: Record<ProductCategory, string> = {
-  default: "پیشنهادی",
-  popular: "محبوب",
-  "best-selling": "پرفروش",
-};
 
 export default function ProductCard({ product }: { product: Product }) {
   const inStock = product.stock > 0;
+  const image =
+    [product.mainImage, product.images?.[0]].find(
+      (value): value is string =>
+        typeof value === "string" && value.trim().length > 0,
+    ) ?? "/images/product.png";
 
   return (
     <article className="group flex h-full flex-col overflow-hidden rounded-lg border border-border bg-card transition duration-150 hover:-translate-y-0.5 hover:border-accent hover:shadow-md">
       <Link href={`/products/${product.slug}`} className="block">
         <div className="relative aspect-[4/3] overflow-hidden bg-background p-2">
           <Image
-            src={product.images?.[0] ?? "/images/product.png"}
-            alt={product.name}
+            src={image}
+            alt={product.name || product.persianName || "تصویر محصول"}
             fill
             sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
             className="rounded-md object-cover transition duration-500 group-hover:scale-[1.06]"
           />
           <span className="absolute right-3 top-3 rounded-sm border border-border bg-surface/95 px-2 py-1 text-[10px] font-bold text-foreground">
-            {categoryLabels[product.category]}
+            {product.brand}
           </span>
           {!inStock && (
             <span className="absolute left-3 top-3 rounded-full bg-danger-soft px-2.5 py-1 text-[10px] font-bold text-danger">
@@ -61,7 +60,7 @@ export default function ProductCard({ product }: { product: Product }) {
         </div>
 
         <div className="mt-3 flex items-center justify-between gap-2">
-          <span className="tabular-fa text-base font-black text-gold">
+          <span className="tabular-fa text-base font-black text-foreground">
             {product.price}
             <span className="mr-1 text-[10px] font-bold text-muted">تومان</span>
           </span>

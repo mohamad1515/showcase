@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { IconType } from "react-icons";
-import { FiArrowRight } from "react-icons/fi";
+import { FiArrowLeft, FiArrowRight } from "react-icons/fi";
 
 export default function AdminPageHeader({
   icon: Icon,
@@ -40,7 +40,7 @@ export default function AdminPageHeader({
           className="inline-flex h-11 items-center gap-2 rounded-md border border-border bg-surface px-5 text-sm font-black text-foreground transition hover:border-accent hover:text-accent"
         >
           {backLabel}
-          <FiArrowRight aria-hidden />
+          <FiArrowLeft aria-hidden />
         </Link>
       </div>
     </section>
