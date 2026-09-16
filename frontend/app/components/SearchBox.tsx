@@ -96,7 +96,7 @@ export default function SearchBox() {
   return (
     <div ref={containerRef} className="relative w-full max-w-xs sm:max-w-sm">
       {/* Search Input */}
-      <div className="flex h-10 items-center gap-2 rounded-2xl border border-border bg-background px-3 transition-colors">
+      <div className="flex h-10 items-center gap-2 rounded-md border border-border bg-surface px-3 transition-colors focus-within:border-accent focus-within:ring-2 focus-within:ring-accent-soft">
         <FiSearch className="shrink-0 text-muted" size={16} aria-hidden />
 
         <input

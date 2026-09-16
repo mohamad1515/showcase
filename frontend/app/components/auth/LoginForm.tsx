@@ -259,7 +259,7 @@ export default function LoginForm({ onSwitchToRegister }: LoginFormProps) {
         <button
           type="submit"
           disabled={busy}
-          className="group flex h-[52px] w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[var(--brand)] to-[var(--brand-hover)] font-black text-white shadow-lg shadow-[var(--brand)]/15 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-[var(--brand)]/25 active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0"
+          className="group flex h-[52px] w-full items-center justify-center gap-2 rounded-md bg-[var(--brand)] font-black text-white transition-colors duration-200 hover:bg-[var(--brand-hover)] active:bg-[var(--accent-pressed)] disabled:cursor-not-allowed disabled:opacity-60"
         >
           {busy ? (
             <>

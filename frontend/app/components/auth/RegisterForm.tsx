@@ -346,7 +346,7 @@ export default function RegisterForm({ onSwitchToLogin }: RegisterFormProps) {
         <button
           type="submit"
           disabled={busy}
-          className="mt-8 flex h-11 w-full items-center justify-center gap-2 rounded-md bg-gradient-to-r from-[var(--brand)] to-[var(--brand-hover)] font-black text-white transition hover:shadow-lg hover:shadow-[var(--brand)]/30 disabled:cursor-not-allowed disabled:opacity-70"
+          className="mt-8 flex h-11 w-full items-center justify-center gap-2 rounded-md bg-[var(--brand)] font-black text-white transition-colors hover:bg-[var(--brand-hover)] active:bg-[var(--accent-pressed)] disabled:cursor-not-allowed disabled:opacity-70"
         >
           {busy ? (
             <>

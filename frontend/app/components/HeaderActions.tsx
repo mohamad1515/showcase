@@ -119,7 +119,7 @@ export default function HeaderActions() {
           onClick={() => setCartOpen(true)}
           title="سبد خرید"
           aria-label="سبد خرید"
-          className="relative inline-flex h-10 w-10 items-center justify-center rounded-md border border-border bg-surface text-foreground transition-colors hover:border-accent hover:text-accent"
+          className="relative inline-flex h-10 w-10 items-center justify-center rounded-md border border-border bg-surface text-foreground transition-colors hover:border-accent hover:text-accent cursor-pointer"
         >
           <FiShoppingCart aria-hidden />
           {cart.itemCount > 0 && (
@@ -134,7 +134,7 @@ export default function HeaderActions() {
           onClick={handleDisabledCart}
           title="سبد خرید"
           aria-label="سبد خرید"
-          className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-border bg-surface text-muted opacity-50 cursor-not-allowed transition-colors"
+          className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-border bg-surface text-muted opacity-50 cursor-not-allowed transition-colors cursor-pointer"
         >
           <FiShoppingCart aria-hidden />
         </button>
@@ -146,9 +146,9 @@ export default function HeaderActions() {
           {isSignedIn ? (
             <>
               <Link
-                href="/orders"
+                href="/admin"
                 title={user?.name || "پروفایل"}
-                className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-border bg-surface text-foreground transition-colors hover:border-accent hover:text-accent"
+                className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-border bg-surface text-foreground transition-colors hover:border-accent hover:text-accent cursor-pointer"
               >
                 <FiUser aria-hidden />
               </Link>
@@ -158,7 +158,7 @@ export default function HeaderActions() {
                 onClick={logout}
                 title="خروج"
                 aria-label="خروج"
-                className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-border bg-surface text-foreground transition-colors hover:border-red-500 hover:text-red-500"
+                className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-border bg-surface text-foreground transition-colors hover:border-red-500 hover:text-red-500 cursor-pointer"
               >
                 <FiLogOut aria-hidden />
               </button>
@@ -180,9 +180,9 @@ export default function HeaderActions() {
     transition-all duration-200
     hover:bg-accent-strong
     hover:border-accent-strong
-    hover:shadow-[0_4px_14px_rgb(75_156_245_/_20%)]
     active:scale-[0.97]
   "
+                cursor-pointer
               >
                 ورود / عضویت
               </Link>
@@ -215,7 +215,7 @@ export default function HeaderActions() {
               key={item.href}
               href={item.href}
               onClick={() => setOpen(false)}
-              className="flex h-10 items-center border-b border-border px-3 text-sm text-foreground last:border-0 hover:bg-[#3a3a3a]"
+              className="flex h-10 items-center border-b border-border px-3 text-sm text-foreground last:border-0 hover:bg-surface-3"
             >
               {item.label}
             </Link>
@@ -229,7 +229,7 @@ export default function HeaderActions() {
                   <Link
                     href="/orders"
                     onClick={() => setOpen(false)}
-                    className="flex h-9 flex-1 items-center justify-center border border-border text-sm hover:bg-[#3a3a3a]"
+                    className="flex h-9 flex-1 items-center justify-center rounded-md border border-border text-sm hover:bg-surface-3"
                   >
                     سفارش‌ها
                   </Link>
@@ -239,7 +239,7 @@ export default function HeaderActions() {
                       logout();
                       setOpen(false);
                     }}
-                    className="h-9 flex-1 bg-red-600 text-sm font-bold text-white hover:bg-red-700"
+                    className="h-9 flex-1 rounded-md bg-danger text-sm font-bold text-white hover:bg-danger/90"
                   >
                     خروج
                   </button>
@@ -249,7 +249,7 @@ export default function HeaderActions() {
                   <Link
                     href="/auth?mode=login"
                     onClick={() => setOpen(false)}
-                    className="flex h-9 flex-1 items-center justify-center border border-border text-sm hover:bg-[#3a3a3a]"
+                    className="flex h-9 flex-1 items-center justify-center rounded-md border border-border text-sm hover:bg-surface-3"
                   >
                     ورود
                   </Link>

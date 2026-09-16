@@ -48,7 +48,14 @@ export default function AdminPage() {
   return (
     <AdminGuard>
       <main className="mx-auto max-w-7xl px-5 py-10 sm:px-8 lg:px-12">
-        <section className="mb-10 rounded-lg border border-border bg-surface p-8 shadow-sm">
+        <section
+          className="
+  mb-10 rounded-lg
+  border border-[#0f3c53]/40
+  bg-gradient-to-br from-[#0f3c53] to-[#14212a]
+  p-8 shadow-sm
+"
+        >
           <p className="h-eyebrow">پنل ادمین</p>
           <h6 className="h-display mt-4 text-3xl text-foreground sm:text-4xl">
             داشبورد مدیریت
@@ -60,7 +67,7 @@ export default function AdminPage() {
             <Link
               key={section.href}
               href={section.href}
-              className="group rounded-lg border border-border bg-surface p-7 shadow-sm transition hover:-translate-y-1 hover:border-accent/60 hover:shadow-xl"
+              className="group rounded-lg border border-[#0f3c53]/40 bg-gradient-to-br from-[#0f3c53] to-[#14212a] p-7 shadow-sm transition hover:-translate-y-1 hover:border-accent/60 hover:shadow-xl"
             >
               <span className="inline-flex h-12 w-12 items-center justify-center rounded-md bg-accent-soft text-xl text-accent">
                 <section.icon aria-hidden />

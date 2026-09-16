@@ -71,7 +71,7 @@ function ActionsCell({
         onClick={() => onRemove(data)}
         className="inline-flex h-9 items-center gap-1.5 rounded-md border border-danger-soft bg-danger-soft px-3 text-xs font-black text-danger transition hover:bg-danger/10"
       >
-        <FiTrash2 aria-hidden className="text-red-500" />
+        <FiTrash2 aria-hidden />
         حذف
       </button>
     </div>

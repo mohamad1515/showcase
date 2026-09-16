@@ -10,7 +10,7 @@ export function ActiveBadge({ active }: { active: boolean }) {
       {active ? (
         <FiCheckCircle aria-hidden className="text-green-500" />
       ) : (
-        <FiXCircle aria-hidden className="text-red-500" />
+        <FiXCircle aria-hidden />
       )}
       {active ? "فعال" : "غیرفعال"}
     </span>

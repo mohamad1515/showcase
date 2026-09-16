@@ -11,7 +11,7 @@ const filters: {
   value: ProductCategory;
   icon: React.ElementType;
 }[] = [
-  { label: "همه", value: "default", icon: FiGrid },
+  { label: "جدیدترین", value: "default", icon: FiGrid },
   { label: "محبوب", value: "popular", icon: FiStar },
   { label: "پرفروش", value: "best-selling", icon: FiTrendingUp },
 ];
@@ -41,16 +41,16 @@ export default function ProductShowcase({ products }: { products: Product[] }) {
           </h2>
         </div>
 
-          <div className="flex border border-border bg-surface p-1">
+        <div className="flex bg-[#233a59] rounded-2xl  p-2">
           {filters.map((filter) => (
             <button
               key={filter.value}
               type="button"
               onClick={() => setActiveFilter(filter.value)}
-              className={`flex h-8 items-center gap-2 rounded-sm px-3 text-xs font-semibold transition ${
+              className={`flex h-8 items-center gap-2 rounded-xl px-3 text-xs font-semibold transition cursor-pointer ${
                 activeFilter === filter.value
-                  ? "bg-accent text-white shadow-sm"
-                  : "text-muted hover:text-foreground"
+                  ? "bg-accent text-black shadow-sm"
+                  : "text-foreground hover:text-muted"
               }`}
             >
               <filter.icon aria-hidden />
@@ -69,7 +69,7 @@ export default function ProductShowcase({ products }: { products: Product[] }) {
       <div className="flex justify-center">
         <Link
           href="/products"
-          className="inline-flex h-8 items-center gap-2 rounded-sm bg-[var(--brand)] px-4 text-sm font-bold text-white transition hover:bg-[var(--brand-hover)]"
+          className="inline-flex h-8 items-center gap-2 rounded-sm bg-accent px-4 text-sm font-bold text-black transition hover:bg-[var(--brand-hover)]"
         >
           مشاهده محصولات بیشتر
           <FiArrowLeft aria-hidden />

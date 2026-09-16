@@ -30,7 +30,7 @@ export default function ProductCard({ product }: { product: Product }) {
             {categoryLabels[product.category]}
           </span>
           {!inStock && (
-            <span className="absolute left-3 top-3 rounded-sm bg-red-500/90 px-2 py-1 text-[10px] font-bold text-white">
+            <span className="absolute left-3 top-3 rounded-full bg-danger-soft px-2.5 py-1 text-[10px] font-bold text-danger">
               ناموجود
             </span>
           )}
@@ -45,10 +45,7 @@ export default function ProductCard({ product }: { product: Product }) {
         </Link>
 
         <div className="mt-1.5 flex items-center gap-1 text-xs">
-          <FiStar
-            className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400"
-            aria-hidden
-          />
+          <FiStar className="h-3.5 w-3.5 fill-accent text-accent" aria-hidden />
           <span className="font-bold text-foreground">4.5</span>
         </div>
 
