@@ -43,9 +43,19 @@ export default function ProductCard({ product }: { product: Product }) {
           </h3>
         </Link>
 
-        <div className="mt-1.5 flex items-center gap-1 text-xs">
-          <FiStar className="h-3.5 w-3.5 fill-accent text-accent" aria-hidden />
-          <span className="font-bold text-foreground">4.5</span>
+        <div className="mt-1.5 flex h-4 items-center gap-1 text-xs">
+          {product.reviewCount > 0 && (
+            <>
+              <FiStar
+                className="h-3.5 w-3.5 fill-accent text-accent"
+                aria-hidden
+              />
+              <span className="font-bold tabular-nums text-foreground">
+                {product.rating.toFixed(1)}
+              </span>
+              <span className="text-muted">({product.reviewCount})</span>
+            </>
+          )}
         </div>
 
         <p className="mt-2 line-clamp-2 min-h-8 text-xs leading-5 text-muted">

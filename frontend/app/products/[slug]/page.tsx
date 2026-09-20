@@ -1,23 +1,21 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { FiCheck, FiInfo, FiStar } from "react-icons/fi";
+import { FiCheck, FiInfo } from "react-icons/fi";
 
 import AddToCartButton from "../../components/AddToCartButton";
 import ProductImageGallery from "../../components/ProductImageGallery";
-import { getProductBySlug, getProducts } from "../../lib/graphql";
+import ProductReviews from "../../components/reviews/ProductReviews";
+import StarRating from "../../components/reviews/StarRating";
+import { getProductBySlug } from "../../lib/graphql";
+
+// Product data is fetched with `cache: "no-store"` (live price, stock and rating), so
+// the page is rendered per request. Declaring it dynamic also avoids the production
+// 500 (DYNAMIC_SERVER_USAGE) that `generateStaticParams` caused for on-demand slugs.
+export const dynamic = "force-dynamic";
 
 type PageProps = {
   params: Promise<{ slug: string }>;
 };
-
-export async function generateStaticParams() {
-  try {
-    const products = await getProducts();
-    return products.map((product) => ({ slug: product.slug }));
-  } catch {
-    return [];
-  }
-}
 
 export async function generateMetadata({ params }: PageProps) {
   const { slug } = await params;
@@ -78,18 +76,22 @@ export default async function ProductPage({ params }: PageProps) {
             </span>
           </div>
 
-          <div className="flex items-center gap-1.5 text-sm">
-            <div className="flex items-center gap-0.5" aria-hidden>
-              {[0, 1, 2, 3].map((i) => (
-                <FiStar
-                  key={i}
-                  className="h-4 w-4 fill-yellow-400 text-yellow-400"
-                />
-              ))}
-              <FiStar className="h-4 w-4 fill-yellow-400/50 text-yellow-400" />
-            </div>
-            <span className="font-bold text-foreground">4.5</span>
-          </div>
+          <a
+            href="#reviews"
+            className="flex w-fit items-center gap-2 text-sm transition hover:opacity-80"
+          >
+            <StarRating value={product.rating} size="sm" />
+            {product.reviewCount > 0 ? (
+              <>
+                <span className="font-bold tabular-nums text-foreground">
+                  {product.rating.toFixed(1)}
+                </span>
+                <span className="text-muted">({product.reviewCount} نظر)</span>
+              </>
+            ) : (
+              <span className="text-muted">هنوز نظری ثبت نشده</span>
+            )}
+          </a>
 
           <p className="max-w-[62ch] text-base leading-8 text-foreground/90">
             {product.description}
@@ -195,6 +197,8 @@ export default async function ProductPage({ params }: PageProps) {
           </Link>
         </aside>
       </section>
+
+      <ProductReviews productSlug={product.slug} />
     </main>
   );
 }

@@ -9,6 +9,7 @@ import {
   FiLayers,
   FiCoffee,
   FiAward,
+  FiMessageSquare,
   FiUsers,
 } from "react-icons/fi";
 import AdminGuard from "../components/AdminGuard";
@@ -31,6 +32,13 @@ const sections: {
     title: "مدیریت محصولات",
     description: "مشاهده، ویرایش، اضافه کردن و حذف محصولات فروشگاه.",
     icon: FiGrid,
+  },
+  {
+    href: "/admin/comments",
+    title: "مدیریت نظرات",
+    description:
+      "نظرها و امتیازهای کاربران را ببینید، پاسخ دهید، ویرایش کنید یا حذف کنید.",
+    icon: FiMessageSquare,
   },
   {
     href: "/admin/categories",
