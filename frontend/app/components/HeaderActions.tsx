@@ -181,8 +181,8 @@ export default function HeaderActions() {
     hover:bg-accent-strong
     hover:border-accent-strong
     active:scale-[0.97]
+    cursor-pointer
   "
-                cursor-pointer
               >
                 ورود / عضویت
               </Link>

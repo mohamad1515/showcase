@@ -83,9 +83,7 @@ Before releasing, also run `npm run build` in both folders and start the product
 
 These predate this documentation and are noted so they don't surprise you:
 
-- The root `.env.example` uses ports 5000/3001 and a `sqlite:` URL; the real defaults are 4000/3000 and a plain file path.
-- Product titles are currently blank in the storefront because the frontend's GraphQL product fields omit `name` (see `frontend/CLAUDE.md`, Gotchas).
-- The root `package.json` and `package-lock.json` list dependencies (TypeORM, pg, type-graphql, apollo-server-express 3) that neither app uses.
+- The root `.env.example` uses ports 5000/3001 and a `sqlite:` URL; the real defaults are 4000/3000 and a plain file path.- The root `package.json` and `package-lock.json` list dependencies (TypeORM, pg, type-graphql, apollo-server-express 3) that neither app uses.
 - `utputFormat` in the repo root is a saved HTTP error response, not project source.
 - Backend authorization is incomplete (plaintext passwords, and unprotected admin mutations for products, users, categories, brands, flavors and sliders; cart, orders and reviews are protected) — **do not deploy publicly as-is**. Details in [backend/README.md](backend/README.md#security-notice--not-production-ready).
 

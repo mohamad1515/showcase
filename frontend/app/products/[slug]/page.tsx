@@ -7,6 +7,7 @@ import ProductImageGallery from "../../components/ProductImageGallery";
 import ProductReviews from "../../components/reviews/ProductReviews";
 import StarRating from "../../components/reviews/StarRating";
 import { getProductBySlug } from "../../lib/graphql";
+import type { Product } from "../../lib/products";
 
 // Product data is fetched with `cache: "no-store"` (live price, stock and rating), so
 // the page is rendered per request. Declaring it dynamic also avoids the production
@@ -17,6 +18,11 @@ type PageProps = {
   params: Promise<{ slug: string }>;
 };
 
+// `name` is computed by the backend from `persianName`; fall back to it so the
+// title, heading and image alt text can never render as "undefined".
+const productTitle = (product: Product) =>
+  product.name || product.persianName || "محصول";
+
 export async function generateMetadata({ params }: PageProps) {
   const { slug } = await params;
   const product = await getProductBySlug(slug);
@@ -25,7 +31,7 @@ export async function generateMetadata({ params }: PageProps) {
   }
 
   return {
-    title: `${product.name} | فیت مکمل`,
+    title: `${productTitle(product)} | فیت مکمل`,
     description: product.summary,
   };
 }
@@ -61,7 +67,7 @@ export default async function ProductPage({ params }: PageProps) {
         <div className="lg:sticky lg:top-8">
           <ProductImageGallery
             images={product.images}
-            productName={product.name}
+            productName={productTitle(product)}
           />
         </div>
 
@@ -69,7 +75,7 @@ export default async function ProductPage({ params }: PageProps) {
         <div className="space-y-7">
           <div className="flex items-start justify-between gap-4">
             <h1 className="text-3xl font-black leading-tight tracking-tight text-foreground sm:text-4xl">
-              {product.name}
+              {productTitle(product)}
             </h1>
             <span className="mt-1 shrink-0 rounded-full border border-border bg-background px-3 py-1 text-xs font-bold text-muted">
               {typeLabel}

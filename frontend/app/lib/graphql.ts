@@ -42,6 +42,10 @@ const productFields = `
   stock
   mainImage
   galleryImages
+  name
+  tagline
+  quantity
+  images
   createdAt
   updatedAt
 `;
