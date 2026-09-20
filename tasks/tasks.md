@@ -107,11 +107,11 @@ Implementation plan for [raw.md](raw.md). Tick each box as it is finished so no 
 
 ## Phase 4 — Frontend shared layer
 
-- [ ] **T6. Types and API functions** — `frontend/app/lib/products.ts`, `frontend/app/lib/graphql.ts`
+- [x] **T6. Types and API functions** — `frontend/app/lib/products.ts`, `frontend/app/lib/graphql.ts`
   - Types: `CommentStatus`, `VoteType`, `Reply`, `Comment`, `ProductReviews`.
   - One `commentFields` fragment (like the existing `productFields`) reused by every function: `getProductReviews`, `getAdminComments(status?)`, `createComment`, `voteComment`, `replyToComment`, `updateComment`, `removeComment`. Ids go through `Number(id)` as elsewhere.
 
-- [ ] **T7. `StarRating` component** — new `frontend/app/components/reviews/StarRating.tsx`
+- [x] **T7. `StarRating` component** — new `frontend/app/components/reviews/StarRating.tsx`
   - Display mode (supports fractional averages) and input mode (1–5, keyboard accessible, `aria-label`s). Uses `FiStar`, already used on the product page. Used by T8 and T9 only — nothing else builds stars.
 
 ## Phase 5 — Product detail page

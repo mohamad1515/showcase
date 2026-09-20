@@ -123,3 +123,46 @@ export type Slider = {
   image: string;
   link: string;
 };
+
+export type CommentStatus = "UNANSWERED" | "ANSWERED";
+
+export type VoteType = "LIKE" | "DISLIKE";
+
+export type Reply = {
+  id: string;
+  content: string;
+  adminName: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type Comment = {
+  id: string;
+  userName: string;
+  rating: number;
+  content: string;
+  status: CommentStatus;
+  editedByAdmin: boolean;
+  createdAt: string;
+  updatedAt: string;
+  likeCount: number;
+  dislikeCount: number;
+  myVote: VoteType | null;
+  reply: Reply | null;
+  productSlug: string;
+  productName: string;
+};
+
+export type CommentInput = {
+  productSlug: string;
+  rating: number;
+  content: string;
+};
+
+export type ProductReviews = {
+  average: number;
+  count: number;
+  /** Reviews per star, index 0 = 1 star ... index 4 = 5 stars. */
+  distribution: number[];
+  comments: Comment[];
+};

@@ -8,6 +8,11 @@ import type {
   Slider,
   Flavor,
   Brand,
+  Comment,
+  CommentInput,
+  CommentStatus,
+  ProductReviews,
+  VoteType,
 } from "./products";
 import { GRAPHQL_URL } from "./config";
 
@@ -102,6 +107,29 @@ const sliderFields = `
   subtitle
   image
   link
+`;
+
+const commentFields = `
+  id
+  userName
+  rating
+  content
+  status
+  editedByAdmin
+  createdAt
+  updatedAt
+  likeCount
+  dislikeCount
+  myVote
+  reply {
+    id
+    content
+    adminName
+    createdAt
+    updatedAt
+  }
+  productSlug
+  productName
 `;
 
 export async function graphqlRequest<T>(
@@ -544,4 +572,108 @@ export async function removeSlider(id: string) {
     { id: Number(id) },
   );
   return data.removeSlider;
+}
+
+export async function getProductReviews(productSlug: string) {
+  const data = await graphqlRequest<{ productReviews: ProductReviews }>(
+    `
+      query ProductReviews($productSlug: String!) {
+        productReviews(productSlug: $productSlug) {
+          average
+          count
+          distribution
+          comments {
+            ${commentFields}
+          }
+        }
+      }
+    `,
+    { productSlug },
+  );
+  return data.productReviews;
+}
+
+export async function getAdminComments(status?: CommentStatus) {
+  const data = await graphqlRequest<{ adminComments: Comment[] }>(
+    `
+      query AdminComments($status: CommentStatus) {
+        adminComments(status: $status) {
+          ${commentFields}
+        }
+      }
+    `,
+    { status },
+  );
+  return data.adminComments;
+}
+
+export async function createComment(input: CommentInput) {
+  const data = await graphqlRequest<{ createComment: Comment }>(
+    `
+      mutation CreateComment($input: CreateCommentInput!) {
+        createComment(input: $input) {
+          ${commentFields}
+        }
+      }
+    `,
+    { input },
+  );
+  return data.createComment;
+}
+
+/** Like or dislike; repeating the same vote removes it, the other type switches it. */
+export async function voteComment(commentId: string, type: VoteType) {
+  const data = await graphqlRequest<{ voteComment: Comment }>(
+    `
+      mutation VoteComment($commentId: Float!, $type: VoteType!) {
+        voteComment(commentId: $commentId, type: $type) {
+          ${commentFields}
+        }
+      }
+    `,
+    { commentId: Number(commentId), type },
+  );
+  return data.voteComment;
+}
+
+export async function replyToComment(commentId: string, content: string) {
+  const data = await graphqlRequest<{ replyToComment: Comment }>(
+    `
+      mutation ReplyToComment($commentId: Float!, $content: String!) {
+        replyToComment(commentId: $commentId, content: $content) {
+          ${commentFields}
+        }
+      }
+    `,
+    { commentId: Number(commentId), content },
+  );
+  return data.replyToComment;
+}
+
+export async function updateComment(commentId: string, content: string) {
+  const data = await graphqlRequest<{ updateComment: Comment }>(
+    `
+      mutation UpdateComment($commentId: Float!, $content: String!) {
+        updateComment(commentId: $commentId, content: $content) {
+          ${commentFields}
+        }
+      }
+    `,
+    { commentId: Number(commentId), content },
+  );
+  return data.updateComment;
+}
+
+export async function removeComment(commentId: string) {
+  const data = await graphqlRequest<{ removeComment: Comment }>(
+    `
+      mutation RemoveComment($commentId: Float!) {
+        removeComment(commentId: $commentId) {
+          ${commentFields}
+        }
+      }
+    `,
+    { commentId: Number(commentId) },
+  );
+  return data.removeComment;
 }
