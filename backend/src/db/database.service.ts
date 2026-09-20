@@ -147,6 +147,40 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
         quantity INTEGER NOT NULL,
         total TEXT NOT NULL
       );
+
+      CREATE TABLE IF NOT EXISTS comments (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        product_id INTEGER NOT NULL REFERENCES products(id) ON DELETE CASCADE,
+        content TEXT NOT NULL,
+        rating INTEGER NOT NULL CHECK (rating BETWEEN 1 AND 5),
+        status TEXT NOT NULL DEFAULT 'UNANSWERED' CHECK (status IN ('UNANSWERED', 'ANSWERED')),
+        edited_by_admin INTEGER NOT NULL DEFAULT 0,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL,
+        UNIQUE(user_id, product_id)
+      );
+      CREATE INDEX IF NOT EXISTS idx_comments_product_created ON comments(product_id, created_at);
+      CREATE INDEX IF NOT EXISTS idx_comments_status ON comments(status);
+
+      CREATE TABLE IF NOT EXISTS replies (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        comment_id INTEGER NOT NULL UNIQUE REFERENCES comments(id) ON DELETE CASCADE,
+        admin_id INTEGER NOT NULL REFERENCES users(id),
+        content TEXT NOT NULL,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL
+      );
+
+      CREATE TABLE IF NOT EXISTS comment_votes (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        comment_id INTEGER NOT NULL REFERENCES comments(id) ON DELETE CASCADE,
+        user_id INTEGER NOT NULL REFERENCES users(id),
+        type TEXT NOT NULL CHECK (type IN ('LIKE', 'DISLIKE')),
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL,
+        UNIQUE(comment_id, user_id)
+      );
     `);
     if (shouldResetProducts) this.sqlite.prepare("DELETE FROM products").run();
     this.ensureColumn("users", "role", "TEXT NOT NULL DEFAULT 'USER'");

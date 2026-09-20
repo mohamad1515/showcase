@@ -109,6 +109,40 @@ export const brands = sqliteTable("brands", {
   updatedAt: text("updated_at").notNull(),
 });
 
+export const comments = sqliteTable("comments", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  userId: integer("user_id").notNull(),
+  productId: integer("product_id").notNull(),
+  content: text("content").notNull(),
+  rating: integer("rating").notNull(),
+  status: text("status", { enum: ["UNANSWERED", "ANSWERED"] })
+    .notNull()
+    .default("UNANSWERED"),
+  editedByAdmin: integer("edited_by_admin", { mode: "boolean" })
+    .notNull()
+    .default(false),
+  createdAt: text("created_at").notNull(),
+  updatedAt: text("updated_at").notNull(),
+});
+
+export const replies = sqliteTable("replies", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  commentId: integer("comment_id").notNull(),
+  adminId: integer("admin_id").notNull(),
+  content: text("content").notNull(),
+  createdAt: text("created_at").notNull(),
+  updatedAt: text("updated_at").notNull(),
+});
+
+export const commentVotes = sqliteTable("comment_votes", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  commentId: integer("comment_id").notNull(),
+  userId: integer("user_id").notNull(),
+  type: text("type", { enum: ["LIKE", "DISLIKE"] }).notNull(),
+  createdAt: text("created_at").notNull(),
+  updatedAt: text("updated_at").notNull(),
+});
+
 export type ProductRow = typeof products.$inferSelect;
 export type NewProductRow = typeof products.$inferInsert;
 export type CartRow = typeof carts.$inferSelect;
@@ -123,3 +157,9 @@ export type FlavorRow = typeof flavors.$inferSelect;
 export type NewFlavorRow = typeof flavors.$inferInsert;
 export type BrandRow = typeof brands.$inferSelect;
 export type NewBrandRow = typeof brands.$inferInsert;
+export type CommentRow = typeof comments.$inferSelect;
+export type NewCommentRow = typeof comments.$inferInsert;
+export type ReplyRow = typeof replies.$inferSelect;
+export type NewReplyRow = typeof replies.$inferInsert;
+export type CommentVoteRow = typeof commentVotes.$inferSelect;
+export type NewCommentVoteRow = typeof commentVotes.$inferInsert;
