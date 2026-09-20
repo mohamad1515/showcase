@@ -6,8 +6,9 @@ Storefront and admin panel for the Showcase supplements shop. Built with **Next.
 
 - Home page with a hero slider and product showcase
 - Product listing and product detail pages (image gallery, features, price, add to cart)
+- Product reviews: star ratings with an average and distribution, a review form for signed-in users, like/dislike, and admin replies shown under each review
 - Signup / login, cart, checkout into an order, and order history
-- Admin panel (`/admin`) to manage products, users, categories, brands, flavors and sliders
+- Admin panel (`/admin`) to manage products, users, categories, brands, flavors, sliders and review comments
 - Light / dark theme toggle, toast notifications, image upload with preview
 
 ## Requirements
@@ -44,7 +45,7 @@ If the backend runs on a different host or port, also update `images.remotePatte
 | Command | Description |
 | --- | --- |
 | `npm run dev` | Dev server with Turbopack on port 3000 |
-| `npm run build` | Production build |
+| `npm run build` | Production build (run this and `npm start` before shipping; dev mode hides some production-only errors) |
 | `npm start` | Serve the production build |
 | `npm run lint` | ESLint (`next/core-web-vitals`, `next/typescript`) |
 
@@ -59,6 +60,7 @@ If the backend runs on a different host or port, also update `images.remotePatte
 | `/admin` | Admin dashboard (ADMIN role) |
 | `/admin/products` (+ `new`, `[slug]/edit`) | Product management |
 | `/admin/users` (+ `new`, `[id]/edit`) | User management |
+| `/admin/comments` | Comment management: All / Unanswered / Answered tabs, reply, edit, delete |
 | `/admin/categories`, `/admin/brands`, `/admin/flavors`, `/admin/sliders` | Catalogue lookups and hero slides |
 | `/unauthorized` | Shown to signed-in non-admins who open `/admin` |
 
@@ -70,12 +72,13 @@ app/
 ├── page.tsx            # Home
 ├── products/  cart/  orders/  auth/  admin/  unauthorized/
 ├── providers/          # AuthProvider (token + user in localStorage)
-├── components/         # Shared UI; admin/ and auth/ subfolders
+├── components/         # Shared UI; admin/, auth/ and reviews/ subfolders
 ├── lib/
 │   ├── graphql.ts      # fetch-based GraphQL client + one function per operation
 │   ├── products.ts     # Shared TypeScript types
 │   ├── auth.ts         # signup / login / logout
 │   ├── config.ts       # API URLs from NEXT_PUBLIC_API_URL
+│   ├── date.ts         # Persian date formatting
 │   └── toast.ts        # react-toastify helpers
 └── globals.css         # Tailwind import + design tokens (colors, radius, font)
 public/                 # Fonts, product / slider / auth images
@@ -85,7 +88,8 @@ public/                 # Fonts, product / slider / auth images
 
 - **Data:** `graphqlRequest()` in `app/lib/graphql.ts` sends `POST` requests to the backend and throws on HTTP or GraphQL errors. Add a new operation there and its types in `lib/products.ts`.
 - **Auth:** after login the token and user are stored in `localStorage` (`auth-token`, `auth-user`) and the token is sent as `Authorization: Bearer …` on browser requests.
-- **Admin access:** `AdminGuard` redirects visitors without the `ADMIN` role. This is a client-side convenience; access control must also be enforced on the backend (it currently is not — see the backend README).
+- **Reviews:** `components/reviews/ProductReviews` loads a product's reviews in the browser (so it can send your token and show your own votes) and mounts on the product page. `StarRating` is the single star widget, used for display and as the rating input. The moderation UI is `app/admin/comments` with `components/admin/CommentCard`.
+- **Admin access:** `AdminGuard` redirects visitors without the `ADMIN` role. This is a client-side convenience; the backend enforces admin access for review moderation, but not yet for the other admin mutations (see the backend README).
 - **Styling:** design tokens live in `app/globals.css` and are used through Tailwind utilities such as `bg-surface`, `text-muted`, `text-accent`.
 
 ## Tech stack

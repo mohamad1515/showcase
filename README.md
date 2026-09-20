@@ -13,7 +13,8 @@ The frontend talks to the backend over GraphQL; product images uploaded through 
 
 - Product catalogue with categories, brands, flavors and a homepage slider
 - Sign-up / login, shopping cart, orders
-- Admin panel for products, users, categories, brands, flavors and sliders
+- Product reviews and ratings: 1–5 stars with text, likes/dislikes, and admin replies
+- Admin panel for products, users, categories, brands, flavors, sliders and review moderation
 - Light / dark theme, Persian UI
 
 ## Quick start
@@ -60,10 +61,19 @@ Each of `backend/` and `frontend/` has its own `package.json`; there is no works
 
 Real configuration lives in the sub-projects:
 
-- Backend: `backend/.env` (from `backend/.env.example`) — `PORT`, `FRONTEND_URL`, `BACKEND_PUBLIC_URL`, `DATABASE_URL`
+- Backend: `backend/.env` (from `backend/.env.example`) — `PORT`, `FRONTEND_URL`, `BACKEND_PUBLIC_URL`, `DATABASE_URL`, `JWT_SECRET`, `JWT_EXPIRY`. The backend does not load `.env` itself, so set these in the process environment. `JWT_SECRET` is required in production.
 - Frontend: `frontend/.env.local` — `NEXT_PUBLIC_API_URL`
 
 See the sub-project READMEs for details.
+
+## Tests
+
+```bash
+cd backend && npm test      # 28 tests: pricing, login tokens and permissions, reviews (in-memory database)
+cd frontend && npm run lint # the frontend has no test suite
+```
+
+Before releasing, also run `npm run build` in both folders and start the production builds (`npm start`), because some errors only appear outside dev mode.
 
 ## Docker
 
@@ -74,9 +84,10 @@ See the sub-project READMEs for details.
 These predate this documentation and are noted so they don't surprise you:
 
 - The root `.env.example` uses ports 5000/3001 and a `sqlite:` URL; the real defaults are 4000/3000 and a plain file path.
+- Product titles are currently blank in the storefront because the frontend's GraphQL product fields omit `name` (see `frontend/CLAUDE.md`, Gotchas).
 - The root `package.json` and `package-lock.json` list dependencies (TypeORM, pg, type-graphql, apollo-server-express 3) that neither app uses.
 - `utputFormat` in the repo root is a saved HTTP error response, not project source.
-- Backend authorization is incomplete (unsigned tokens, plaintext passwords, unprotected admin mutations) — **do not deploy publicly as-is**. Details in [backend/README.md](backend/README.md#security-notice--not-production-ready).
+- Backend authorization is incomplete (plaintext passwords, and unprotected admin mutations for products, users, categories, brands, flavors and sliders; cart, orders and reviews are protected) — **do not deploy publicly as-is**. Details in [backend/README.md](backend/README.md#security-notice--not-production-ready).
 
 ## Contributing notes
 

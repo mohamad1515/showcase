@@ -151,8 +151,8 @@ Implementation plan for [raw.md](raw.md). Tick each box as it is finished so no 
 
 ## Phase 8 — Wrap-up
 
-- [ ] **T12. Update docs once** — `backend/CLAUDE.md` (comments module, new operations, signed tokens/`JWT_SECRET`, remove the "token is forgeable" gotcha if D1 done, rating sync), `backend/README.md` (API table, env table, security notice), `frontend/CLAUDE.md` and `frontend/README.md` (`/admin/comments`, `components/reviews/`), `backend/.env.example` (already touched in T2).
-- [ ] **T13. Final report** (raw.md §14): list every changed/new file, the tests run and their results, and anything intentionally left out. Commit only if asked.
+- [x] **T12. Update docs once** — `backend/CLAUDE.md` (comments module, new operations, signed tokens/`JWT_SECRET`, remove the "token is forgeable" gotcha if D1 done, rating sync), `backend/README.md` (API table, env table, security notice), `frontend/CLAUDE.md` and `frontend/README.md` (`/admin/comments`, `components/reviews/`), `backend/.env.example` (already touched in T2).
+- [x] **T13. Final report** (raw.md §14): list every changed/new file, the tests run and their results, and anything intentionally left out. Commit only if asked.
 
 ---
 
