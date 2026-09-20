@@ -116,7 +116,7 @@ Implementation plan for [raw.md](raw.md). Tick each box as it is finished so no 
 
 ## Phase 5 — Product detail page
 
-- [ ] **T8. Reviews section** — new `components/reviews/ProductReviews.tsx`, `ReviewForm.tsx`, `ReviewItem.tsx`; edit `frontend/app/products/[slug]/page.tsx`
+- [x] **T8. Reviews section** — new `components/reviews/ProductReviews.tsx`, `ReviewForm.tsx`, `ReviewItem.tsx`; edit `frontend/app/products/[slug]/page.tsx`
   - `ProductReviews` (client): fetches `productReviews` with the stored token; shows average, count, 1–5★ distribution bars, the form or the logged-out message (`useAuth`), the list, skeleton while loading, and the empty state.
   - `ReviewForm`: star input + textarea, submit loading state; on success clears the form, adds the returned comment to state, shows a success toast, calls `router.refresh()` so the server-rendered header rating updates. Errors go through `errorMessage` + `notifyError`.
   - `ReviewItem`: name, stars, date, text, "edited by admin" note, like/dislike buttons with counts (`aria-pressed`, highlighted for the viewer's vote, disabled while pending; logged-out click → info toast), and the admin reply under the comment with a «پاسخ مدیر» `Pill` badge. No reply control here — replying happens only in the admin page (T9), so there is one reply UI.
@@ -125,14 +125,14 @@ Implementation plan for [raw.md](raw.md). Tick each box as it is finished so no 
 
 ## Phase 6 — Admin dashboard
 
-- [ ] **T9. Comment Management page** — new `frontend/app/admin/comments/page.tsx`; edit `frontend/app/admin/page.tsx` (add a card to `sections`) and `components/admin/StatusBadge.tsx` (add a `CommentStatusBadge` next to `ActiveBadge`/`Pill`)
+- [x] **T9. Comment Management page** — new `frontend/app/admin/comments/page.tsx`; edit `frontend/app/admin/page.tsx` (add a card to `sections`) and `components/admin/StatusBadge.tsx` (add a `CommentStatusBadge` next to `ActiveBadge`/`Pill`)
   - Wrapped in `AdminGuard`, headed by `AdminPageHeader`, tabs «همه پیام‌ها | بدون پاسخ | پاسخ داده‌شده» (`role="tablist"`) that call `adminComments` with `undefined` / `UNANSWERED` / `ANSWERED` — server-side filtering by the stored status.
   - Each row shows every raw.md §5 "View" field (user, text, product, rating, date, likes, dislikes, reply status), so **View is the row itself — no separate detail route.**
   - Actions: **Reply** (inline textarea, hidden once answered), **Edit** (inline textarea), **Delete** (`window.confirm`, D4). Updates local state from the mutation's returned `Comment`; when a reply flips a comment to `ANSWERED` it leaves the "Unanswered" tab immediately. Loading/empty states per tab; toasts for outcomes.
 
 ## Phase 7 — Verification
 
-- [ ] **T10. Automated tests** (backend, `node:test` via `tsx`, `DATABASE_URL=":memory:"`) — `comments/comments.service.spec.ts`, `auth/session.service.spec.ts`
+- [x] **T10. Automated tests** (backend, `node:test` via `tsx`, `DATABASE_URL=":memory:"`) — `comments/comments.service.spec.ts`, `auth/session.service.spec.ts`
   - Session: forged, expired and tampered tokens rejected; disabled user rejected; `USER` denied by `requireAdmin`.
   - Comments (this is the **single place** that verifies raw.md §11):
     - author id always comes from the session; unauthenticated create fails
@@ -143,7 +143,7 @@ Implementation plan for [raw.md](raw.md). Tick each box as it is finished so no 
     - rating summary and `products.rating`/`review_count` correct after create and delete
     - status filter returns the right rows
 
-- [ ] **T11. Build, lint, manual run**
+- [x] **T11. Build, lint, manual run**
   - Backend: `npm run build`, `npm test`. (`npm run lint` has no ESLint config today — not part of this feature.)
   - Frontend: `npm run lint`, `npm run build`.
   - Manual pass with the servers running (backend needs the `better-sqlite3` native binary — see `backend/CLAUDE.md`): register two users + the seeded admin; post a review (form clears, list and header update without a full reload); like → like again → dislike; confirm counts and icon state; admin replies (comment moves Unanswered → Answered, reply badge visible on the product page); admin edits (note appears); admin deletes (confirm shown, comment gone); check the product page at mobile width; stop the servers afterwards.
