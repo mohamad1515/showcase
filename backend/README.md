@@ -1,225 +1,151 @@
-# Backend Setup Guide
+# Showcase — Backend
 
-## Overview
+GraphQL API for the Showcase supplements shop, built with **NestJS 11**, **Apollo Server 5** (code-first schema), and **SQLite** (`better-sqlite3` + Drizzle ORM).
 
-This project is a **NestJS GraphQL backend** with SQLite database and Apollo Server.
+## Features
 
-### Key Technologies
+- Products, categories, brands, flavors and homepage sliders (CRUD)
+- User accounts with `USER` / `ADMIN` roles, signup and login
+- Per-user shopping cart and order creation from the cart
+- Image upload endpoint (`POST /upload`) with static file serving
+- Zero-setup database: the SQLite file and all tables are created on first start
 
-- **Framework**: NestJS 11
-- **API**: GraphQL (Apollo Server 5)
-- **Database**: SQLite with Drizzle ORM
-- **Platform**: Express
+## Requirements
 
-## Getting Started
+- Node.js 20+
+- A C++ toolchain only if `better-sqlite3` has no prebuilt binary for your platform
 
-### 1. Install Dependencies
+## Getting started
 
 ```bash
+cd backend
 npm install
-```
-
-### 2. Environment Setup
-
-Create a `.env` file by copying `.env.example`:
-
-```bash
-cp .env.example .env
-```
-
-Default configuration:
-
-- **Port**: 4000
-- **DATABASE_URL**: `./data/showcase.sqlite` (auto-created)
-- **FRONTEND_URL**: http://localhost:3000
-
-### 3. Build Project
-
-```bash
-npm run build
-```
-
-### 4. Start Server
-
-```bash
-# Development (with watch/hot-reload)
+cp .env.example .env      # Windows PowerShell: Copy-Item .env.example .env
 npm run start:dev
-
-# Production
-npm start
 ```
 
-Server starts on `http://localhost:5000`
+The server listens on **http://localhost:4000** by default:
 
-## GraphQL Access Points
+| URL | What |
+| --- | --- |
+| `http://localhost:4000/graphql` | GraphQL endpoint (Apollo landing page in non-production) |
+| `http://localhost:4000/upload` | `POST` multipart upload, field name `file` |
+| `http://localhost:4000/uploads/<file>` | Uploaded files |
 
-### GraphQL Endpoint
+### Environment variables
 
-- **URL**: http://localhost:5000/graphql
-- **Methods**: POST (mutations, queries)
+| Variable | Default | Description |
+| --- | --- | --- |
+| `PORT` | `4000` | HTTP port |
+| `FRONTEND_URL` | `http://localhost:3000` | Allowed CORS origin (credentials enabled) |
+| `BACKEND_PUBLIC_URL` | `http://localhost:$PORT` | Public base URL used in upload responses and startup logs |
+| `DATABASE_URL` | `./data/showcase.sqlite` | **Filesystem path** to the SQLite file (not a connection URL) |
+| `OAUTH_*` | — | Documented in `.env.example` but not yet read by the code |
 
-### GraphiQL Playground
+## Scripts
 
-- **URL**: http://localhost:5000/graphiql (interactive explorer)
+| Command | Description |
+| --- | --- |
+| `npm run start:dev` | Start with watch mode |
+| `npm start` | Start once (Nest compiles on start) |
+| `npm run build` | Compile to `dist/` |
+| `npm test` | Run unit tests (`node:test` via `tsx`) |
+| `npm run db:seed` | Create empty `products`/`flavors` tables (products are not seeded) |
+| `npm run lint` | ESLint over `src/` (needs an ESLint 9 config — none is committed yet) |
 
-### Example Query
-
-```graphql
-query {
-  products(category: "popular") {
-    id
-    slug
-    name
-    price
-    description
-  }
-}
-```
-
-## Project Structure
+## Project structure
 
 ```
 src/
-├── app.module.ts          # Main app module with GraphQL config
-├── main.ts                # Bootstrap server entry point
-├── db/                    # Database layer
-│   ├── database.module.ts # DB provider module
-│   ├── database.service.ts # SQLite connection & seeding
-│   ├── schema.ts          # Drizzle schema definitions
-│   ├── seed-data.ts       # Initial product data
-│   └── seed.ts            # Seeding script
-├── products/              # Product domain
-│   ├── product.model.ts   # GraphQL object type
-│   ├── product.input.ts   # GraphQL input types
-│   ├── products.resolver.ts # GraphQL resolvers
-│   ├── products.service.ts  # Business logic
-│   └── products.module.ts   # Domain module
-└── auth/                  # Authentication (OAuth2)
-    ├── auth.module.ts
-    ├── auth.resolver.ts
-    └── strategies/oauth2.strategy.ts
+├── main.ts               # Bootstrap: CORS, static assets, listen
+├── app.module.ts         # GraphQL config + feature modules
+├── db/                   # SQLite connection, table creation, seeding, Drizzle schema
+├── auth/                 # signup / login, OAuth2 strategy (placeholder)
+├── user/                 # User entity and admin user management
+├── products/             # Product catalogue
+├── categories/           # Categories
+├── brands/  flavors/     # Lookup lists used by products
+├── sliders/              # Homepage hero slides
+├── shop/                 # Cart, orders, price helpers (+ unit test)
+└── upload/               # File upload controller
 ```
 
-## API Features
+Each domain follows the same layout: `*.model.ts` (GraphQL type), `*.input.ts` (inputs), `*.service.ts` (logic + DB), `*.resolver.ts`, `*.module.ts`.
 
-### Products Queries
+## API overview
+
+Everything is served from `POST /graphql`.
+
+| Area | Queries | Mutations |
+| --- | --- | --- |
+| Products | `products(category)`, `product(slug)` | `createProduct`, `updateProduct`, `removeProduct` |
+| Categories | `categories`, `category(slug)` | `createCategory`, `updateCategory`, `removeCategory` |
+| Brands / Flavors | `brands`, `flavors` | `create*`, `update*`, `remove*` |
+| Sliders | `sliders`, `slider(id)` | `createSlider`, `updateSlider`, `removeSlider` |
+| Users | `users`, `user(id)` | `createUser`, `updateUser`, `setUserActive` |
+| Auth | — | `signup`, `login` |
+| Cart & orders | `myCart`, `myOrders` | `addCartItem`, `updateCartItem`, `removeCartItem`, `clearCart`, `createOrderFromCart` |
+
+Cart and order operations require an `Authorization: Bearer <token>` header, where the token comes from `login`.
+
+Example:
 
 ```graphql
-# Get all products
 query {
-  products(category: "popular") {
-    id
+  products(category: "sports-supplements") {
     slug
-    name
+    persianName
+    englishName
     price
-  }
-}
-
-# Get product by slug
-query {
-  product(slug: "my-product") {
-    id
-    name
-    description
-    features
+    stock
   }
 }
 ```
 
-### Products Mutations
-
 ```graphql
-# Create product
 mutation {
-  createProduct(
-    input: { slug: "new-product", name: "New Product", price: "99.99" }
-  ) {
-    id
-    slug
-  }
-}
-
-# Update product
-mutation {
-  updateProduct(
-    slug: "my-product"
-    input: { name: "Updated Name", price: "149.99" }
-  ) {
-    id
-  }
-}
-
-# Delete product
-mutation {
-  removeProduct(slug: "my-product") {
-    id
+  login(input: { email: "user@example.com", password: "secret" }) {
+    token
+    user { id name role }
   }
 }
 ```
 
 ## Database
 
-### SQLite Auto-Setup
+- Stored at `DATABASE_URL` (default `backend/data/showcase.sqlite`, git-ignored), in WAL mode.
+- On every start the app creates missing tables, adds missing columns, and inserts default data with `INSERT OR IGNORE`: an admin user (see `DatabaseService.seed()` in `src/db/database.service.ts`), two categories, and one slider.
+- There is no migration tool. Schema changes are made in both `src/db/schema.ts` (Drizzle) and `src/db/database.service.ts` (DDL / `ensureColumn`).
+- Prices are stored as formatted strings such as `"1,250,000"`.
+- To reset, stop the server and delete the `data/` folder.
 
-- Database file: `backend/data/showcase.sqlite`
-- **Auto-created on first run** with seeded product data
-- Uses WAL (Write-Ahead Logging) for better concurrency
-
-### Seeding
-
-Manually seed database:
+## Docker
 
 ```bash
-npm run db:seed
+docker build -t showcase-backend .
+docker run -p 4000:4000 -v showcase-data:/app/data -v showcase-uploads:/app/public/uploads showcase-backend
 ```
 
-## Available Scripts
+The root `docker-compose.yml` still defines a PostgreSQL service and a Postgres-style `DATABASE_URL`; the backend only supports SQLite, so use the plain `docker run` above (or fix the compose file) until that is reconciled.
 
-```bash
-npm start       # Run production build
-npm run build   # Compile TypeScript
-npm run lint    # Check code style
-npm run start:dev # Development with hot-reload
-npm run db:seed # Seed database with initial data
-```
+## Security notice — not production ready
 
-## Integration with Frontend
+This project is a work in progress. Before exposing it publicly, note that:
 
-### CORS Configuration
-
-The backend allows requests from the frontend (port 3000) by default.
-
-- **Allowed Origin**: http://localhost:3000
-- **Credentials**: Enabled
-
-### Frontend GraphQL Endpoint
-
-Configure your frontend to use:
-
-```
-http://localhost:5000/graphql
-```
-
-See `../../frontend/lib/graphql.ts` for client setup example.
+- GraphQL mutations for products, categories, users, etc. are **not access-controlled**; only cart/order operations check for a token.
+- Login tokens are unsigned base64 strings, not JWTs.
+- Passwords are stored and compared in plaintext.
+- `/upload` accepts any file without authentication or limits.
+- A default admin account is seeded with credentials hardcoded in the source.
 
 ## Troubleshooting
 
-| Issue                        | Solution                                       |
-| ---------------------------- | ---------------------------------------------- |
-| Port 4000 already in use     | Change `PORT` env var or kill existing process |
-| Database file locked         | Ensure no other process is running the backend |
-| Module not found errors      | Run `npm install` again                        |
-| GraphQL schema not generated | Restart in watch mode: `npm run start:dev`     |
+| Problem | Fix |
+| --- | --- |
+| `EADDRINUSE` on port 4000 | Set a different `PORT` (and update `NEXT_PUBLIC_API_URL` in the frontend) |
+| CORS errors in the browser | Set `FRONTEND_URL` to the exact frontend origin |
+| `better-sqlite3` binding errors after changing Node version | `npm rebuild better-sqlite3` |
+| Uploaded images don't render in the frontend | Add the backend host to `images.remotePatterns` in `frontend/next.config.ts` |
+| `/graphiql` returns 404 | The controller isn't registered; use `/graphql` |
 
-## Next Steps
-
-- [ ] Implement full OAuth2 authentication strategy
-- [ ] Add User entity and mutations
-- [ ] Add subscription support
-- [ ] Implement role-based access control
-- [ ] Add rate limiting
-- [ ] Add API documentation with Swagger
-
----
-
-For frontend integration, see [../frontend/README.md](../../frontend/README.md)
+See the [frontend README](../frontend/README.md) and the [root README](../README.md) for the full-stack setup.
