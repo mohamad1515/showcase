@@ -6,6 +6,7 @@ import { AuthResponse, SignupResponse } from "./auth.output";
 import { SignupInput, LoginInput } from "./auth.input";
 import { UserService } from "../user/user.service";
 import { User } from "../user/user.entity";
+import { SessionService } from "./session.service";
 
 interface AuthenticatedRequest extends Request {
   user: any;
@@ -24,12 +25,10 @@ interface UserRecord {
 
 @Resolver()
 export class AuthResolver {
-  constructor(private readonly userService: UserService) {}
-
-  // Simple JWT-like token generation (in production, use a proper JWT library)
-  private generateToken(userId: string | number): string {
-    return Buffer.from(`${userId}:${Date.now()}`).toString("base64");
-  }
+  constructor(
+    private readonly userService: UserService,
+    private readonly session: SessionService,
+  ) {}
 
   @Mutation(() => SignupResponse)
   async signup(@Args("input") input: SignupInput) {
@@ -74,7 +73,7 @@ export class AuthResolver {
     }
 
     const userRec = user as UserRecord;
-    const token = this.generateToken(userRec.id || "");
+    const token = this.session.signToken(Number(userRec.id));
 
     // Convert to User object for response
     const userResponse: User = {

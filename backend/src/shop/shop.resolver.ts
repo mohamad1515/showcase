@@ -1,75 +1,69 @@
 import { Args, Context, Mutation, Query, Resolver } from "@nestjs/graphql";
-import { UnauthorizedException } from "@nestjs/common";
 import { Request } from "express";
+import { SessionService } from "../auth/session.service";
 import { AddCartItemInput, UpdateCartItemInput } from "./shop.input";
 import { Cart, Order } from "./shop.model";
 import { ShopService } from "./shop.service";
 
 @Resolver()
 export class ShopResolver {
-  constructor(private readonly shopService: ShopService) {}
+  constructor(
+    private readonly shopService: ShopService,
+    private readonly session: SessionService,
+  ) {}
 
   @Query(() => Cart)
-  myCart(@Context("req") req: Request) {
-    return this.shopService.getCart(this.currentUserId(req));
+  async myCart(@Context("req") req: Request) {
+    const user = await this.session.requireUser(req);
+    return this.shopService.getCart(user.id);
   }
 
   @Mutation(() => Cart)
-  addCartItem(
+  async addCartItem(
     @Args("input") input: AddCartItemInput,
     @Context("req") req: Request,
   ) {
+    const user = await this.session.requireUser(req);
     return this.shopService.addCartItem(
-      this.currentUserId(req),
+      user.id,
       input.productSlug,
       input.quantity,
     );
   }
 
   @Mutation(() => Cart)
-  updateCartItem(
+  async updateCartItem(
     @Args("input") input: UpdateCartItemInput,
     @Context("req") req: Request,
   ) {
-    return this.shopService.updateCartItem(
-      this.currentUserId(req),
-      input.itemId,
-      input.quantity,
-    );
+    const user = await this.session.requireUser(req);
+    return this.shopService.updateCartItem(user.id, input.itemId, input.quantity);
   }
 
   @Mutation(() => Cart)
-  removeCartItem(@Args("itemId") itemId: number, @Context("req") req: Request) {
-    return this.shopService.removeCartItem(this.currentUserId(req), itemId);
+  async removeCartItem(
+    @Args("itemId") itemId: number,
+    @Context("req") req: Request,
+  ) {
+    const user = await this.session.requireUser(req);
+    return this.shopService.removeCartItem(user.id, itemId);
   }
 
   @Mutation(() => Cart)
-  clearCart(@Context("req") req: Request) {
-    return this.shopService.clearCart(this.currentUserId(req));
+  async clearCart(@Context("req") req: Request) {
+    const user = await this.session.requireUser(req);
+    return this.shopService.clearCart(user.id);
   }
 
   @Mutation(() => Order)
-  createOrderFromCart(@Context("req") req: Request) {
-    return this.shopService.createOrderFromCart(this.currentUserId(req));
+  async createOrderFromCart(@Context("req") req: Request) {
+    const user = await this.session.requireUser(req);
+    return this.shopService.createOrderFromCart(user.id);
   }
 
   @Query(() => [Order])
-  myOrders(@Context("req") req: Request) {
-    return this.shopService.getOrders(this.currentUserId(req));
-  }
-
-  private currentUserId(req: Request) {
-    const authHeader = req.headers.authorization;
-    const token = authHeader?.startsWith("Bearer ")
-      ? authHeader.slice("Bearer ".length)
-      : undefined;
-    if (!token) throw new UnauthorizedException("Please sign in first.");
-
-    const decoded = Buffer.from(token, "base64").toString("utf8");
-    const userId = Number(decoded.split(":")[0]);
-    if (!Number.isFinite(userId) || userId < 1) {
-      throw new UnauthorizedException("Invalid session.");
-    }
-    return userId;
+  async myOrders(@Context("req") req: Request) {
+    const user = await this.session.requireUser(req);
+    return this.shopService.getOrders(user.id);
   }
 }

@@ -63,7 +63,7 @@ Implementation plan for [raw.md](raw.md). Tick each box as it is finished so no 
 
 ## Phase 2 — Authentication / authorization (write once, reuse everywhere)
 
-- [ ] **T2. Shared session service** — new `backend/src/auth/session.service.ts`; edit `auth.resolver.ts`, `auth.module.ts`, `shop/shop.resolver.ts`, `shop/shop.module.ts`, `backend/.env.example`
+- [x] **T2. Shared session service** — new `backend/src/auth/session.service.ts`; edit `auth.resolver.ts`, `auth.module.ts`, `shop/shop.resolver.ts`, `shop/shop.module.ts`, `backend/.env.example`
   - `signToken(userId)` / verify with HMAC + expiry (D1). Production refuses to start without `JWT_SECRET`; development falls back to a dev-only secret and logs a warning.
   - `requireUser(req)` → verified, existing, active user (401 on missing/invalid/expired/disabled).
   - `requireAdmin(req)` → `requireUser` + `role === "ADMIN"` read from the DB, not the token (403 otherwise).
