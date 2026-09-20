@@ -109,6 +109,19 @@ export const brands = sqliteTable("brands", {
   updatedAt: text("updated_at").notNull(),
 });
 
+export const users = sqliteTable("users", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  name: text("name").notNull(),
+  email: text("email").notNull().unique(),
+  providerId: text("provider_id").notNull(),
+  password: text("password"),
+  role: text("role").notNull().default("USER"),
+  isActive: integer("is_active", { mode: "boolean" }).notNull().default(true),
+  accessToken: text("access_token"),
+  refreshToken: text("refresh_token"),
+  createdAt: text("created_at").notNull(),
+});
+
 export const comments = sqliteTable("comments", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   userId: integer("user_id").notNull(),

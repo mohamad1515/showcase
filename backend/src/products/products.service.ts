@@ -62,7 +62,8 @@ export class ProductsService {
         brand: input.brands?.[0]?.trim() || input.brand,
         brands: this.normalizeNames(input.brands, input.brand),
         status: input.status,
-        rating: input.rating,
+        // rating and reviewCount are derived from comments (CommentsService)
+        rating: 0,
         flavor: input.flavors?.[0]?.trim() || flavor,
         flavors: this.normalizeNames(input.flavors, input.flavor),
         productType,
@@ -75,7 +76,7 @@ export class ProductsService {
           ? this.formatPrice(input.compareAtPrice)
           : null,
         weight: input.weight.trim(),
-        reviewCount: input.reviewCount,
+        reviewCount: 0,
         tags: this.normalizeTags(input.tags),
         stock: input.stock ?? 100,
         mainImage: input.mainImage?.trim() || "/images/product.png",

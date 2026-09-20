@@ -39,7 +39,6 @@ const emptyForm: ProductInput = {
   brand: "",
   brands: [],
   status: "active",
-  rating: 0,
   flavor: "",
   flavors: [],
   productType: "powder",
@@ -50,7 +49,6 @@ const emptyForm: ProductInput = {
   price: "",
   weight: "",
   compareAtPrice: "",
-  reviewCount: 0,
   tags: [],
   stock: 100,
   mainImage: "/images/product.png",
@@ -92,7 +90,6 @@ export default function ProductForm({ mode, product }: Props) {
         brand: product.brand,
         brands: product.brands ?? (product.brand ? [product.brand] : []),
         status: product.status,
-        rating: product.rating,
         flavor: product.flavor,
         flavors: product.flavors ?? (product.flavor ? [product.flavor] : []),
         productType: product.productType,
@@ -103,7 +100,6 @@ export default function ProductForm({ mode, product }: Props) {
         price: product.price,
         compareAtPrice: product.compareAtPrice ?? "",
         weight: product.weight,
-        reviewCount: product.reviewCount,
         tags: product.tags ?? [],
         stock: product.stock,
         mainImage: product.mainImage,
@@ -368,26 +364,6 @@ export default function ProductForm({ mode, product }: Props) {
             value={form.stock ?? 0}
             onChange={(e) => updateField("stock", Number(e.target.value))}
             required
-            className={inputClass}
-          />
-        </FormField>
-        <FormField label="امتیاز">
-          <input
-            type="number"
-            min={0}
-            max={5}
-            step={0.1}
-            value={form.rating}
-            onChange={(e) => updateField("rating", Number(e.target.value))}
-            className={inputClass}
-          />
-        </FormField>
-        <FormField label="تعداد review">
-          <input
-            type="number"
-            min={0}
-            value={form.reviewCount}
-            onChange={(e) => updateField("reviewCount", Number(e.target.value))}
             className={inputClass}
           />
         </FormField>

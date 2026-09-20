@@ -32,7 +32,7 @@ Implementation plan for [raw.md](raw.md). Tick each box as it is finished so no 
 ## Decisions (defaults chosen — change before starting if you disagree)
 
 - **D1 — Sign login tokens (default: yes).** HMAC-SHA256 with `node:crypto` (no new dependency), secret from `JWT_SECRET`, expiry from `JWT_EXPIRY` (both already named in `backend/.env.example`). Cost: tokens issued before this change stop working, so users sign in again.
-- **D2 — Comments become the single source of product rating (default: yes).** `products.rating` (rounded average) and `review_count` are recalculated from comments; the two manual inputs are removed from `ProductForm` and become optional/defaulted on the backend. Storefront sorting and admin counts then reflect real data. Alternative: leave them manual and only compute a separate average for the detail page — this keeps two "ratings" and is not recommended.
+- **D2 — Comments become the single source of product rating (default: yes).** `products.rating` (average rounded to one decimal, matching the old 0.1-step input) and `review_count` are recalculated from comments; the two manual inputs are removed from `ProductForm` and become optional/defaulted on the backend. Storefront sorting and admin counts then reflect real data. Alternative: leave them manual and only compute a separate average for the detail page — this keeps two "ratings" and is not recommended.
 - **D3 — One review per user per product (default: yes),** enforced by `UNIQUE(user_id, product_id)`. raw.md doesn't say; without it one user can stack ratings. Drop the constraint and the duplicate check if you want unlimited reviews.
 - **D4 — Delete confirmation uses `window.confirm`,** matching every existing admin delete. A custom modal would be a new component for no functional gain.
 - **D5 — One reply per comment, no edit/delete of replies.** Not in raw.md; `UNIQUE(comment_id)` on replies. A second reply attempt returns a clear error.
@@ -73,7 +73,7 @@ Implementation plan for [raw.md](raw.md). Tick each box as it is finished so no 
 
 ## Phase 3 — Backend comments module
 
-- [ ] **T3. `comments` module** — new `backend/src/comments/`: `comment.model.ts`, `comment.input.ts`, `comments.service.ts`, `comments.resolver.ts`, `comments.module.ts` (same layout as `brands/`, `flavors/`)
+- [x] **T3. `comments` module** — new `backend/src/comments/`: `comment.model.ts`, `comment.input.ts`, `comments.service.ts`, `comments.resolver.ts`, `comments.module.ts` (same layout as `brands/`, `flavors/`)
   - **Models** (`registerEnumType` for `CommentStatus`, `VoteType`):
     - `Reply { id, content, adminName, createdAt, updatedAt }`
     - `Comment { id, userName, rating, content, status, editedByAdmin, createdAt, updatedAt, likeCount, dislikeCount, myVote?, reply?, productSlug, productName }` — exposes the author's **name only** (never email/password; do not reuse the `User` type).
@@ -101,9 +101,9 @@ Implementation plan for [raw.md](raw.md). Tick each box as it is finished so no 
     - After create/remove, recalculate `products.rating`/`review_count` in the same transaction (D2), directly via `DatabaseService` so `CommentsModule` doesn't depend on `ProductsModule`.
   - Done when: each operation works from the Apollo landing page at `/graphql` with real tokens.
 
-- [ ] **T4. Register module** — `backend/src/app.module.ts`: add `CommentsModule` to `imports`.
+- [x] **T4. Register module** — `backend/src/app.module.ts`: add `CommentsModule` to `imports`.
 
-- [ ] **T5. Apply D2 to products** *(skip if D2 is rejected)* — `products/product.input.ts`, `product.model.ts` (keep fields), `products.service.ts` (create sets `rating: 0`, `reviewCount: 0`; update no longer overwrites them), `frontend/app/lib/products.ts` (`ProductInput`), `frontend/app/components/admin/ProductForm.tsx` (remove the rating and reviewCount inputs, ~lines 380–390). Admin products page counters stay as they are.
+- [x] **T5. Apply D2 to products** *(skip if D2 is rejected)* — `products/product.input.ts`, `product.model.ts` (keep fields), `products.service.ts` (create sets `rating: 0`, `reviewCount: 0`; update no longer overwrites them), `frontend/app/lib/products.ts` (`ProductInput`), `frontend/app/components/admin/ProductForm.tsx` (remove the rating and reviewCount inputs, ~lines 380–390). Admin products page counters stay as they are.
 
 ## Phase 4 — Frontend shared layer
 

@@ -11,6 +11,7 @@ import { UploadModule } from "./upload/upload.module";
 import { ShopModule } from "./shop/shop.module";
 import { FlavorsModule } from "./flavors/flavors.module";
 import { BrandsModule } from "./brands/brands.module";
+import { CommentsModule } from "./comments/comments.module";
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { BrandsModule } from "./brands/brands.module";
     ShopModule,
     FlavorsModule,
     BrandsModule,
+    CommentsModule,
   ],
 })
 export class AppModule {}

@@ -17,9 +17,6 @@ export class CreateProductInput {
   @Field({ defaultValue: "active" })
   status!: string;
 
-  @Field({ defaultValue: 0 })
-  rating!: number;
-
   @Field({ nullable: true })
   flavor?: string;
 
@@ -49,9 +46,6 @@ export class CreateProductInput {
 
   @Field({ nullable: true })
   compareAtPrice?: string;
-
-  @Field({ defaultValue: 0 })
-  reviewCount!: number;
 
   @Field(() => [String], { nullable: true })
   tags?: string[];

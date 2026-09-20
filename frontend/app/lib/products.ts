@@ -43,7 +43,6 @@ export type ProductInput = {
   brand: string;
   brands?: string[];
   status: string;
-  rating: number;
   flavor: string;
   flavors?: string[];
   productType: "powder" | "liquid" | "beverage" | "tablet" | "capsule" | string;
@@ -54,7 +53,6 @@ export type ProductInput = {
   price: string;
   compareAtPrice?: string;
   weight: string;
-  reviewCount: number;
   tags: string[];
   stock?: number;
   mainImage: string;
