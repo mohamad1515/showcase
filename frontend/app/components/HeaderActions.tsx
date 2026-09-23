@@ -134,7 +134,7 @@ export default function HeaderActions() {
           onClick={handleDisabledCart}
           title="سبد خرید"
           aria-label="سبد خرید"
-          className="inline-flex h-10 w-10 items-center justify-center rounded-full text-muted opacity-50 cursor-not-allowed transition-colors cursor-pointer"
+          className="inline-flex h-10 w-10 items-center justify-center rounded-full text-muted opacity-50 transition-colors cursor-pointer"
         >
           <FiShoppingCart aria-hidden />
         </button>
