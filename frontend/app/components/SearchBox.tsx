@@ -94,61 +94,71 @@ export default function SearchBox() {
   };
 
   return (
-    <div ref={containerRef} className="relative w-full max-w-xs sm:max-w-sm">
+    <div ref={containerRef} className="relative w-full max-w-xs sm:max-w-2xl">
       {/* Search Input */}
-      <div className="flex h-10 items-center gap-2 rounded-md border border-border bg-surface px-3 transition-colors focus-within:border-accent focus-within:ring-2 focus-within:ring-accent-soft">
-        <FiSearch className="shrink-0 text-muted" size={16} aria-hidden />
+<div className="relative flex h-12 items-center rounded-full border border-border bg-[#f4f4f4] px-3 transition-colors focus-within:border-accent focus-within:ring-2 focus-within:ring-accent-soft">
+  <FiSearch
+    className="absolute left-3 shrink-0 text-muted"
+    size={16}
+    aria-hidden
+  />
 
-        <input
-          ref={inputRef}
-          type="text"
-          placeholder="جستجو ..."
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          onFocus={() => setIsFocused(true)}
-          className="
-            h-full
-            w-full
-            border-0
-            bg-transparent
-            text-sm
-            text-foreground
-            outline-none
-            ring-0
-            focus:border-0
-            focus:outline-none
-            focus:ring-0
-            focus-visible:border-0
-            focus-visible:outline-none
-            focus-visible:ring-0
-            placeholder:text-xs
-          "
-          dir="rtl"
-        />
+  <input
+    ref={inputRef}
+    type="text"
+    placeholder="جستجو ..."
+    value={query}
+    onChange={(e) => setQuery(e.target.value)}
+    onFocus={() => setIsFocused(true)}
+    className="
+      h-full
+      w-full
+      border-0
+      bg-transparent
+      pr-3
+      pl-9
+      text-right
+      text-sm
+      text-foreground
+      outline-none
+      ring-0
+      focus:border-0
+      focus:outline-none
+      focus:ring-0
+      focus-visible:border-0
+      focus-visible:outline-none
+      focus-visible:ring-0
+      placeholder:text-right
+      placeholder:text-xs
+    "
+    dir="rtl"
+  />
 
-        {query && (
-          <button
-            type="button"
-            onClick={handleClear}
-            aria-label="پاک کردن جستجو"
-            className="
-              shrink-0
-              border-0
-              bg-transparent
-              p-0
-              text-muted
-              outline-none
-              ring-0
-              transition-colors
-              hover:text-foreground
-              focus:outline-none
-              focus:ring-0
-            "
-          >
-            <FiX size={15} />
-          </button>
-        )}
-      </div>
+  {query && (
+    <button
+      type="button"
+      onClick={handleClear}
+      aria-label="پاک کردن جستجو"
+      className="
+        absolute
+        left-9
+        shrink-0
+        border-0
+        bg-transparent
+        p-0
+        text-muted
+        outline-none
+        ring-0
+        transition-colors
+        hover:text-foreground
+        focus:outline-none
+        focus:ring-0
+      "
+    >
+      <FiX size={15} />
+    </button>
+  )}
+</div>
 
       {/* Search Dropdown */}
       {isFocused && (

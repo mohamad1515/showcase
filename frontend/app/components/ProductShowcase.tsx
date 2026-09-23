@@ -41,7 +41,7 @@ export default function ProductShowcase({ products }: { products: Product[] }) {
           </h2>
         </div>
 
-        <div className="flex bg-[#233a59] rounded-2xl  p-2">
+        <div className="flex bg-[#dbdbdb] rounded-2xl  p-2">
           {filters.map((filter) => (
             <button
               key={filter.value}

@@ -2,12 +2,12 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { FiStar } from "react-icons/fi";
 import type { Product } from "../lib/products";
 import AddToCartButton from "./AddToCartButton";
 
 export default function ProductCard({ product }: { product: Product }) {
   const inStock = product.stock > 0;
+
   const image =
     [product.mainImage, product.images?.[0]].find(
       (value): value is string =>
@@ -15,73 +15,132 @@ export default function ProductCard({ product }: { product: Product }) {
     ) ?? "/images/product.png";
 
   return (
-    <article className="group flex h-full flex-col overflow-hidden rounded-lg border border-border bg-card transition duration-150 hover:-translate-y-0.5 hover:border-accent hover:shadow-md">
+    <article
+      className="
+        group relative flex h-full flex-col
+        overflow-hidden rounded-lg
+        border border-border
+        bg-card
+        transition-all duration-300 ease-out
+        hover:-translate-y-1
+        hover:border-accent
+        hover:shadow-lg
+      "
+    >
+      {/* Product title */}
+      <Link href={`/products/${product.slug}`} className="pt-2 pr-4">
+        <h1
+          className="
+            text-lg font-black leading-6
+            text-foreground
+            transition-colors duration-300
+            group-hover:text-accent
+          "
+        >
+          {product.name}
+        </h1>
+
+        <p className="mt-2 line-clamp-2 min-h-6 text-xs leading-5 text-muted">
+          {product.tagline}
+        </p>
+      </Link>
+
+      {/* Product image */}
       <Link href={`/products/${product.slug}`} className="block">
-        <div className="relative aspect-[4/3] overflow-hidden bg-background p-2">
+        <div
+          className="
+            relative mt-2
+            aspect-[4/3.6]
+            overflow-hidden
+            rounded-md
+            bg-background
+          "
+        >
           <Image
             src={image}
             alt={product.name || product.persianName || "تصویر محصول"}
             fill
             sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
-            className="rounded-md object-cover transition duration-500 group-hover:scale-[1.06]"
+            className="
+              object-contain
+              p-3
+            "
           />
-          <span className="absolute right-3 top-3 rounded-sm border border-border bg-surface/95 px-2 py-1 text-[10px] font-bold text-foreground">
-            {product.brand}
-          </span>
+
           {!inStock && (
-            <span className="absolute left-3 top-3 rounded-full bg-danger-soft px-2.5 py-1 text-[10px] font-bold text-danger">
+            <span
+              className="
+                absolute left-3 top-3
+                rounded-full
+                bg-danger-soft 
+                px-2.5 py-1
+                text-[10px] font-bold
+                text-danger
+              "
+            >
               ناموجود
             </span>
           )}
         </div>
       </Link>
 
-      <div className="flex flex-1 flex-col p-3.5">
-        <Link href={`/products/${product.slug}`}>
-          <h3 className="text-sm font-black leading-6 text-foreground transition group-hover:text-accent">
-            {product.name}
-          </h3>
-        </Link>
+     {/* Bottom area */}
+<div className="relative mt-auto pt-3">
+  {/* Reserved bottom space */}
+  <div className="relative h-[80px] overflow-hidden">
+    {/* Price */}
+    <div
+      className="
+        absolute
+        bottom-6
+        left-4
+        z-20
+        transition-transform
+        duration-500
+        ease-out
+        group-hover:-translate-y-[30px]
+      "
+    >
+      <span className="tabular-fa text-base font-black text-foreground">
+        {product.price}
+        <span className="mr-1 text-[10px] font-bold text-muted">
+          تومان
+        </span>
+      </span>
+    </div>
 
-        <div className="mt-1.5 flex h-4 items-center gap-1 text-xs">
-          {product.reviewCount > 0 && (
-            <>
-              <FiStar
-                className="h-3.5 w-3.5 fill-accent text-accent"
-                aria-hidden
-              />
-              <span className="font-bold tabular-nums text-foreground">
-                {product.rating.toFixed(1)}
-              </span>
-              <span className="text-muted">({product.reviewCount})</span>
-            </>
-          )}
-        </div>
-
-        <p className="mt-2 line-clamp-2 min-h-8 text-xs leading-5 text-muted">
-          {product.tagline}
-        </p>
-
-        {/* Compact spec strip — echoes the facts-panel styling on the product page */}
-        <div className="mt-3 flex items-center gap-3 border-y border-border py-2 text-[11px] font-bold text-muted">
-          <span>{product.weight}</span>
-          <span className="h-3 w-px bg-border" aria-hidden />
-          <span>{product.quantity}</span>
-        </div>
-
-        <div className="mt-3 flex items-center justify-between gap-2">
-          <span className="tabular-fa text-base font-black text-foreground">
-            {product.price}
-            <span className="mr-1 text-[10px] font-bold text-muted">تومان</span>
-          </span>
-        </div>
-
-        <AddToCartButton
-          productSlug={product.slug}
-          disabled={!inStock}
-          className="mt-3 w-full"
-        />
-      </div>
+    {/* Sliding cart panel */}
+    <div
+      className="
+        absolute
+        bottom-0
+        left-[-8px]
+        right-[-8px]
+        z-10
+        translate-y-full
+        transition-transform
+        duration-500
+        ease-out
+        group-hover:translate-y-0
+      "
+    >
+      <AddToCartButton
+        productSlug={product.slug}
+        disabled={!inStock}
+        className="
+          !mt-0
+          !w-full
+          !rounded-none
+          border-0
+          py-3
+          transition-none
+          text-lg
+        "
+      />
+    </div>
+  </div>
+</div>
     </article>
   );
 }
+

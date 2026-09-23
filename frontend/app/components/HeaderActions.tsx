@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import { useEffect, useState } from "react";
+import Link from 'next/link';
+import { useEffect, useState } from 'react';
 import {
   FiChevronLeft,
   FiLogOut,
@@ -12,38 +12,38 @@ import {
   FiTrash2,
   FiUser,
   FiX,
-} from "react-icons/fi";
-import { SiInstagram, SiTelegram } from "react-icons/si";
-import { getCart, removeCartItem, updateCartItem } from "../lib/graphql";
-import type { Cart } from "../lib/products";
-import { errorMessage, notifyError, notifySuccess } from "../lib/toast";
-import { useAuth } from "../providers/AuthProvider";
-import SearchBox from "./SearchBox";
+} from 'react-icons/fi';
+import { SiInstagram, SiTelegram } from 'react-icons/si';
+import { getCart, removeCartItem, updateCartItem } from '../lib/graphql';
+import type { Cart } from '../lib/products';
+import { errorMessage, notifyError, notifySuccess } from '../lib/toast';
+import { useAuth } from '../providers/AuthProvider';
+import SearchBox from './SearchBox';
 
 export const navItems = [
-  { href: "/", label: "خانه" },
-  { href: "/products", label: "محصولات" },
-  { href: "/#about", label: "درباره ما" },
-  { href: "/#contact", label: "تماس با ما" },
+  { href: '/', label: 'خانه' },
+  { href: '/products', label: 'محصولات' },
+  { href: '/#about', label: 'درباره ما' },
+  { href: '/#contact', label: 'تماس با ما' },
 ];
 
 export const socialLinks = [
   {
-    href: "https://t.me/fitmokamel",
-    label: "تلگرام",
+    href: 'https://t.me/fitmokamel',
+    label: 'تلگرام',
     icon: SiTelegram,
   },
   {
-    href: "https://instagram.com/fitmokamel",
-    label: "اینستاگرام",
+    href: 'https://instagram.com/fitmokamel',
+    label: 'اینستاگرام',
     icon: SiInstagram,
   },
 ];
 
 const actionClass =
-  "inline-flex h-8 items-center justify-center border border-border bg-surface px-3 text-xs font-bold text-foreground transition-colors hover:border-accent hover:text-accent";
+  'inline-flex h-8 items-center justify-center border border-border bg-surface px-3 text-xs font-bold text-foreground transition-colors hover:border-accent hover:text-accent';
 
-const emptyCart: Cart = { id: "0", items: [], total: "0", itemCount: 0 };
+const emptyCart: Cart = { id: '0', items: [], total: '0', itemCount: 0 };
 
 export default function HeaderActions() {
   const { user, token, loading, logout } = useAuth();
@@ -70,12 +70,12 @@ export default function HeaderActions() {
 
     refreshCart();
     const handleCartRefresh = () => refreshCart();
-    window.addEventListener("cart:refresh", handleCartRefresh);
-    return () => window.removeEventListener("cart:refresh", handleCartRefresh);
+    window.addEventListener('cart:refresh', handleCartRefresh);
+    return () => window.removeEventListener('cart:refresh', handleCartRefresh);
   }, [token]);
 
   const handleDisabledCart = () => {
-    notifyError("برای مشاهده سبد خرید ابتدا وارد حساب کاربری خود شوید");
+    notifyError('برای مشاهده سبد خرید ابتدا وارد حساب کاربری خود شوید');
   };
 
   async function changeQuantity(itemId: string, quantity: number) {
@@ -88,9 +88,9 @@ export default function HeaderActions() {
     try {
       const nextCart = await updateCartItem(itemId, quantity);
       setCart(nextCart);
-      window.dispatchEvent(new CustomEvent("cart:refresh"));
+      window.dispatchEvent(new CustomEvent('cart:refresh'));
     } catch (err) {
-      notifyError(errorMessage(err, "به‌روزرسانی سبد خرید ناموفق بود."));
+      notifyError(errorMessage(err, 'به‌روزرسانی سبد خرید ناموفق بود.'));
     } finally {
       setBusyId(null);
     }
@@ -101,10 +101,10 @@ export default function HeaderActions() {
     try {
       const nextCart = await removeCartItem(itemId);
       setCart(nextCart);
-      window.dispatchEvent(new CustomEvent("cart:refresh"));
-      notifySuccess("محصول از سبد خرید حذف شد.");
+      window.dispatchEvent(new CustomEvent('cart:refresh'));
+      notifySuccess('محصول از سبد خرید حذف شد.');
     } catch (err) {
-      notifyError(errorMessage(err, "حذف محصول ناموفق بود."));
+      notifyError(errorMessage(err, 'حذف محصول ناموفق بود.'));
     } finally {
       setBusyId(null);
     }
@@ -119,7 +119,7 @@ export default function HeaderActions() {
           onClick={() => setCartOpen(true)}
           title="سبد خرید"
           aria-label="سبد خرید"
-          className="relative inline-flex h-10 w-10 items-center justify-center rounded-md border border-border bg-surface text-foreground transition-colors hover:border-accent hover:text-accent cursor-pointer"
+          className="relative inline-flex h-10 w-10 items-center justify-center rounded-full text-foreground transition-colors hover:border-accent hover:text-accent cursor-pointer"
         >
           <FiShoppingCart aria-hidden />
           {cart.itemCount > 0 && (
@@ -134,7 +134,7 @@ export default function HeaderActions() {
           onClick={handleDisabledCart}
           title="سبد خرید"
           aria-label="سبد خرید"
-          className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-border bg-surface text-muted opacity-50 cursor-not-allowed transition-colors cursor-pointer"
+          className="inline-flex h-10 w-10 items-center justify-center rounded-full text-muted opacity-50 cursor-not-allowed transition-colors cursor-pointer"
         >
           <FiShoppingCart aria-hidden />
         </button>
@@ -147,8 +147,8 @@ export default function HeaderActions() {
             <>
               <Link
                 href="/admin"
-                title={user?.name || "پروفایل"}
-                className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-border bg-surface text-foreground transition-colors hover:border-accent hover:text-accent cursor-pointer"
+                title={user?.name || 'پروفایل'}
+                className="inline-flex h-10 w-10 items-center justify-center rounded-full text-foreground transition-colors hover:border-accent hover:text-accent cursor-pointer"
               >
                 <FiUser aria-hidden />
               </Link>
@@ -158,7 +158,7 @@ export default function HeaderActions() {
                 onClick={logout}
                 title="خروج"
                 aria-label="خروج"
-                className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-border bg-surface text-foreground transition-colors hover:border-red-500 hover:text-red-500 cursor-pointer"
+                className="inline-flex h-10 w-10 items-center justify-center rounded-full text-foreground transition-colors hover:border-red-500 hover:text-red-500 cursor-pointer"
               >
                 <FiLogOut aria-hidden />
               </button>
@@ -196,7 +196,7 @@ export default function HeaderActions() {
         type="button"
         onClick={() => setOpen((value) => !value)}
         className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-border bg-surface text-foreground md:hidden"
-        aria-label={open ? "بستن منو" : "باز کردن منو"}
+        aria-label={open ? 'بستن منو' : 'باز کردن منو'}
       >
         {open ? <FiX aria-hidden /> : <FiMenu aria-hidden />}
       </button>
@@ -287,13 +287,8 @@ export default function HeaderActions() {
             <div className="flex-1 space-y-3 overflow-y-auto p-4">
               {cart.items.length === 0 ? (
                 <div className="flex h-full flex-col items-center justify-center rounded-lg border border-dashed border-border bg-surface p-6 text-center">
-                  <FiShoppingCart
-                    className="text-3xl text-accent"
-                    aria-hidden
-                  />
-                  <p className="mt-3 text-sm font-bold text-muted">
-                    سبد خرید شما خالی است.
-                  </p>
+                  <FiShoppingCart className="text-3xl text-accent" aria-hidden />
+                  <p className="mt-3 text-sm font-bold text-muted">سبد خرید شما خالی است.</p>
                 </div>
               ) : (
                 cart.items.map((item) => (
@@ -303,7 +298,7 @@ export default function HeaderActions() {
                   >
                     <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-md bg-background">
                       <img
-                        src={item.product.images?.[0] ?? "/images/product.png"}
+                        src={item.product.images?.[0] ?? '/images/product.png'}
                         alt={item.product.name}
                         className="h-full w-full object-cover"
                       />
@@ -328,9 +323,7 @@ export default function HeaderActions() {
                         <div className="flex items-center gap-2">
                           <button
                             type="button"
-                            onClick={() =>
-                              changeQuantity(item.id, item.quantity + 1)
-                            }
+                            onClick={() => changeQuantity(item.id, item.quantity + 1)}
                             disabled={busyId === item.id}
                             className="grid h-8 w-8 place-items-center rounded-md border border-border bg-background text-foreground transition hover:border-accent hover:text-accent disabled:opacity-60"
                           >
@@ -341,9 +334,7 @@ export default function HeaderActions() {
                           </span>
                           <button
                             type="button"
-                            onClick={() =>
-                              changeQuantity(item.id, item.quantity - 1)
-                            }
+                            onClick={() => changeQuantity(item.id, item.quantity - 1)}
                             disabled={busyId === item.id}
                             className="grid h-8 w-8 place-items-center rounded-md border border-border bg-background text-foreground transition hover:border-accent hover:text-accent disabled:opacity-60"
                           >
@@ -351,9 +342,7 @@ export default function HeaderActions() {
                           </button>
                         </div>
 
-                        <span className="text-sm font-black text-gold">
-                          {item.lineTotal} تومان
-                        </span>
+                        <span className="text-sm font-black text-gold">{item.lineTotal} تومان</span>
                       </div>
                     </div>
                   </div>
@@ -365,9 +354,7 @@ export default function HeaderActions() {
             <div className="border-t border-border p-4">
               <div className="mb-3 flex items-center justify-between text-sm font-bold text-muted">
                 <span>جمع کل</span>
-                <span className="text-lg font-black text-gold">
-                  {cart.total} تومان
-                </span>
+                <span className="text-lg font-black text-gold">{cart.total} تومان</span>
               </div>
 
               <div className="grid gap-2 sm:grid-cols-2">
