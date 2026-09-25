@@ -21,8 +21,9 @@ import { useAuth } from '../providers/AuthProvider';
 import SearchBox from './SearchBox';
 
 export const navItems = [
-  { href: '/', label: 'خانه' },
+  { href: '/', label: 'صفحه اصلی' },
   { href: '/products', label: 'محصولات' },
+  { href: '/#articles', label: 'مقالات' },
   { href: '/#about', label: 'درباره ما' },
   { href: '/#contact', label: 'تماس با ما' },
 ];
@@ -119,11 +120,11 @@ export default function HeaderActions() {
           onClick={() => setCartOpen(true)}
           title="سبد خرید"
           aria-label="سبد خرید"
-          className="relative inline-flex h-10 w-10 items-center justify-center rounded-full text-foreground transition-colors hover:border-accent hover:text-accent cursor-pointer"
+          className="text-foreground hover:border-accent hover:text-accent relative inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-full transition-colors"
         >
           <FiShoppingCart aria-hidden />
           {cart.itemCount > 0 && (
-            <span className="absolute -left-1 -top-1 grid h-4 min-w-4 place-items-center rounded-full bg-accent px-1 text-[10px] font-black leading-none text-white">
+            <span className="bg-accent absolute -top-1 -left-1 grid h-4 min-w-4 place-items-center rounded-full px-1 text-[10px] leading-none font-black text-white">
               {cart.itemCount}
             </span>
           )}
@@ -134,7 +135,7 @@ export default function HeaderActions() {
           onClick={handleDisabledCart}
           title="سبد خرید"
           aria-label="سبد خرید"
-          className="inline-flex h-10 w-10 items-center justify-center rounded-full text-muted opacity-50 transition-colors cursor-pointer"
+          className="text-muted inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-full opacity-50 transition-colors"
         >
           <FiShoppingCart aria-hidden />
         </button>
@@ -148,7 +149,7 @@ export default function HeaderActions() {
               <Link
                 href="/admin"
                 title={user?.name || 'پروفایل'}
-                className="inline-flex h-10 w-10 items-center justify-center rounded-full text-foreground transition-colors hover:border-accent hover:text-accent cursor-pointer"
+                className="text-foreground hover:border-accent hover:text-accent inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-full transition-colors"
               >
                 <FiUser aria-hidden />
               </Link>
@@ -158,7 +159,7 @@ export default function HeaderActions() {
                 onClick={logout}
                 title="خروج"
                 aria-label="خروج"
-                className="inline-flex h-10 w-10 items-center justify-center rounded-full text-foreground transition-colors hover:border-red-500 hover:text-red-500 cursor-pointer"
+                className="text-foreground inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-full transition-colors hover:border-red-500 hover:text-red-500"
               >
                 <FiLogOut aria-hidden />
               </button>
@@ -167,22 +168,7 @@ export default function HeaderActions() {
             <>
               <Link
                 href="/auth?mode=login"
-                className="
-    hidden sm:inline-flex
-    h-9 items-center justify-center
-    rounded-md
-    border border-accent
-    bg-accent
-    px-4
-    text-sm font-bold
-    text-white
-    shadow-sm
-    transition-all duration-200
-    hover:bg-accent-strong
-    hover:border-accent-strong
-    active:scale-[0.97]
-    cursor-pointer
-  "
+                className="border-accent bg-accent hover:bg-accent-strong hover:border-accent-strong hidden h-9 cursor-pointer items-center justify-center rounded-md border px-4 text-sm font-bold text-white shadow-sm transition-all duration-200 active:scale-[0.97] sm:inline-flex"
               >
                 ورود / عضویت
               </Link>
@@ -195,7 +181,7 @@ export default function HeaderActions() {
       <button
         type="button"
         onClick={() => setOpen((value) => !value)}
-        className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-border bg-surface text-foreground md:hidden"
+        className="border-border bg-surface text-foreground inline-flex h-10 w-10 items-center justify-center rounded-md border md:hidden"
         aria-label={open ? 'بستن منو' : 'باز کردن منو'}
       >
         {open ? <FiX aria-hidden /> : <FiMenu aria-hidden />}
@@ -203,9 +189,9 @@ export default function HeaderActions() {
 
       {/* Mobile Menu */}
       {open && (
-        <div className="absolute inset-x-3 top-12 z-50 border border-border bg-surface p-2 shadow-[0_4px_16px_rgba(0,0,0,.3)] md:hidden">
+        <div className="border-border bg-surface absolute inset-x-3 top-12 z-50 border p-2 shadow-[0_4px_16px_rgba(0,0,0,.3)] md:hidden">
           {/* Mobile Search */}
-          <div className="mb-2 pb-2 border-b border-border">
+          <div className="border-border mb-2 border-b pb-2">
             <SearchBox />
           </div>
 
@@ -215,7 +201,7 @@ export default function HeaderActions() {
               key={item.href}
               href={item.href}
               onClick={() => setOpen(false)}
-              className="flex h-10 items-center border-b border-border px-3 text-sm text-foreground last:border-0 hover:bg-surface-3"
+              className="border-border text-foreground hover:bg-surface-3 flex h-10 items-center border-b px-3 text-sm last:border-0"
             >
               {item.label}
             </Link>
@@ -229,7 +215,7 @@ export default function HeaderActions() {
                   <Link
                     href="/orders"
                     onClick={() => setOpen(false)}
-                    className="flex h-9 flex-1 items-center justify-center rounded-md border border-border text-sm hover:bg-surface-3"
+                    className="border-border hover:bg-surface-3 flex h-9 flex-1 items-center justify-center rounded-md border text-sm"
                   >
                     سفارش‌ها
                   </Link>
@@ -239,7 +225,7 @@ export default function HeaderActions() {
                       logout();
                       setOpen(false);
                     }}
-                    className="h-9 flex-1 rounded-md bg-danger text-sm font-bold text-white hover:bg-danger/90"
+                    className="bg-danger hover:bg-danger/90 h-9 flex-1 rounded-md text-sm font-bold text-white"
                   >
                     خروج
                   </button>
@@ -249,7 +235,7 @@ export default function HeaderActions() {
                   <Link
                     href="/auth?mode=login"
                     onClick={() => setOpen(false)}
-                    className="flex h-9 flex-1 items-center justify-center rounded-md border border-border text-sm hover:bg-surface-3"
+                    className="border-border hover:bg-surface-3 flex h-9 flex-1 items-center justify-center rounded-md border text-sm"
                   >
                     ورود
                   </Link>
@@ -269,14 +255,14 @@ export default function HeaderActions() {
       {/* Cart Drawer */}
       {cartOpen && (
         <div className="fixed inset-0 z-[60] bg-black/45 backdrop-blur-[1px]">
-          <div className="absolute left-0 top-0 flex h-full w-full max-w-md flex-col border-l border-border bg-background shadow-2xl">
+          <div className="border-border bg-background absolute top-0 left-0 flex h-full w-full max-w-md flex-col border-l shadow-2xl">
             {/* Header */}
-            <div className="flex items-center justify-between border-b border-border p-4">
-              <h2 className="text-lg font-black text-foreground">سبد خرید</h2>
+            <div className="border-border flex items-center justify-between border-b p-4">
+              <h2 className="text-foreground text-lg font-black">سبد خرید</h2>
               <button
                 type="button"
                 onClick={() => setCartOpen(false)}
-                className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-border text-foreground transition hover:border-accent hover:text-accent"
+                className="border-border text-foreground hover:border-accent hover:text-accent inline-flex h-9 w-9 items-center justify-center rounded-md border transition"
                 aria-label="بستن سبد خرید"
               >
                 <FiX aria-hidden />
@@ -286,17 +272,17 @@ export default function HeaderActions() {
             {/* Cart Items */}
             <div className="flex-1 space-y-3 overflow-y-auto p-4">
               {cart.items.length === 0 ? (
-                <div className="flex h-full flex-col items-center justify-center rounded-lg border border-dashed border-border bg-surface p-6 text-center">
-                  <FiShoppingCart className="text-3xl text-accent" aria-hidden />
-                  <p className="mt-3 text-sm font-bold text-muted">سبد خرید شما خالی است.</p>
+                <div className="border-border bg-surface flex h-full flex-col items-center justify-center rounded-lg border border-dashed p-6 text-center">
+                  <FiShoppingCart className="text-accent text-3xl" aria-hidden />
+                  <p className="text-muted mt-3 text-sm font-bold">سبد خرید شما خالی است.</p>
                 </div>
               ) : (
                 cart.items.map((item) => (
                   <div
                     key={item.id}
-                    className="flex gap-3 rounded-lg border border-border bg-surface p-3"
+                    className="border-border bg-surface flex gap-3 rounded-lg border p-3"
                   >
-                    <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-md bg-background">
+                    <div className="bg-background relative h-20 w-20 shrink-0 overflow-hidden rounded-md">
                       <img
                         src={item.product.images?.[0] ?? '/images/product.png'}
                         alt={item.product.name}
@@ -306,7 +292,7 @@ export default function HeaderActions() {
 
                     <div className="flex min-w-0 flex-1 flex-col justify-between">
                       <div className="flex items-start justify-between gap-3">
-                        <p className="line-clamp-2 text-sm font-bold text-foreground">
+                        <p className="text-foreground line-clamp-2 text-sm font-bold">
                           {item.product.name}
                         </p>
                         <button
@@ -325,24 +311,24 @@ export default function HeaderActions() {
                             type="button"
                             onClick={() => changeQuantity(item.id, item.quantity + 1)}
                             disabled={busyId === item.id}
-                            className="grid h-8 w-8 place-items-center rounded-md border border-border bg-background text-foreground transition hover:border-accent hover:text-accent disabled:opacity-60"
+                            className="border-border bg-background text-foreground hover:border-accent hover:text-accent grid h-8 w-8 place-items-center rounded-md border transition disabled:opacity-60"
                           >
                             <FiPlus aria-hidden />
                           </button>
-                          <span className="grid min-w-8 place-items-center text-sm font-black text-foreground">
+                          <span className="text-foreground grid min-w-8 place-items-center text-sm font-black">
                             {item.quantity}
                           </span>
                           <button
                             type="button"
                             onClick={() => changeQuantity(item.id, item.quantity - 1)}
                             disabled={busyId === item.id}
-                            className="grid h-8 w-8 place-items-center rounded-md border border-border bg-background text-foreground transition hover:border-accent hover:text-accent disabled:opacity-60"
+                            className="border-border bg-background text-foreground hover:border-accent hover:text-accent grid h-8 w-8 place-items-center rounded-md border transition disabled:opacity-60"
                           >
                             <FiMinus aria-hidden />
                           </button>
                         </div>
 
-                        <span className="text-sm font-black text-gold">{item.lineTotal} تومان</span>
+                        <span className="text-gold text-sm font-black">{item.lineTotal} تومان</span>
                       </div>
                     </div>
                   </div>
@@ -351,24 +337,24 @@ export default function HeaderActions() {
             </div>
 
             {/* Footer */}
-            <div className="border-t border-border p-4">
-              <div className="mb-3 flex items-center justify-between text-sm font-bold text-muted">
+            <div className="border-border border-t p-4">
+              <div className="text-muted mb-3 flex items-center justify-between text-sm font-bold">
                 <span>جمع کل</span>
-                <span className="text-lg font-black text-gold">{cart.total} تومان</span>
+                <span className="text-gold text-lg font-black">{cart.total} تومان</span>
               </div>
 
               <div className="grid gap-2 sm:grid-cols-2">
                 <Link
                   href="/cart"
                   onClick={() => setCartOpen(false)}
-                  className="inline-flex h-11 items-center justify-center rounded-md bg-accent px-4 text-sm font-black text-white transition hover:bg-accent-strong"
+                  className="bg-accent hover:bg-accent-strong inline-flex h-11 items-center justify-center rounded-md px-4 text-sm font-black text-white transition"
                 >
                   مشاهده سبد خرید
                 </Link>
                 <button
                   type="button"
                   onClick={() => setCartOpen(false)}
-                  className="inline-flex h-11 items-center justify-center gap-2 rounded-md border border-border bg-background px-4 text-sm font-black text-foreground transition hover:border-accent hover:text-accent"
+                  className="border-border bg-background text-foreground hover:border-accent hover:text-accent inline-flex h-11 items-center justify-center gap-2 rounded-md border px-4 text-sm font-black transition"
                 >
                   ادامه خرید
                   <FiChevronLeft aria-hidden />

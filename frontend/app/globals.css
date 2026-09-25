@@ -1,9 +1,9 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @font-face {
-  font-family: "Vazir";
-  src: url("/fonts/Vazir.woff2") format("woff2");
-  font-weight: 400 700;
+  font-family: 'Vazir';
+  src: url('/fonts/Vazir.woff2') format('woff2');
+  font-weight: 400 700 900;
   font-style: normal;
   font-display: swap;
 }
@@ -22,7 +22,7 @@
   --disabled: #60788e;
   --accent: #8cff64;
   --accent-strong: #67dd3f;
-  --accent-pressed: #dc7800;
+  --accent-pressed: #8cff64;
   --accent-soft: rgb(255 151 0 / 14%);
   --brand: #8cff64;
   --brand-hover: #5ddb34;
@@ -50,8 +50,8 @@
   --color-accent-strong: var(--accent-strong);
   --color-danger: var(--danger);
   --color-success: var(--success);
-  --font-sans: "Vazir";
-  --font-mono: "Vazir";
+  --font-sans: 'Vazir';
+  --font-mono: 'Vazir';
 }
 
 * {
@@ -66,7 +66,7 @@ body {
   min-height: 100vh;
   background: var(--background);
   color: var(--foreground);
-  font-family: "Vazir", ui-sans-serif, system-ui, sans-serif;
+  font-family: 'Vazir', ui-sans-serif, system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -137,7 +137,7 @@ select:focus-visible {
 }
 
 .Toastify__toast-container {
-  font-family: "Vazir", sans-serif;
+  font-family: 'Vazir', sans-serif;
   direction: rtl;
 }
 .Toastify__toast {
@@ -161,7 +161,7 @@ select:focus-visible {
 }
 
 .ag-theme-fitmokamel {
-  --ag-font-family: "Vazir", sans-serif;
+  --ag-font-family: 'Vazir', sans-serif;
   --ag-font-size: 13px;
   --ag-background-color: var(--surface);
   --ag-odd-row-background-color: #111a27;

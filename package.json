@@ -10,5 +10,9 @@
     "pg": "^8.21.0",
     "type-graphql": "^2.0.0-rc.3",
     "typeorm": "^1.0.0"
+  },
+  "devDependencies": {
+    "prettier": "^3.9.9",
+    "prettier-plugin-tailwindcss": "^0.8.1"
   }
 }

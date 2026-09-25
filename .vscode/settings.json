@@ -1,5 +1,25 @@
 {
-  "tailwindCSS.lint.suggestCanonicalClasses": "ignore",
+  "editor.fontSize": 16,
+
+  "python.formatting.provider": "black",
+  "python.linting.enabled": true,
+  "python.linting.pylintEnabled": true,
+  "python.languageServer": "Pylance",
+
+  "workbench.iconTheme": "material-icon-theme",
+
   "editor.defaultFormatter": "esbenp.prettier-vscode",
-  "editor.formatOnSave": true
+  "editor.formatOnSave": true,
+
+  "notebook.defaultFormatter": "esbenp.prettier-vscode",
+
+  "git.autofetch": true,
+
+  "containers.containerClient": "com.microsoft.visualstudio.containers.docker",
+  "containers.orchestratorClient": "com.microsoft.visualstudio.orchestrators.dockercompose",
+
+  "chat.mcp.gallery.enabled": true,
+  "chat.viewSessions.orientation": "stacked",
+  "editor.wordWrap": "on",
+  "tailwindCSS.lint.suggestCanonicalClasses": "ignore"
 }

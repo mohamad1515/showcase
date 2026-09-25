@@ -1,39 +1,31 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import HeaderActions, { navItems, socialLinks } from "./HeaderActions";
-import SearchBox from "./SearchBox";
-import Image from "next/image";
-import image from '@/public/logo.png'
+import Link from 'next/link';
+import HeaderActions, { navItems, socialLinks } from './HeaderActions';
+import SearchBox from './SearchBox';
+import Image from 'next/image';
+import Logo from '@/public/logo.png';
+import { LuAlignJustify } from 'react-icons/lu';
 
 export default function SiteHeader() {
   return (
-    <header
-      className="sticky top-0 z-50 border-b border-border bg-white"
-      dir="rtl"
-    >
+    <header className="border-border sticky top-0 z-50 border-b bg-white" dir="rtl">
       <div className="overflow-hidden border-b border-black bg-[#8cff64]">
         <div className="relative flex h-9 items-center overflow-hidden">
-          <div className="announcement-track absolute whitespace-nowrap text-sm font-bold text-black">
-            تخفیف ویژه محصولات منتخب فیت مکمل — ارسال رایگان برای سفارش‌های
-            بالای یک میلیون تومان
+          <div className="announcement-track absolute text-sm font-bold whitespace-nowrap text-black">
+            تخفیف ویژه محصولات منتخب فیت مکمل — ارسال رایگان برای سفارش‌های بالای یک میلیون تومان
           </div>
         </div>
       </div>
 
-      <div className="border-b border-border">
+      <div className="border-border border-b">
         <div className="flex h-20 w-full items-center gap-4 px-4 sm:px-6 lg:px-10">
           {/* Logo */}
           <Link
             href="/"
-            // className="flex-shrink-0 whitespace-nowrap text-lg font-black tracking-tight text-foreground sm:text-2xl"
+            className="border-border text-foreground hover:border-foreground hover:bg-surface flex h-9 flex-shrink-0 items-center rounded-full border bg-transparent px-4 text-sm font-bold transition-colors"
           >
-             <Image
-             width={250}
-             height={80}
-                        src={image}
-                        alt={"تصویر محصول"}
-                      />
+            <Image src={Logo} alt={'تصویر محصول'} width={250} height={80} />
           </Link>
 
           {/* Search */}
@@ -53,26 +45,24 @@ export default function SiteHeader() {
       {/* =========================================================
           3. Navigation
       ========================================================= */}
-      <div className="border-b border-border">
+      <div className="border-border border-b">
         <div className="flex min-h-14 w-full items-center gap-6 px-4 sm:px-6 lg:px-10">
           {/* Categories Button */}
           <button
             type="button"
-            className="flex h-9 flex-shrink-0 items-center rounded-md border border-border bg-transparent px-4 text-sm font-bold text-foreground transition-colors hover:border-foreground hover:bg-surface"
+            className="border-border text-foreground hover:border-foreground hover:bg-surface flex h-9 w-[300px] items-center justify-between rounded-full border bg-transparent px-6 text-sm font-bold transition-colors"
           >
-            دسته‌بندی
+            <p>دسـته‌بـندی‌ها</p>
+            <LuAlignJustify size={15} className="ml-3" />
           </button>
 
           {/* Main Navigation */}
-          <nav
-            className="hidden flex-1 items-center gap-2 md:flex"
-            aria-label="منوی اصلی"
-          >
+          <nav className="hidden flex-1 items-center gap-2 md:flex" aria-label="منوی اصلی">
             {navItems.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
-                className="flex items-center rounded-md px-4 py-2 text-sm font-bold text-muted transition-colors hover:bg-surface hover:text-foreground"
+                className="text-foreground after:bg-foreground relative flex items-center rounded-md px-4 py-2 text-lg font-extrabold after:absolute after:right-4 after:bottom-0 after:left-4 after:h-px after:origin-center after:scale-x-0 after:transition-transform after:duration-300 hover:after:scale-x-100"
               >
                 {item.label}
               </Link>
@@ -88,7 +78,7 @@ export default function SiteHeader() {
                 target="_blank"
                 rel="noreferrer"
                 aria-label={label}
-                className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-border bg-surface text-foreground transition-colors hover:border-accent hover:text-accent"
+                className="border-border bg-surface text-foreground hover:border-accent hover:text-accent inline-flex h-8 w-8 items-center justify-center rounded-md border transition-colors"
               >
                 <Icon size={16} aria-hidden />
               </a>
