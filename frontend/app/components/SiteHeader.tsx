@@ -9,7 +9,7 @@ import { LuAlignJustify } from 'react-icons/lu';
 
 export default function SiteHeader() {
   return (
-    <header className="border-border sticky top-0 z-50 border-b bg-white" dir="rtl">
+    <header className="border-border top-0 z-50 border-b bg-white" dir="rtl">
       <div className="overflow-hidden border-b border-black bg-[#8cff64]">
         <div className="relative flex h-9 items-center overflow-hidden">
           <div className="announcement-track absolute text-sm font-bold whitespace-nowrap text-black">
@@ -18,19 +18,19 @@ export default function SiteHeader() {
         </div>
       </div>
 
-      <div className="border-border border-b">
+      <div className="border-border border-b py-3">
         <div className="flex h-20 w-full items-center gap-4 px-4 sm:px-6 lg:px-10">
           {/* Logo */}
           <Link
             href="/"
-            className="border-border text-foreground hover:border-foreground hover:bg-surface flex h-9 flex-shrink-0 items-center rounded-full border bg-transparent px-4 text-sm font-bold transition-colors"
+            className="text-foreground flex h-9 flex-shrink-0 items-center rounded-full bg-transparent px-4 text-sm font-bold transition-colors"
           >
-            <Image src={Logo} alt={'تصویر محصول'} width={250} height={80} />
+            <Image src={Logo} alt={'تصویر محصول'} width={300} height={80} />
           </Link>
 
           {/* Search */}
           <div className="flex flex-1 items-center justify-center px-2 sm:px-6">
-            <div className="w-full max-w-4xl">
+            <div className="w-full">
               <SearchBox />
             </div>
           </div>
@@ -45,15 +45,15 @@ export default function SiteHeader() {
       {/* =========================================================
           3. Navigation
       ========================================================= */}
-      <div className="border-border border-b">
+      <div className="border-border border-b py-1">
         <div className="flex min-h-14 w-full items-center gap-6 px-4 sm:px-6 lg:px-10">
           {/* Categories Button */}
           <button
             type="button"
-            className="border-border text-foreground hover:border-foreground hover:bg-surface flex h-9 w-[300px] items-center justify-between rounded-full border bg-transparent px-6 text-sm font-bold transition-colors"
+            className="border-border text-foreground hover:border-foreground hover:bg-surface flex h-12 w-[300px] items-center justify-between rounded-full border bg-transparent px-6 text-sm font-bold transition-colors"
           >
-            <p>دسـته‌بـندی‌ها</p>
-            <LuAlignJustify size={15} className="ml-3" />
+            <h1 className="text-lg font-black">دسـته‌بـندی‌ها</h1>
+            <LuAlignJustify size={15} />
           </button>
 
           {/* Main Navigation */}
@@ -62,7 +62,7 @@ export default function SiteHeader() {
               <Link
                 key={item.href}
                 href={item.href}
-                className="text-foreground after:bg-foreground relative flex items-center rounded-md px-4 py-2 text-lg font-extrabold after:absolute after:right-4 after:bottom-0 after:left-4 after:h-px after:origin-center after:scale-x-0 after:transition-transform after:duration-300 hover:after:scale-x-100"
+                className="text-foreground after:bg-foreground relative flex items-center rounded-md px-4 py-2 text-lg font-extrabold tracking-[-3px] after:absolute after:right-4 after:bottom-0 after:left-4 after:h-px after:origin-center after:scale-x-0 after:transition-transform after:duration-300 hover:after:scale-x-100"
               >
                 {item.label}
               </Link>

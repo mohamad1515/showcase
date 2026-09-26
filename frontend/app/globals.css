@@ -212,3 +212,20 @@ select:focus-visible {
   font-size: 18px;
   font-weight: bold;
 }
+
+.menu {
+  position: relative;
+}
+
+.menu::before {
+  top: -1px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-left: 5px solid transparent;
+  border-right: 14px solid transparent;
+  border-bottom: 19px solid #fff;
+  content: '';
+  position: absolute;
+  border-color: red;
+  transform: rotate(45deg);
+}

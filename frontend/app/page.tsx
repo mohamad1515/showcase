@@ -8,18 +8,18 @@ import CategoriesSection from './components/CategoriesSection';
 import OfferProducts from './components/OfferProducts';
 import NewsProducts from './components/NewsProducts';
 import OfferBanner from './components/OfferBanner';
+import { FiChevronLeft } from 'react-icons/fi';
 
 const supplementList = [
-  'پروتئین وی',
-  'گینر',
-  'کراتین',
-  'BCAA',
-  'گلوتامین',
-  'پری‌ورک‌اوت',
-  'بتاآلانین',
-  'مولتی‌ویتامین',
-  'امگا ۳',
-  'پروتئین کازئین',
+  { title: 'مکمل‌های پروتئینی', hasArrow: true },
+  { title: 'کراتین', hasArrow: true },
+  { title: 'پری ورک اوت', hasArrow: true },
+  { title: 'کربوهیدرات‌ها', hasArrow: false },
+  { title: 'اسیدهای آمینه', hasArrow: true },
+  { title: 'انرژی و تمرکز', hasArrow: false },
+  { title: 'مکمل‌های حجمی', hasArrow: false },
+  { title: 'کاهش وزن', hasArrow: false },
+  { title: 'فیتنس آقایان', hasArrow: false },
 ];
 
 export default async function Home() {
@@ -27,20 +27,23 @@ export default async function Home() {
 
   return (
     <main>
-      <div className="mx-auto mt-2 flex max-w-full sm:px-8 lg:px-12">
-        {/* A - لیست محصولات */}
+      <div className="mx-auto mt-5 flex max-w-full sm:px-8 lg:px-12">
+        {/* supplementList */}
         <div className="hidden w-[300px] flex-shrink-0 lg:block">
-          <div className="border-border h-full rounded-xl border p-5">
-            <div className="space-y-2">
-              {supplementList.map((supplement, index) => (
-                <div
-                  key={supplement}
-                  className="text-foreground hover:bg-muted/10 flex cursor-pointer items-center justify-between rounded-lg px-3 py-1.5 text-sm font-normal transition-colors"
+          <div className="border-border relative h-full overflow-visible rounded-xl border bg-white p-5">
+            <div className="absolute -top-2 left-1/2 z-10 h-4 w-4 -translate-x-1/2 -rotate-45 border border-b-0 border-l-0 bg-white" />
+
+            <ul className="space-y-1">
+              {supplementList.map((item) => (
+                <li
+                  key={item.title}
+                  className="text-foreground hover:bg-muted/10 flex cursor-pointer items-center justify-between rounded-lg px-3 py-2 text-sm font-normal transition-colors"
                 >
-                  <span>{supplement}</span>
-                </div>
+                  <span>{item.title}</span>
+                  {item.hasArrow && <FiChevronLeft size={16} className="text-muted" />}
+                </li>
               ))}
-            </div>
+            </ul>
           </div>
         </div>
 
@@ -49,9 +52,9 @@ export default async function Home() {
           <SliderHero slides={sliders} />
         </div>
 
-        {/* B + C */}
+        {/* two side */}
         <div className="hidden w-72 flex-shrink-0 flex-col gap-2 lg:flex">
-          {/* B */}
+          {/* Side A */}
           <div className="border-border bg-surface relative min-h-0 flex-1 overflow-hidden rounded-xl border">
             <Image
               src={firstSlide}
@@ -62,7 +65,7 @@ export default async function Home() {
             />
           </div>
 
-          {/* C */}
+          {/* Side B */}
           <div className="border-border bg-surface relative min-h-0 flex-1 overflow-hidden rounded-xl border">
             <Image
               src={secondSlide}

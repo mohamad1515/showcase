@@ -1,14 +1,14 @@
-"use client";
+'use client';
 
-import { useEffect, useRef, useState } from "react";
-import Link from "next/link";
-import { FiLoader, FiSearch, FiX } from "react-icons/fi";
-import { getProducts } from "../lib/graphql";
-import type { Product } from "../lib/products";
+import { useEffect, useRef, useState } from 'react';
+import Link from 'next/link';
+import { FiLoader, FiSearch, FiX } from 'react-icons/fi';
+import { getProducts } from '../lib/graphql';
+import type { Product } from '../lib/products';
 
 export default function SearchBox() {
   const [isFocused, setIsFocused] = useState(false);
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState('');
   const [results, setResults] = useState<Product[]>([]);
   const [loading, setLoading] = useState(false);
   const [allProducts, setAllProducts] = useState<Product[]>([]);
@@ -25,7 +25,7 @@ export default function SearchBox() {
         setAllProducts(products);
         setIsInitialized(true);
       } catch (error) {
-        console.error("Failed to load products:", error);
+        console.error('Failed to load products:', error);
         setIsInitialized(true);
       }
     };
@@ -67,23 +67,20 @@ export default function SearchBox() {
   // Close dropdown on outside click
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (
-        containerRef.current &&
-        !containerRef.current.contains(event.target as Node)
-      ) {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
         setIsFocused(false);
       }
     }
 
-    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener('mousedown', handleClickOutside);
 
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
 
   const handleClear = () => {
-    setQuery("");
+    setQuery('');
     setResults([]);
     inputRef.current?.focus();
   };
@@ -94,85 +91,43 @@ export default function SearchBox() {
   };
 
   return (
-    <div ref={containerRef} className="relative w-full max-w-xs sm:max-w-2xl">
+    <div ref={containerRef} className="relative w-full max-w-full">
       {/* Search Input */}
-<div className="relative flex h-12 items-center rounded-full border border-border bg-[#f4f4f4] px-3 transition-colors focus-within:border-accent focus-within:ring-2 focus-within:ring-accent-soft">
-  <FiSearch
-    className="absolute left-3 shrink-0 text-muted"
-    size={16}
-    aria-hidden
-  />
+      <div className="border-border focus-within:border-accent focus-within:ring-accent-soft relative flex h-12 items-center rounded-full border bg-[#f4f4f4] px-3 transition-colors focus-within:ring-2">
+        <FiSearch className="text-muted absolute left-3 shrink-0" size={16} aria-hidden />
 
-  <input
-    ref={inputRef}
-    type="text"
-    placeholder="جستجو ..."
-    value={query}
-    onChange={(e) => setQuery(e.target.value)}
-    onFocus={() => setIsFocused(true)}
-    className="
-      h-full
-      w-full
-      border-0
-      bg-transparent
-      pr-3
-      pl-9
-      text-right
-      text-sm
-      text-foreground
-      outline-none
-      ring-0
-      focus:border-0
-      focus:outline-none
-      focus:ring-0
-      focus-visible:border-0
-      focus-visible:outline-none
-      focus-visible:ring-0
-      placeholder:text-right
-      placeholder:text-xs
-    "
-    dir="rtl"
-  />
+        <input
+          ref={inputRef}
+          type="text"
+          placeholder="جستجو ..."
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          onFocus={() => setIsFocused(true)}
+          className="text-foreground h-full w-full border-0 bg-transparent pr-3 pl-9 text-right text-sm ring-0 outline-none placeholder:text-right placeholder:text-xs focus:border-0 focus:ring-0 focus:outline-none focus-visible:border-0 focus-visible:ring-0 focus-visible:outline-none"
+          dir="rtl"
+        />
 
-  {query && (
-    <button
-      type="button"
-      onClick={handleClear}
-      aria-label="پاک کردن جستجو"
-      className="
-        absolute
-        left-9
-        shrink-0
-        border-0
-        bg-transparent
-        p-0
-        text-muted
-        outline-none
-        ring-0
-        transition-colors
-        hover:text-foreground
-        focus:outline-none
-        focus:ring-0
-      "
-    >
-      <FiX size={15} />
-    </button>
-  )}
-</div>
+        {query && (
+          <button
+            type="button"
+            onClick={handleClear}
+            aria-label="پاک کردن جستجو"
+            className="text-muted hover:text-foreground absolute left-9 shrink-0 border-0 bg-transparent p-0 ring-0 transition-colors outline-none focus:ring-0 focus:outline-none"
+          >
+            <FiX size={15} />
+          </button>
+        )}
+      </div>
 
       {/* Search Dropdown */}
       {isFocused && (
-        <div className="absolute top-full right-0 z-50 mt-2 border-0 w-full min-w-60 rounded-md bg-surface shadow-lg">
+        <div className="bg-surface absolute top-full right-0 z-50 mt-2 w-full min-w-60 rounded-md border-0 shadow-lg">
           {!isInitialized ? (
-            <div className="p-4 text-center text-sm text-muted">
-              درحال بارگیری...
-            </div>
+            <div className="text-muted p-4 text-center text-sm">درحال بارگیری...</div>
           ) : !query.trim() ? (
-            <div className="p-4 text-center text-xs text-muted">
-              جستجو در همه محصولات
-            </div>
+            <div className="text-muted p-4 text-center text-xs">جستجو در همه محصولات</div>
           ) : loading ? (
-            <div className="flex items-center justify-center gap-2 p-4 text-sm text-muted">
+            <div className="text-muted flex items-center justify-center gap-2 p-4 text-sm">
               <FiLoader className="animate-spin" size={14} aria-hidden />
               درحال جستجو...
             </div>
@@ -184,50 +139,26 @@ export default function SearchBox() {
                     key={product.id}
                     href={`/products/${product.slug}`}
                     onClick={closeDropdown}
-                    className="
-                      block
-                      rounded-md
-                      border
-                      border-transparent
-                      p-3
-                      transition-colors
-                      hover:border-border
-                      hover:bg-background
-                    "
+                    className="hover:border-border hover:bg-background block rounded-md border border-transparent p-3 transition-colors"
                   >
-                    <div className="text-sm font-bold text-foreground">
-                      {product.name}
-                    </div>
+                    <div className="text-foreground text-sm font-bold">{product.name}</div>
 
-                    <div className="line-clamp-1 text-xs text-muted">
-                      {product.tagline}
-                    </div>
+                    <div className="text-muted line-clamp-1 text-xs">{product.tagline}</div>
 
-                    <div className="mt-1 text-sm font-black text-accent">
+                    <div className="text-accent mt-1 text-sm font-black">
                       {product.price}
 
-                      <span className="mr-1 text-[10px] font-bold text-muted">
-                        تومان
-                      </span>
+                      <span className="text-muted mr-1 text-[10px] font-bold">تومان</span>
                     </div>
                   </Link>
                 ))}
               </div>
 
-              <div className="border-t border-border">
+              <div className="border-border border-t">
                 <Link
                   href="/products"
                   onClick={closeDropdown}
-                  className="
-                    block
-                    p-3
-                    text-center
-                    text-sm
-                    font-bold
-                    text-accent
-                    transition-colors
-                    hover:text-foreground
-                  "
+                  className="text-accent hover:text-foreground block p-3 text-center text-sm font-bold transition-colors"
                 >
                   مشاهده تمام محصولات
                 </Link>
@@ -235,24 +166,13 @@ export default function SearchBox() {
             </>
           ) : (
             <>
-              <div className="p-4 text-center text-sm text-muted">
-                محصولی با این عنوان پیدا نشد
-              </div>
+              <div className="text-muted p-4 text-center text-sm">محصولی با این عنوان پیدا نشد</div>
 
-              <div className="border-t border-border">
+              <div className="border-border border-t">
                 <Link
                   href="/products"
                   onClick={closeDropdown}
-                  className="
-                    block
-                    p-3
-                    text-center
-                    text-sm
-                    font-bold
-                    text-accent
-                    transition-colors
-                    hover:text-foreground
-                  "
+                  className="text-accent hover:text-foreground block p-3 text-center text-sm font-bold transition-colors"
                 >
                   مشاهده تمام محصولات
                 </Link>
