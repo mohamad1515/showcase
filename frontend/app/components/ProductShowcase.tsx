@@ -1,23 +1,23 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import { useMemo, useState } from "react";
-import { FiArrowLeft, FiGrid, FiStar, FiTrendingUp } from "react-icons/fi";
-import type { Product, ProductCategory } from "../lib/products";
-import ProductCard from "./ProductCard";
+import Link from 'next/link';
+import { useMemo, useState } from 'react';
+import { FiArrowLeft, FiGrid, FiStar, FiTrendingUp } from 'react-icons/fi';
+import type { Product, ProductCategory } from '../lib/products';
+import ProductCard from './ProductCard';
 
 const filters: {
   label: string;
   value: ProductCategory;
   icon: React.ElementType;
 }[] = [
-  { label: "جدیدترین", value: "default", icon: FiGrid },
-  { label: "محبوب", value: "popular", icon: FiStar },
-  { label: "پرفروش", value: "best-selling", icon: FiTrendingUp },
+  { label: 'جدیدترین', value: 'default', icon: FiGrid },
+  { label: 'محبوب', value: 'popular', icon: FiStar },
+  { label: 'پرفروش', value: 'best-selling', icon: FiTrendingUp },
 ];
 
 function orderProducts(products: Product[], filter: ProductCategory) {
-  if (filter === "default") return products;
+  if (filter === 'default') return products;
 
   const selected = products.filter((product) => product.category === filter);
   const remaining = products.filter((product) => product.category !== filter);
@@ -25,32 +25,25 @@ function orderProducts(products: Product[], filter: ProductCategory) {
 }
 
 export default function ProductShowcase({ products }: { products: Product[] }) {
-  const [activeFilter, setActiveFilter] = useState<ProductCategory>("default");
+  const [activeFilter, setActiveFilter] = useState<ProductCategory>('default');
   const visibleProducts = useMemo(
     () => orderProducts(products, activeFilter).slice(0, 9),
     [activeFilter, products],
   );
 
   return (
-    <section id="products" className="space-y-5">
-      <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-        <div>
-          <p className="h-eyebrow">محصولات مکمل</p>
-          <h2 className="h-display mt-2 text-2xl text-foreground">
-            مکمل مناسب هدفت را سریع پیدا کن
-          </h2>
-        </div>
-
-        <div className="flex bg-[#dbdbdb] rounded-2xl  p-2">
+    <section id="products" className="space-y-10">
+      {/* <div className="flex justify-end">
+        <div className="flex rounded-2xl bg-[#dbdbdb] p-2">
           {filters.map((filter) => (
             <button
               key={filter.value}
               type="button"
               onClick={() => setActiveFilter(filter.value)}
-              className={`flex h-8 items-center gap-2 rounded-xl px-3 text-xs font-semibold transition cursor-pointer ${
+              className={`flex h-8 cursor-pointer items-center gap-2 rounded-xl px-3 text-xs font-semibold transition ${
                 activeFilter === filter.value
-                  ? "bg-accent text-black shadow-sm"
-                  : "text-foreground hover:text-muted"
+                  ? 'bg-accent text-black shadow-sm'
+                  : 'text-foreground hover:text-muted'
               }`}
             >
               <filter.icon aria-hidden />
@@ -58,18 +51,19 @@ export default function ProductShowcase({ products }: { products: Product[] }) {
             </button>
           ))}
         </div>
-      </div>
+      </div> */}
 
-      <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-        {visibleProducts.map((product) => (
-          <ProductCard key={product.slug} product={product} />
-        ))}
+      <div className="space-y-20">
+        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+          {visibleProducts.map((product) => (
+            <ProductCard key={product.slug} product={product} />
+          ))}
+        </div>
       </div>
-
       <div className="flex justify-center">
         <Link
           href="/products"
-          className="inline-flex h-8 items-center gap-2 rounded-sm bg-accent px-4 text-sm font-bold text-black transition hover:bg-[var(--brand-hover)]"
+          className="bg-accent inline-flex h-8 items-center gap-2 rounded-sm px-4 text-sm font-bold text-black transition hover:bg-[var(--brand-hover)]"
         >
           مشاهده محصولات بیشتر
           <FiArrowLeft aria-hidden />

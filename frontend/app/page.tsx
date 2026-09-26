@@ -4,6 +4,10 @@ import SliderHero from './components/SliderHero';
 import { getProducts, getSliders } from './lib/graphql';
 import firstSlide from '@/public/images/slider/sideA.png';
 import secondSlide from '@/public/images/slider/sideB.png';
+import CategoriesSection from './components/CategoriesSection';
+import OfferProducts from './components/OfferProducts';
+import NewsProducts from './components/NewsProducts';
+import OfferBanner from './components/OfferBanner';
 
 const supplementList = [
   'پروتئین وی',
@@ -71,9 +75,16 @@ export default async function Home() {
         </div>
       </div>
 
-      <div className="mx-auto max-w-7xl space-y-14 px-5 py-12 sm:px-8 lg:px-12">
-        <ProductShowcase products={products} />
+      <div className="mx-auto space-y-14 px-5 py-12 sm:px-8 lg:px-12">
+        <CategoriesSection />
 
+        <OfferProducts />
+
+        <NewsProducts products={products} />
+
+        <OfferBanner />
+
+        <ProductShowcase products={products} />
         <section
           id="about"
           className="xs:grid-cols-[0.8fr_1.2fr] border-border grid gap-6 border-y py-8"
