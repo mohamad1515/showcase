@@ -1,291 +1,268 @@
-"use client";
+'use client';
 
-import React, { useEffect, useState } from "react";
-import AdminGuard from "../../components/AdminGuard";
-import {
-  createCategory,
-  getCategories,
-  removeCategory,
-  updateCategory,
-} from "../../lib/graphql";
-import type { Category } from "../../lib/products";
-import { FiEdit, FiTrash2 } from "react-icons/fi";
+import Link from 'next/link';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import type { ColDef, ICellRendererParams } from 'ag-grid-community';
+import { FiArrowLeft, FiEdit, FiPlus, FiTrash2 } from 'react-icons/fi';
+import AdminGuard from '../../components/AdminGuard';
+import DataGrid from '../../components/admin/DataGrid';
+import Modal from '../../components/admin/CategoriesModal';
+import { createCategory, getCategories, removeCategory, updateCategory } from '../../lib/graphql';
+import type { Category } from '../../lib/products';
+import { errorMessage, notifyError, notifySuccess } from '../../lib/toast';
 
-const emptyForm = {
-  slug: "",
-  name: "",
-  description: "",
-};
+type ModalState = { mode: 'create' } | { mode: 'edit'; category: Category } | null;
+
+function CategoryForm({
+  initial,
+  submitLabel,
+  saving,
+  onSubmit,
+  onCancel,
+}: {
+  initial: { name: string; slug: string; description: string };
+  submitLabel: string;
+  saving: boolean;
+  onSubmit: (values: { name: string; slug: string; description: string }) => void;
+  onCancel: () => void;
+}) {
+  const [form, setForm] = useState(initial);
+  const set = (k: keyof typeof form, v: string) => setForm((c) => ({ ...c, [k]: v }));
+
+  return (
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        onSubmit(form);
+      }}
+      className="grid gap-4"
+    >
+      <label className="block">
+        <span className="text-foreground text-sm font-bold">نام دسته‌بندی</span>
+        <input
+          value={form.name}
+          onChange={(e) => set('name', e.target.value)}
+          required
+          autoFocus
+          className="admin-input"
+        />
+      </label>
+
+      <label className="block">
+        <span className="text-foreground text-sm font-bold">اسلاگ</span>
+        <input
+          value={form.slug}
+          onChange={(e) => set('slug', e.target.value)}
+          required
+          className="admin-input text-left"
+          dir="ltr"
+        />
+      </label>
+
+      <label className="block">
+        <span className="text-foreground text-sm font-bold">توضیحات</span>
+        <textarea
+          value={form.description}
+          onChange={(e) => set('description', e.target.value)}
+          rows={4}
+          className="admin-textarea"
+        />
+      </label>
+
+      <div className="mt-2 flex items-center justify-end gap-3">
+        <button
+          type="button"
+          onClick={onCancel}
+          className="border-border bg-surface text-foreground hover:border-accent hover:text-accent h-11 rounded-md border px-5 text-sm font-black transition"
+        >
+          انصراف
+        </button>
+        <button
+          type="submit"
+          disabled={saving}
+          className="bg-accent hover:bg-accent-strong h-11 rounded-md px-6 text-sm font-black text-white transition disabled:cursor-not-allowed disabled:opacity-70"
+        >
+          {saving ? 'در حال ذخیره...' : submitLabel}
+        </button>
+      </div>
+    </form>
+  );
+}
+
+function ActionsCell({
+  data,
+  onEdit,
+  onRemove,
+}: {
+  data: Category;
+  onEdit: (c: Category) => void;
+  onRemove: (c: Category) => void;
+}) {
+  return (
+    <div className="flex h-full items-center gap-2">
+      <button
+        type="button"
+        onClick={() => onEdit(data)}
+        className="border-border text-foreground hover:border-accent hover:text-muted inline-flex h-9 items-center gap-1.5 rounded-md border bg-[#d5d6d6] px-3 text-xs font-black transition hover:cursor-pointer"
+      >
+        <FiEdit aria-hidden />
+        ویرایش
+      </button>
+      <button
+        type="button"
+        onClick={() => onRemove(data)}
+        className="inline-flex h-9 items-center gap-1.5 rounded-md border border-red-200 bg-red-50 px-3 text-xs font-black text-red-600 transition hover:cursor-pointer hover:bg-red-100"
+      >
+        <FiTrash2 aria-hidden />
+        حذف
+      </button>
+    </div>
+  );
+}
 
 export default function AdminCategoriesPage() {
   const [categories, setCategories] = useState<Category[]>([]);
-  const [form, setForm] = useState(emptyForm);
-  const [editingSlug, setEditingSlug] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [notice, setNotice] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [modal, setModal] = useState<ModalState>(null);
 
-  useEffect(() => {
-    let active = true;
-    getCategories()
-      .then((data) => {
-        if (active) setCategories(data);
-      })
-      .catch((err) =>
-        setError(
-          err instanceof Error
-            ? err.message
-            : "دریافت دسته‌بندی‌ها ناموفق بود.",
-        ),
-      )
-      .finally(() => {
-        if (active) setLoading(false);
-      });
-    return () => {
-      active = false;
-    };
+  const refresh = useCallback(async () => {
+    setLoading(true);
+    try {
+      setCategories(await getCategories());
+    } catch (err) {
+      notifyError(errorMessage(err, 'دریافت دسته‌بندی‌ها ناموفق بود.'));
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
-  function updateField(key: keyof typeof form, value: string) {
-    setForm((current) => ({ ...current, [key]: value }));
-  }
+  useEffect(() => {
+    refresh();
+  }, [refresh]);
 
-  function resetForm() {
-    setForm(emptyForm);
-    setEditingSlug(null);
-    setNotice(null);
-    setError(null);
-  }
+  const closeModal = useCallback(() => setModal(null), []);
 
-  function startEdit(category: Category) {
-    setForm({
-      slug: category.slug,
-      name: category.name,
-      description: category.description,
-    });
-    setEditingSlug(category.slug);
-    setNotice(null);
-    setError(null);
-  }
-
-  async function refreshCategories() {
-    const data = await getCategories();
-    setCategories(data);
-  }
-
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
+  async function handleSubmit(values: { name: string; slug: string; description: string }) {
     setSaving(true);
-    setError(null);
-    setNotice(null);
-
     try {
-      if (editingSlug) {
-        await updateCategory(editingSlug, {
-          slug: form.slug,
-          name: form.name,
-          description: form.description,
-        });
-        setNotice("دسته‌بندی با موفقیت ویرایش شد.");
+      if (modal?.mode === 'edit') {
+        await updateCategory(modal.category.slug, values);
+        notifySuccess('دسته‌بندی با موفقیت ویرایش شد.');
       } else {
-        await createCategory({
-          slug: form.slug,
-          name: form.name,
-          description: form.description,
-        });
-        setNotice("دسته‌بندی جدید اضافه شد.");
+        await createCategory(values);
+        notifySuccess('دسته‌بندی جدید اضافه شد.');
       }
-      await refreshCategories();
-      resetForm();
-    } catch (err: unknown) {
-      setError(
-        err instanceof Error ? err.message : "ذخیره دسته‌بندی ناموفق بود.",
-      );
+      setModal(null);
+      await refresh();
+    } catch (err) {
+      notifyError(errorMessage(err, 'ذخیره دسته‌بندی ناموفق بود.'));
     } finally {
       setSaving(false);
     }
   }
 
-  async function handleDelete(slug: string) {
-    const confirmed = window.confirm("این دسته‌بندی حذف شود؟");
-    if (!confirmed) return;
-    setError(null);
-    setNotice(null);
-    try {
-      await removeCategory(slug);
-      await refreshCategories();
-      setNotice("دسته‌بندی حذف شد.");
-      if (editingSlug === slug) resetForm();
-    } catch (err: unknown) {
-      setError(
-        err instanceof Error ? err.message : "حذف دسته‌بندی ناموفق بود.",
-      );
-    }
-  }
+  const handleDelete = useCallback(
+    async (category: Category) => {
+      if (!window.confirm(`دسته‌بندی «${category.name}» حذف شود؟`)) return;
+      try {
+        await removeCategory(category.slug);
+        notifySuccess('دسته‌بندی حذف شد.');
+        await refresh();
+      } catch (err) {
+        notifyError(errorMessage(err, 'حذف دسته‌بندی ناموفق بود.'));
+      }
+    },
+    [refresh],
+  );
+
+  const columnDefs = useMemo<ColDef<Category>[]>(
+    () => [
+      { field: 'name', headerName: 'نام دسته‌بندی', minWidth: 180 },
+      {
+        field: 'slug',
+        headerName: 'اسلاگ',
+        minWidth: 160,
+        cellStyle: { direction: 'ltr', textAlign: 'right' },
+      },
+      {
+        field: 'description',
+        headerName: 'توضیحات',
+        flex: 2,
+        minWidth: 240,
+        valueFormatter: (p) => p.value || '—',
+      },
+      {
+        headerName: 'عملیات',
+        minWidth: 220,
+        maxWidth: 240,
+        sortable: false,
+        filter: false,
+        cellRenderer: (p: ICellRendererParams<Category>) =>
+          p.data ? (
+            <ActionsCell
+              data={p.data}
+              onEdit={(category) => setModal({ mode: 'edit', category })}
+              onRemove={handleDelete}
+            />
+          ) : null,
+      },
+    ],
+    [handleDelete],
+  );
+
+  const initial =
+    modal?.mode === 'edit'
+      ? {
+          name: modal.category.name,
+          slug: modal.category.slug,
+          description: modal.category.description ?? '',
+        }
+      : { name: '', slug: '', description: '' };
 
   return (
     <AdminGuard>
       <main className="mx-auto max-w-7xl px-5 py-10 sm:px-8 lg:px-12">
-        <section className="mb-8 flex flex-col gap-5 border-b border-border pb-8 lg:flex-row lg:items-end lg:justify-between">
-          <div>
-            <p className="text-sm font-black text-accent">دسته‌بندی‌ها</p>
-            <h1 className="mt-3 text-3xl font-black text-foreground sm:text-4xl">
-              مدیریت دسته‌بندی‌ها
-            </h1>
-            <p className="mt-4 max-w-2xl text-sm leading-8 text-muted">
-              دسته‌بندی جدید بسازید یا دسته‌بندی‌های فعلی را تغییر دهید. دو
-              دسته‌بندی پیش‌فرض نیز در سیستم قرار داده شده است.
-            </p>
+        <section className="mb-6 flex flex-wrap items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <h1 className="text-foreground text-2xl font-black sm:text-3xl">مدیریت دسته‌بندی‌ها</h1>
           </div>
-          <a
+
+          <Link
             href="/admin"
-            className="inline-flex h-11 items-center justify-center rounded-md border border-border bg-surface px-5 text-sm font-black text-foreground transition hover:border-accent hover:text-accent"
+            className="border-border bg-surface text-foreground hover:border-accent hover:text-accent inline-flex h-10 items-center gap-2 rounded-md border px-4 text-sm font-black transition"
           >
             بازگشت به داشبورد
-          </a>
+            <FiArrowLeft aria-hidden />
+          </Link>
         </section>
 
-        {(error || notice) && (
-          <div
-            className={`mb-6 rounded-md border px-4 py-3 text-sm font-bold ${
-              error
-                ? "border-red-200 bg-red-50 text-red-700"
-                : "border-emerald-200 bg-emerald-50 text-emerald-700"
-            }`}
+        <section className="mb-6 flex flex-wrap items-center justify-between gap-4">
+          <button
+            type="button"
+            onClick={() => setModal({ mode: 'create' })}
+            className="inline-flex h-11 items-center gap-2 rounded-md bg-emerald-500 px-5 text-sm font-black text-white transition hover:cursor-pointer hover:bg-emerald-700"
           >
-            {error || notice}
-          </div>
-        )}
+            <FiPlus aria-hidden />
+            افزودن
+          </button>
+        </section>
+        <DataGrid<Category> rowData={categories} columnDefs={columnDefs} loading={loading} />
 
-        <div className="grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
-          <section className="rounded-lg border border-border bg-surface p-6 shadow-sm">
-            <div className="mb-5 flex items-center justify-between gap-4">
-              <div>
-                <h2 className="text-xl font-black text-foreground">
-                  افزودن یا ویرایش دسته‌بندی
-                </h2>
-                <p className="mt-2 text-sm text-muted">
-                  نام و اسلاگ دسته‌بندی را وارد کنید.
-                </p>
-              </div>
-              {editingSlug && (
-                <button
-                  type="button"
-                  onClick={resetForm}
-                  className="rounded-md border border-border px-4 py-2 text-sm font-black text-foreground transition hover:border-accent hover:text-accent"
-                >
-                  انصراف
-                </button>
-              )}
-            </div>
-
-            <form onSubmit={handleSubmit} className="grid gap-4">
-              <label className="block">
-                <span className="text-sm font-bold text-foreground">
-                  نام دسته‌بندی
-                </span>
-                <input
-                  value={form.name}
-                  onChange={(e) => updateField("name", e.target.value)}
-                  required
-                  className="admin-input"
-                />
-              </label>
-
-              <label className="block">
-                <span className="text-sm font-bold text-foreground">اسلاگ</span>
-                <input
-                  value={form.slug}
-                  onChange={(e) => updateField("slug", e.target.value)}
-                  required
-                  className="admin-input text-left"
-                />
-              </label>
-
-              <label className="block">
-                <span className="text-sm font-bold text-foreground">
-                  توضیحات
-                </span>
-                <textarea
-                  value={form.description}
-                  onChange={(e) => updateField("description", e.target.value)}
-                  rows={4}
-                  className="admin-textarea"
-                />
-              </label>
-
-              <button
-                type="submit"
-                disabled={saving}
-                className="mt-2 h-12 rounded-md bg-accent px-5 text-sm font-black text-white transition hover:bg-accent-strong disabled:cursor-not-allowed disabled:opacity-70"
-              >
-                {saving
-                  ? "در حال ذخیره..."
-                  : editingSlug
-                    ? "ویرایش دسته‌بندی"
-                    : "افزودن دسته‌بندی"}
-              </button>
-            </form>
-          </section>
-
-          <section className="rounded-lg border border-border bg-surface p-6 shadow-sm">
-            <div className="mb-5">
-              <h2 className="text-xl font-black text-foreground">
-                لیست دسته‌بندی‌ها
-              </h2>
-              <p className="mt-2 text-sm text-muted">
-                برای مشاهده یا حذف هر دسته‌بندی روی دکمه‌های روبرو کلیک کنید.
-              </p>
-            </div>
-            {loading ? (
-              <p className="rounded-md border border-border bg-background p-5 text-sm font-bold text-muted">
-                در حال دریافت دسته‌بندی‌ها...
-              </p>
-            ) : (
-              <div className="space-y-3">
-                {categories.map((category) => (
-                  <article
-                    key={category.slug}
-                    className="rounded-3xl border border-border bg-background p-4 shadow-sm"
-                  >
-                    <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-                      <div>
-                        <p className="text-lg font-black text-foreground">
-                          {category.name}
-                        </p>
-                        <p className="mt-2 text-sm leading-7 text-muted">
-                          {category.description || "بدون توضیح"}
-                        </p>
-                        <p className="mt-3 text-xs font-bold uppercase tracking-[0.1em] text-muted">
-                          {category.slug}
-                        </p>
-                      </div>
-                      <div className="flex flex-wrap gap-2">
-                        <button
-                          type="button"
-                          onClick={() => startEdit(category)}
-                          className="h-10 rounded-md border border-border bg-surface px-4 text-sm font-black text-foreground transition hover:border-accent hover:text-amber-600 flex items-center justify-center"
-                        >
-                          <FiEdit aria-hidden className="ml-1" />
-                          ویرایش
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => handleDelete(category.slug)}
-                          className="h-10 rounded-md border border-red-200 bg-surface px-4 text-sm font-black text-foreground transition hover:bg-amber-700 flex items-center justify-center"
-                        >
-                          <FiTrash2 aria-hidden className="text-red-500 ml-1" />
-                          حذف
-                        </button>
-                      </div>
-                    </div>
-                  </article>
-                ))}
-              </div>
-            )}
-          </section>
-        </div>
+        <Modal
+          open={modal !== null}
+          title={modal?.mode === 'edit' ? 'ویرایش دسته‌بندی' : 'افزودن دسته‌بندی'}
+          onClose={closeModal}
+        >
+          <CategoryForm
+            key={modal?.mode === 'edit' ? modal.category.slug : 'create'}
+            initial={initial}
+            submitLabel={modal?.mode === 'edit' ? 'ویرایش' : 'افزودن'}
+            saving={saving}
+            onSubmit={handleSubmit}
+            onCancel={closeModal}
+          />
+        </Modal>
       </main>
     </AdminGuard>
   );

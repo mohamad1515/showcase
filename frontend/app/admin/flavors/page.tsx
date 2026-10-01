@@ -1,160 +1,227 @@
-"use client";
+'use client';
 
-import { useEffect, useState } from "react";
-import AdminGuard from "../../components/AdminGuard";
-import {
-  createFlavor,
-  getFlavors,
-  removeFlavor,
-  updateFlavor,
-} from "../../lib/graphql";
-import type { Flavor } from "../../lib/products";
-import { FiEdit, FiTrash2 } from "react-icons/fi";
-import Link from "next/link";
-import { FiArrowRight } from "react-icons/fi";
+import Link from 'next/link';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import type { ColDef, ICellRendererParams } from 'ag-grid-community';
+import { FiArrowLeft, FiEdit, FiPlus, FiTrash2 } from 'react-icons/fi';
+import AdminGuard from '../../components/AdminGuard';
+import DataGrid from '../../components/admin/DataGrid';
+import Modal from '../../components/admin/CategoriesModal';
+import { createFlavor, getFlavors, removeFlavor, updateFlavor } from '../../lib/graphql';
+import type { Flavor } from '../../lib/products';
+import { errorMessage, notifyError, notifySuccess } from '../../lib/toast';
+
+type ModalState = { mode: 'create' } | { mode: 'edit'; flavor: Flavor } | null;
+
+function FlavorForm({
+  initial,
+  submitLabel,
+  saving,
+  onSubmit,
+  onCancel,
+}: {
+  initial: { name: string };
+  submitLabel: string;
+  saving: boolean;
+  onSubmit: (values: { name: string }) => void;
+  onCancel: () => void;
+}) {
+  const [form, setForm] = useState(initial);
+
+  return (
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        onSubmit(form);
+      }}
+      className="grid gap-4"
+    >
+      <label className="block">
+        <span className="text-foreground text-sm font-bold">نام طعم</span>
+        <input
+          value={form.name}
+          onChange={(e) => setForm({ name: e.target.value })}
+          required
+          autoFocus
+          className="admin-input"
+        />
+      </label>
+
+      <div className="mt-2 flex items-center justify-end gap-3">
+        <button
+          type="button"
+          onClick={onCancel}
+          className="border-border bg-surface text-foreground hover:border-accent hover:text-accent h-11 rounded-md border px-5 text-sm font-black transition"
+        >
+          انصراف
+        </button>
+        <button
+          type="submit"
+          disabled={saving}
+          className="bg-accent hover:bg-accent-strong h-11 rounded-md px-6 text-sm font-black text-white transition disabled:cursor-not-allowed disabled:opacity-70"
+        >
+          {saving ? 'در حال ذخیره...' : submitLabel}
+        </button>
+      </div>
+    </form>
+  );
+}
+
+function ActionsCell({
+  data,
+  onEdit,
+  onRemove,
+}: {
+  data: Flavor;
+  onEdit: (flavor: Flavor) => void;
+  onRemove: (flavor: Flavor) => void;
+}) {
+  return (
+    <div className="flex h-full items-center gap-2">
+      <button
+        type="button"
+        onClick={() => onEdit(data)}
+        className="border-border text-foreground hover:border-accent hover:text-accent inline-flex h-9 items-center gap-1.5 rounded-md border bg-[#d5d6d6] px-3 text-xs font-black transition"
+      >
+        <FiEdit aria-hidden />
+        ویرایش
+      </button>
+      <button
+        type="button"
+        onClick={() => onRemove(data)}
+        className="inline-flex h-9 items-center gap-1.5 rounded-md border border-red-200 bg-red-50 px-3 text-xs font-black text-red-600 transition hover:bg-red-100"
+      >
+        <FiTrash2 aria-hidden />
+        حذف
+      </button>
+    </div>
+  );
+}
 
 export default function AdminFlavorsPage() {
   const [flavors, setFlavors] = useState<Flavor[]>([]);
-  const [name, setName] = useState("");
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [modal, setModal] = useState<ModalState>(null);
 
-  async function refresh() {
-    setFlavors(await getFlavors());
-  }
-
-  useEffect(() => {
-    refresh()
-      .catch(() => setMessage("دریافت طعم‌ها ناموفق بود."))
-      .finally(() => setLoading(false));
+  const refresh = useCallback(async () => {
+    setLoading(true);
+    try {
+      setFlavors(await getFlavors());
+    } catch (err) {
+      notifyError(errorMessage(err, 'دریافت طعم‌ها ناموفق بود.'));
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
-  function reset() {
-    setName("");
-    setEditingId(null);
-  }
+  useEffect(() => {
+    refresh();
+  }, [refresh]);
 
-  async function submit(event: React.FormEvent) {
-    event.preventDefault();
-    setMessage("");
+  const closeModal = useCallback(() => setModal(null), []);
+
+  async function handleSubmit(values: { name: string }) {
+    setSaving(true);
     try {
-      if (editingId) await updateFlavor(editingId, name);
-      else await createFlavor(name);
+      if (modal?.mode === 'edit') {
+        await updateFlavor(modal.flavor.id, values.name);
+        notifySuccess('طعم با موفقیت ویرایش شد.');
+      } else {
+        await createFlavor(values.name);
+        notifySuccess('طعم جدید اضافه شد.');
+      }
+      setModal(null);
       await refresh();
-      reset();
-      setMessage("طعم با موفقیت ذخیره شد.");
-    } catch (error) {
-      setMessage(
-        error instanceof Error ? error.message : "ذخیره طعم ناموفق بود.",
-      );
+    } catch (err) {
+      notifyError(errorMessage(err, 'ذخیره طعم ناموفق بود.'));
+    } finally {
+      setSaving(false);
     }
   }
 
-  async function remove(id: string) {
-    if (!window.confirm("این طعم حذف شود؟")) return;
-    try {
-      await removeFlavor(id);
-      await refresh();
-      if (editingId === id) reset();
-    } catch (error) {
-      setMessage(
-        error instanceof Error ? error.message : "حذف طعم ناموفق بود.",
-      );
-    }
-  }
+  const handleDelete = useCallback(
+    async (flavor: Flavor) => {
+      if (!window.confirm(`طعم «${flavor.name}» حذف شود؟`)) return;
+      try {
+        await removeFlavor(flavor.id);
+        notifySuccess('طعم حذف شد.');
+        await refresh();
+      } catch (err) {
+        notifyError(errorMessage(err, 'حذف طعم ناموفق بود.'));
+      }
+    },
+    [refresh],
+  );
+
+  const columnDefs = useMemo<ColDef<Flavor>[]>(
+    () => [
+      { field: 'name', headerName: 'نام طعم', minWidth: 220 },
+      {
+        headerName: 'عملیات',
+        minWidth: 220,
+        maxWidth: 240,
+        sortable: false,
+        filter: false,
+        cellRenderer: (p: ICellRendererParams<Flavor>) =>
+          p.data ? (
+            <ActionsCell
+              data={p.data}
+              onEdit={(flavor) => setModal({ mode: 'edit', flavor })}
+              onRemove={handleDelete}
+            />
+          ) : null,
+      },
+    ],
+    [handleDelete],
+  );
+
+  const initial = modal?.mode === 'edit' ? { name: modal.flavor.name } : { name: '' };
 
   return (
     <AdminGuard>
-      <main className="mx-auto max-w-5xl px-5 py-10 sm:px-8 lg:px-12">
-        <Link
-          href="/admin"
-          className="mb-6 inline-flex items-center gap-2 text-sm font-black text-accent"
-        >
-          <FiArrowRight aria-hidden /> بازگشت به داشبورد
-        </Link>
-        <section className="mb-8 border-b border-border pb-8">
-          <p className="text-sm font-black text-accent">طعم‌ها</p>
-          <h1 className="mt-3 text-3xl font-black text-foreground">
-            مدیریت طعم‌ها
-          </h1>
-        </section>
-        {message && (
-          <p className="mb-5 rounded-md border border-border bg-surface p-4 text-sm font-bold text-muted">
-            {message}
-          </p>
-        )}
-        <div className="grid gap-6 lg:grid-cols-[0.8fr_1.2fr]">
-          <form
-            onSubmit={submit}
-            className="grid gap-4 rounded-lg border border-border bg-surface p-6"
+      <main className="mx-auto max-w-7xl px-5 py-10 sm:px-8 lg:px-12">
+        <section className="mb-6 flex flex-wrap items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <h1 className="text-foreground text-2xl font-black sm:text-3xl">مدیریت طعم‌ها</h1>
+          </div>
+
+          <Link
+            href="/admin"
+            className="border-border bg-surface text-foreground hover:border-accent hover:text-accent inline-flex h-10 items-center gap-2 rounded-md border px-4 text-sm font-black transition"
           >
-            <label className="grid gap-2 text-sm font-bold">
-              نام طعم
-              <input
-                value={name}
-                onChange={(event) => setName(event.target.value)}
-                required
-                className="admin-input"
-              />
-            </label>
-            <div className="flex gap-2">
-              <button
-                type="submit"
-                className="h-11 flex-1 rounded-md bg-accent px-4 text-sm font-black text-white"
-              >
-                {editingId ? "ویرایش طعم" : "افزودن طعم"}
-              </button>
-              {editingId && (
-                <button
-                  type="button"
-                  onClick={reset}
-                  className="h-11 rounded-md border border-border px-4 text-sm font-black"
-                >
-                  انصراف
-                </button>
-              )}
-            </div>
-          </form>
-          <section className="rounded-lg border border-border bg-surface p-6">
-            <h2 className="mb-4 text-xl font-black">فهرست طعم‌ها</h2>
-            {loading ? (
-              <p className="text-sm text-muted">در حال دریافت...</p>
-            ) : (
-              <div className="grid gap-3 sm:grid-cols-2">
-                {flavors.map((flavor) => (
-                  <div
-                    key={flavor.id}
-                    className="flex items-center justify-between rounded-md border border-border bg-background p-3"
-                  >
-                    <span className="font-bold">{flavor.name}</span>
-                    <span className="flex gap-1">
-                      <button
-                        type="button"
-                        title="ویرایش"
-                        onClick={() => {
-                          setEditingId(flavor.id);
-                          setName(flavor.name);
-                        }}
-                        className="p-2 text-muted hover:text-accent"
-                      >
-                        <FiEdit />
-                      </button>
-                      <button
-                        type="button"
-                        title="حذف"
-                        onClick={() => remove(flavor.id)}
-                        className="p-2 text-danger"
-                      >
-                        <FiTrash2 />
-                      </button>
-                    </span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </section>
-        </div>
+            بازگشت به داشبورد
+            <FiArrowLeft aria-hidden />
+          </Link>
+        </section>
+
+        <section className="mb-6 flex flex-wrap items-center justify-between gap-4">
+          <button
+            type="button"
+            onClick={() => setModal({ mode: 'create' })}
+            className="inline-flex h-11 items-center gap-2 rounded-md bg-emerald-500 px-5 text-sm font-black text-white transition hover:cursor-pointer hover:bg-emerald-700"
+          >
+            <FiPlus aria-hidden />
+            افزودن
+          </button>
+        </section>
+
+        <DataGrid<Flavor> rowData={flavors} columnDefs={columnDefs} loading={loading} />
+
+        <Modal
+          open={modal !== null}
+          title={modal?.mode === 'edit' ? 'ویرایش طعم' : 'افزودن طعم'}
+          onClose={closeModal}
+        >
+          <FlavorForm
+            key={modal?.mode === 'edit' ? modal.flavor.id : 'create'}
+            initial={initial}
+            submitLabel={modal?.mode === 'edit' ? 'ویرایش' : 'افزودن'}
+            saving={saving}
+            onSubmit={handleSubmit}
+            onCancel={closeModal}
+          />
+        </Modal>
       </main>
     </AdminGuard>
   );

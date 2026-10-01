@@ -1,155 +1,227 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import { useEffect, useState } from "react";
-import AdminGuard from "../../components/AdminGuard";
-import {
-  createBrand,
-  getBrands,
-  removeBrand,
-  updateBrand,
-} from "../../lib/graphql";
-import type { Brand } from "../../lib/products";
-import { FiArrowRight, FiEdit, FiTrash2 } from "react-icons/fi";
+import Link from 'next/link';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import type { ColDef, ICellRendererParams } from 'ag-grid-community';
+import { FiArrowLeft, FiEdit, FiPlus, FiTrash2 } from 'react-icons/fi';
+import AdminGuard from '../../components/AdminGuard';
+import DataGrid from '../../components/admin/DataGrid';
+import Modal from '../../components/admin/CategoriesModal';
+import { createBrand, getBrands, removeBrand, updateBrand } from '../../lib/graphql';
+import type { Brand } from '../../lib/products';
+import { errorMessage, notifyError, notifySuccess } from '../../lib/toast';
+
+type ModalState = { mode: 'create' } | { mode: 'edit'; brand: Brand } | null;
+
+function BrandForm({
+  initial,
+  submitLabel,
+  saving,
+  onSubmit,
+  onCancel,
+}: {
+  initial: { name: string };
+  submitLabel: string;
+  saving: boolean;
+  onSubmit: (values: { name: string }) => void;
+  onCancel: () => void;
+}) {
+  const [form, setForm] = useState(initial);
+
+  return (
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        onSubmit(form);
+      }}
+      className="grid gap-4"
+    >
+      <label className="block">
+        <span className="text-foreground text-sm font-bold">نام برند</span>
+        <input
+          value={form.name}
+          onChange={(e) => setForm({ name: e.target.value })}
+          required
+          autoFocus
+          className="admin-input"
+        />
+      </label>
+
+      <div className="mt-2 flex items-center justify-end gap-3">
+        <button
+          type="button"
+          onClick={onCancel}
+          className="border-border bg-surface text-foreground hover:border-accent hover:text-accent h-11 rounded-md border px-5 text-sm font-black transition"
+        >
+          انصراف
+        </button>
+        <button
+          type="submit"
+          disabled={saving}
+          className="bg-accent hover:bg-accent-strong h-11 rounded-md px-6 text-sm font-black text-white transition disabled:cursor-not-allowed disabled:opacity-70"
+        >
+          {saving ? 'در حال ذخیره...' : submitLabel}
+        </button>
+      </div>
+    </form>
+  );
+}
+
+function ActionsCell({
+  data,
+  onEdit,
+  onRemove,
+}: {
+  data: Brand;
+  onEdit: (brand: Brand) => void;
+  onRemove: (brand: Brand) => void;
+}) {
+  return (
+    <div className="flex h-full items-center gap-2">
+      <button
+        type="button"
+        onClick={() => onEdit(data)}
+        className="border-border text-foreground hover:border-accent hover:text-accent inline-flex h-9 items-center gap-1.5 rounded-md border bg-[#d5d6d6] px-3 text-xs font-black transition"
+      >
+        <FiEdit aria-hidden />
+        ویرایش
+      </button>
+      <button
+        type="button"
+        onClick={() => onRemove(data)}
+        className="inline-flex h-9 items-center gap-1.5 rounded-md border border-red-200 bg-red-50 px-3 text-xs font-black text-red-600 transition hover:bg-red-100"
+      >
+        <FiTrash2 aria-hidden />
+        حذف
+      </button>
+    </div>
+  );
+}
 
 export default function AdminBrandsPage() {
   const [brands, setBrands] = useState<Brand[]>([]);
-  const [name, setName] = useState("");
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [modal, setModal] = useState<ModalState>(null);
 
-  async function refresh() {
-    setBrands(await getBrands());
-  }
-  useEffect(() => {
-    refresh()
-      .catch(() => setMessage("دریافت برندها ناموفق بود."))
-      .finally(() => setLoading(false));
+  const refresh = useCallback(async () => {
+    setLoading(true);
+    try {
+      setBrands(await getBrands());
+    } catch (err) {
+      notifyError(errorMessage(err, 'دریافت برندها ناموفق بود.'));
+    } finally {
+      setLoading(false);
+    }
   }, []);
-  function reset() {
-    setName("");
-    setEditingId(null);
-  }
-  async function submit(event: React.FormEvent) {
-    event.preventDefault();
-    setMessage("");
+
+  useEffect(() => {
+    refresh();
+  }, [refresh]);
+
+  const closeModal = useCallback(() => setModal(null), []);
+
+  async function handleSubmit(values: { name: string }) {
+    setSaving(true);
     try {
-      if (editingId) await updateBrand(editingId, name);
-      else await createBrand(name);
+      if (modal?.mode === 'edit') {
+        await updateBrand(modal.brand.id, values.name);
+        notifySuccess('برند با موفقیت ویرایش شد.');
+      } else {
+        await createBrand(values.name);
+        notifySuccess('برند جدید اضافه شد.');
+      }
+      setModal(null);
       await refresh();
-      reset();
-      setMessage("برند با موفقیت ذخیره شد.");
-    } catch (error) {
-      setMessage(
-        error instanceof Error ? error.message : "ذخیره برند ناموفق بود.",
-      );
+    } catch (err) {
+      notifyError(errorMessage(err, 'ذخیره برند ناموفق بود.'));
+    } finally {
+      setSaving(false);
     }
   }
-  async function remove(id: string) {
-    if (!window.confirm("این برند حذف شود؟")) return;
-    try {
-      await removeBrand(id);
-      await refresh();
-      if (editingId === id) reset();
-    } catch (error) {
-      setMessage(
-        error instanceof Error ? error.message : "حذف برند ناموفق بود.",
-      );
-    }
-  }
+
+  const handleDelete = useCallback(
+    async (brand: Brand) => {
+      if (!window.confirm(`برند «${brand.name}» حذف شود؟`)) return;
+      try {
+        await removeBrand(brand.id);
+        notifySuccess('برند حذف شد.');
+        await refresh();
+      } catch (err) {
+        notifyError(errorMessage(err, 'حذف برند ناموفق بود.'));
+      }
+    },
+    [refresh],
+  );
+
+  const columnDefs = useMemo<ColDef<Brand>[]>(
+    () => [
+      { field: 'name', headerName: 'نام برند', minWidth: 220 },
+      {
+        headerName: 'عملیات',
+        minWidth: 220,
+        maxWidth: 240,
+        sortable: false,
+        filter: false,
+        cellRenderer: (p: ICellRendererParams<Brand>) =>
+          p.data ? (
+            <ActionsCell
+              data={p.data}
+              onEdit={(brand) => setModal({ mode: 'edit', brand })}
+              onRemove={handleDelete}
+            />
+          ) : null,
+      },
+    ],
+    [handleDelete],
+  );
+
+  const initial = modal?.mode === 'edit' ? { name: modal.brand.name } : { name: '' };
 
   return (
     <AdminGuard>
-      <main className="mx-auto max-w-5xl px-5 py-10 sm:px-8 lg:px-12">
-        <div className="mb-6 flex items-center justify-between gap-4">
+      <main className="mx-auto max-w-7xl px-5 py-10 sm:px-8 lg:px-12">
+        <section className="mb-6 flex flex-wrap items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <h1 className="text-foreground text-2xl font-black sm:text-3xl">مدیریت برندها</h1>
+          </div>
+
           <Link
             href="/admin"
-            className="inline-flex items-center gap-2 text-sm font-black text-accent"
+            className="border-border bg-surface text-foreground hover:border-accent hover:text-accent inline-flex h-10 items-center gap-2 rounded-md border px-4 text-sm font-black transition"
           >
-            <FiArrowRight aria-hidden /> بازگشت به داشبورد
+            بازگشت به داشبورد
+            <FiArrowLeft aria-hidden />
           </Link>
-        </div>
-        <section className="mb-8 border-b border-border pb-8">
-          <p className="text-sm font-black text-accent">برندها</p>
-          <h1 className="mt-3 text-3xl font-black">مدیریت برندها</h1>
         </section>
-        {message && (
-          <p className="mb-5 rounded-md border border-border bg-surface p-4 text-sm font-bold text-muted">
-            {message}
-          </p>
-        )}
-        <div className="grid gap-6 lg:grid-cols-[0.8fr_1.2fr]">
-          <form
-            onSubmit={submit}
-            className="grid gap-4 rounded-lg border border-border bg-surface p-6"
+
+        <section className="mb-6 flex flex-wrap items-center justify-between gap-4">
+          <button
+            type="button"
+            onClick={() => setModal({ mode: 'create' })}
+            className="inline-flex h-11 items-center gap-2 rounded-md bg-emerald-500 px-5 text-sm font-black text-white transition hover:cursor-pointer hover:bg-emerald-700"
           >
-            <label className="grid gap-2 text-sm font-bold">
-              نام برند
-              <input
-                value={name}
-                onChange={(event) => setName(event.target.value)}
-                required
-                className="admin-input"
-              />
-            </label>
-            <div className="flex gap-2">
-              <button
-                type="submit"
-                className="h-11 flex-1 rounded-md bg-accent px-4 text-sm font-black text-white"
-              >
-                {editingId ? "ویرایش برند" : "افزودن برند"}
-              </button>
-              {editingId && (
-                <button
-                  type="button"
-                  onClick={reset}
-                  className="h-11 rounded-md border border-border px-4 text-sm font-black"
-                >
-                  انصراف
-                </button>
-              )}
-            </div>
-          </form>
-          <section className="rounded-lg border border-border bg-surface p-6">
-            <h2 className="mb-4 text-xl font-black">فهرست برندها</h2>
-            {loading ? (
-              <p className="text-sm text-muted">در حال دریافت...</p>
-            ) : (
-              <div className="grid gap-3 sm:grid-cols-2">
-                {brands.map((brand) => (
-                  <div
-                    key={brand.id}
-                    className="flex items-center justify-between rounded-md border border-border bg-background p-3"
-                  >
-                    <span className="font-bold">{brand.name}</span>
-                    <span className="flex gap-1">
-                      <button
-                        type="button"
-                        title="ویرایش"
-                        onClick={() => {
-                          setEditingId(brand.id);
-                          setName(brand.name);
-                        }}
-                        className="p-2 text-muted hover:text-accent"
-                      >
-                        <FiEdit />
-                      </button>
-                      <button
-                        type="button"
-                        title="حذف"
-                        onClick={() => remove(brand.id)}
-                        className="p-2 text-danger"
-                      >
-                        <FiTrash2 />
-                      </button>
-                    </span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </section>
-        </div>
+            <FiPlus aria-hidden />
+            افزودن
+          </button>
+        </section>
+
+        <DataGrid<Brand> rowData={brands} columnDefs={columnDefs} loading={loading} />
+
+        <Modal
+          open={modal !== null}
+          title={modal?.mode === 'edit' ? 'ویرایش برند' : 'افزودن برند'}
+          onClose={closeModal}
+        >
+          <BrandForm
+            key={modal?.mode === 'edit' ? modal.brand.id : 'create'}
+            initial={initial}
+            submitLabel={modal?.mode === 'edit' ? 'ویرایش' : 'افزودن'}
+            saving={saving}
+            onSubmit={handleSubmit}
+            onCancel={closeModal}
+          />
+        </Modal>
       </main>
     </AdminGuard>
   );
