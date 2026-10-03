@@ -1,71 +1,29 @@
 'use client';
 
 import Link from 'next/link';
-import { useMemo, useState } from 'react';
-import { FiArrowLeft, FiGrid, FiStar, FiTrendingUp } from 'react-icons/fi';
-import type { Product, ProductCategory } from '../lib/products';
+import { FiArrowLeft } from 'react-icons/fi';
+import type { Product } from '../lib/products';
 import ProductCard from './ProductCard';
 
-const filters: {
-  label: string;
-  value: ProductCategory;
-  icon: React.ElementType;
-}[] = [
-  { label: 'جدیدترین', value: 'default', icon: FiGrid },
-  { label: 'محبوب', value: 'popular', icon: FiStar },
-  { label: 'پرفروش', value: 'best-selling', icon: FiTrendingUp },
-];
-
-function orderProducts(products: Product[], filter: ProductCategory) {
-  if (filter === 'default') return products;
-
-  const selected = products.filter((product) => product.category === filter);
-  const remaining = products.filter((product) => product.category !== filter);
-  return [...selected, ...remaining];
-}
-
 export default function ProductShowcase({ products }: { products: Product[] }) {
-  const [activeFilter, setActiveFilter] = useState<ProductCategory>('default');
-  const visibleProducts = useMemo(
-    () => orderProducts(products, activeFilter).slice(0, 9),
-    [activeFilter, products],
-  );
+  const visibleProducts = [...products]
+    .sort((left, right) => right.rating - left.rating || right.reviewCount - left.reviewCount)
+    .slice(0, 8);
 
   return (
-    <section id="products" className="space-y-10">
-      {/* <div className="flex justify-end">
-        <div className="flex rounded-2xl bg-[#dbdbdb] p-2">
-          {filters.map((filter) => (
-            <button
-              key={filter.value}
-              type="button"
-              onClick={() => setActiveFilter(filter.value)}
-              className={`flex h-8 cursor-pointer items-center gap-2 rounded-xl px-3 text-xs font-semibold transition ${
-                activeFilter === filter.value
-                  ? 'bg-accent text-black shadow-sm'
-                  : 'text-foreground hover:text-muted'
-              }`}
-            >
-              <filter.icon aria-hidden />
-              {filter.label}
-            </button>
-          ))}
-        </div>
-      </div> */}
-
-      <div className="space-y-20">
-        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-          {visibleProducts.map((product) => (
-            <ProductCard key={product.slug} product={product} />
-          ))}
-        </div>
+    <section id="products" className="space-y-6">
+      <h2 className="h-display text-foreground text-2xl font-black sm:text-[28px]">محبوب‌ها</h2>
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+        {visibleProducts.map((product) => (
+          <ProductCard key={product.slug} product={product} />
+        ))}
       </div>
       <div className="flex justify-center">
         <Link
           href="/products"
-          className="bg-accent inline-flex h-8 items-center gap-2 rounded-sm px-4 text-sm font-bold text-black transition hover:bg-[var(--brand-hover)]"
+          className="bg-accent text-foreground hover:bg-accent-strong inline-flex min-h-11 items-center gap-2 rounded-md px-5 text-sm font-bold transition"
         >
-          مشاهده محصولات بیشتر
+          مشاهدهٔ همهٔ محصولات
           <FiArrowLeft aria-hidden />
         </Link>
       </div>

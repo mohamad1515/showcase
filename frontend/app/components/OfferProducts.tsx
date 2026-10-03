@@ -1,100 +1,54 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import React from 'react';
-
-const bgOffer = [
-  {
-    id: 1,
-    label: 'MASS GAINER',
-    path: '/images/slider/h2_bg1.jpg',
-    price: '830',
-  },
-  {
-    id: 2,
-    label: 'EXPLOSIVE ENERGY',
-    path: '/images/slider/h2_bg2.jpg',
-    price: '500',
-  },
-  {
-    id: 3,
-    label: 'MAXIMUM POTENCY',
-    path: '/images/slider/h2_bg3.jpg',
-    price: '560',
-  },
-];
-
-const itemOnBox = [
-  {
-    id: 1,
-    alt: 'img1',
-    path: '/images/slider/h2_img3.png',
-  },
-  {
-    id: 2,
-    alt: 'img2',
-    path: '/images/slider/h2_img2.png',
-  },
-  {
-    id: 3,
-    alt: 'img3',
-    path: '/images/slider/h2_img1.png',
-  },
-];
+import { FiArrowLeft } from 'react-icons/fi';
+import { homePromotions } from '../data/promotions';
 
 const OfferProducts = () => {
   return (
     <section id="offer" className="w-full">
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-        {bgOffer.map((item, index) => {
-          const product = itemOnBox[index];
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        {homePromotions.map((item) => (
+          <article
+            key={item.id}
+            className="group relative isolate h-56 overflow-hidden rounded-lg sm:h-64"
+          >
+            <Image
+              src={item.background}
+              alt=""
+              fill
+              sizes="(min-width: 640px) 50vw, 100vw"
+              className="object-cover transition-transform duration-500 group-hover:scale-105"
+            />
+            <div className="absolute inset-0 bg-gradient-to-l from-black/80 via-black/45 to-transparent" />
 
-          return (
-            <div key={item.id} className="group relative h-[316px] overflow-hidden rounded-xl">
-              {/* Background */}
-              <Image
-                src={item.path}
-                alt={item.label}
-                fill
-                className="object-cover transition-transform duration-500 group-hover:scale-105"
-              />
+            <div
+              className="relative z-10 flex h-full items-center justify-between px-5 sm:px-7"
+              dir="rtl"
+            >
+              <div className="flex w-[58%] flex-col items-start gap-3 text-white">
+                <h2 className="text-2xl font-black sm:text-3xl">{item.title}</h2>
+                <p className="text-sm leading-6 text-white/80">{item.description}</p>
+                <Link
+                  href="/products"
+                  className="bg-accent text-foreground hover:bg-accent-strong inline-flex min-h-10 items-center gap-2 rounded-md px-4 text-sm font-bold transition-colors"
+                >
+                  مشاهده محصولات
+                  <FiArrowLeft size={16} aria-hidden />
+                </Link>
+              </div>
 
-              {/* Content */}
-              <div className="relative z-10 flex h-full items-center justify-between px-5">
-                {/* Product */}
-                <div className="relative h-full w-[50%]">
-                  <Image
-                    src={product.path}
-                    alt={product.alt}
-                    fill
-                    className="object-contain transition-transform duration-500 group-hover:scale-110"
-                  />
-                </div>
-
-                {/* Text + Button */}
-                <div className="flex w-[50%] flex-col items-end gap-4">
-                  <span className="flex text-left text-5xl font-extrabold text-white">
-                    {item.label.split(' ').map((word, index) => (
-                      <React.Fragment key={index}>
-                        {word}
-                        <br />
-                      </React.Fragment>
-                    ))}
-                  </span>
-                  <span className="text-lg font-bold text-white">
-                    شروع قیمت <span className="text-red-600">{item.price} تومان</span>
-                  </span>
-
-                  <Link
-                    href="#"
-                    className="mt-2 rounded-full border-2 border-white px-7 py-2 text-sm font-bold text-white transition-all duration-300 hover:bg-white hover:text-black"
-                  >
-                    خرید آسان
-                  </Link>
-                </div>
+              <div className="relative h-full w-[42%]">
+                <Image
+                  src={item.productImage}
+                  alt=""
+                  fill
+                  sizes="(min-width: 640px) 22vw, 42vw"
+                  className="object-contain p-2 transition-transform duration-500 group-hover:scale-105"
+                />
               </div>
             </div>
-          );
-        })}
+          </article>
+        ))}
       </div>
     </section>
   );

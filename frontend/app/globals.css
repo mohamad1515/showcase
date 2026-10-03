@@ -9,32 +9,62 @@
 }
 
 :root {
-  --background: #f5f5f5;
-  --surface-1: #f3f4f6;
-  --surface: #f3f4f6;
-  --surface-3: #e5e7eb;
+  --background: #ffffff;
+  --surface-1: #f6f6f6;
+  --surface: #ffffff;
+  --surface-3: #f1f1f1;
   --card: #ffffff;
-  --border: #e5e7eb;
-  --border-strong: #d1d5db;
-  --foreground: #1f2937;
-  --text-secondary: #6b7280;
-  --muted: #6b7280;
-  --disabled: #9ca3af;
-  --accent: #22c55e;
-  --accent-strong: #16a34a;
-  --accent-pressed: #15803d;
-  --accent-soft: rgba(34, 197, 94, 0.12);
-  --brand: #22c55e;
-  --brand-hover: #16a34a;
-  --gold: #22c55e;
-  --gold-soft: rgba(34, 197, 94, 0.12);
-  --danger: #dc2626;
-  --danger-soft: rgba(220, 38, 38, 0.1);
-  --success: #16a34a;
-  --success-soft: rgba(22, 163, 74, 0.12);
-  --radius-sm: 6px;
-  --radius-md: 8px;
-  --radius-lg: 12px;
+  --border: #e5e5e5;
+  --border-strong: #d7d7d7;
+  --foreground: #111111;
+  --text-secondary: #666666;
+  --muted: #666666;
+  --disabled: #8a8a8a;
+  --accent: #7dff2a;
+  --accent-strong: #6fe61f;
+  --accent-pressed: #5acb13;
+  --accent-soft: rgba(125, 255, 42, 0.16);
+  --brand: #7dff2a;
+  --brand-hover: #6fe61f;
+  --gold: #f59e0b;
+  --gold-soft: rgba(245, 158, 11, 0.12);
+  --danger: #e53935;
+  --danger-soft: rgba(229, 57, 53, 0.1);
+  --success: #20b15a;
+  --success-soft: rgba(32, 177, 90, 0.12);
+  --color-footer: #171717;
+  --color-footer-text: #bdbdbd;
+  --container-width: 1200px;
+  --container-padding-desktop: 24px;
+  --container-padding-tablet: 20px;
+  --container-padding-mobile: 16px;
+  --section-space-desktop: 72px;
+  --section-space-tablet: 56px;
+  --section-space-mobile: 40px;
+  --grid-gap-desktop: 24px;
+  --grid-gap-tablet: 20px;
+  --grid-gap-mobile: 16px;
+  --font-size-body: 14px;
+  --font-size-small: 12px;
+  --font-size-product-title: 14px;
+  --font-size-section-title: 28px;
+  --font-size-price: 15px;
+  --control-height-sm: 36px;
+  --control-height-md: 44px;
+  --control-height-lg: 52px;
+  --control-height-input: 46px;
+  --control-size-icon: 40px;
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-hover: 0 10px 30px rgba(0, 0, 0, 0.08);
+  --shadow-dropdown: 0 12px 32px rgba(0, 0, 0, 0.12);
+  --shadow-modal: 0 20px 60px rgba(0, 0, 0, 0.18);
+  --motion-fast: 150ms ease;
+  --motion-hover: 180ms ease-out;
+  --ui-radius-xs: 4px;
+  --ui-radius-sm: 6px;
+  --ui-radius-md: 10px;
+  --ui-radius-lg: 14px;
+  --ui-radius-xl: 18px;
 }
 
 @theme inline {
@@ -52,6 +82,11 @@
   --color-success: var(--success);
   --font-sans: 'Vazir';
   --font-mono: 'Vazir';
+  --radius-xs: var(--ui-radius-xs);
+  --radius-sm: var(--ui-radius-sm);
+  --radius-md: var(--ui-radius-md);
+  --radius-lg: var(--ui-radius-lg);
+  --radius-xl: var(--ui-radius-xl);
 }
 
 * {
@@ -72,7 +107,7 @@ body {
 
 ::selection {
   background: var(--accent);
-  color: #fff;
+  color: var(--foreground);
 }
 
 button,

@@ -4,52 +4,12 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useRef } from 'react';
 import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
+import { getHomeCategories } from '../data/categories';
+import type { Category } from '../lib/products';
 
-const categories = [
-  {
-    id: 1,
-    label: 'All Supplements',
-    path: '/images/category/cat1.png',
-  },
-  {
-    id: 2,
-    label: 'Sports Nutrition',
-    path: '/images/category/cat2.png',
-  },
-  {
-    id: 3,
-    label: 'Protein',
-    path: '/images/category/cat3.png',
-  },
-  {
-    id: 4,
-    label: 'Vitamins',
-    path: '/images/category/cat4.png',
-  },
-  {
-    id: 5,
-    label: 'Performance',
-    path: '/images/category/cat5.png',
-  },
-  {
-    id: 6,
-    label: 'Health Support',
-    path: '/images/category/cat6.png',
-  },
-  {
-    id: 7,
-    label: 'Digestion',
-    path: '/images/category/cat7.png',
-  },
-  {
-    id: 8,
-    label: 'Vegan',
-    path: '/images/category/cat8.png',
-  },
-];
-
-export default function ByCategories() {
+export default function ByCategories({ categories }: { categories: Category[] }) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const homeCategories = getHomeCategories(categories);
 
   const scroll = (direction: 'left' | 'right') => {
     if (!containerRef.current) return;
@@ -75,26 +35,26 @@ export default function ByCategories() {
       {/* Categories */}
       <div
         ref={containerRef}
-        className="scrollbar-hide flex justify-around gap-3 overflow-x-auto scroll-smooth px-11"
+        className="scrollbar-hide flex snap-x snap-mandatory justify-start gap-3 overflow-x-auto scroll-smooth px-11 sm:justify-around"
       >
-        {categories.map((item) => (
+        {homeCategories.map((item) => (
           <Link
             key={item.id}
-            href="/products"
-            className="group relative flex min-w-[140px] flex-col items-center justify-center rounded-full"
+            href={`/category/${item.slug}`}
+            className="group relative flex min-w-[140px] snap-start flex-col items-center justify-center rounded-md"
           >
             <div className="group relative">
               <Image
-                src={item.path}
-                alt={item.label}
+                src={item.image}
+                alt={item.name}
                 width={142}
                 height={130}
-                className="h-[130px] max-w-[130px] bg-transparent transition-transform duration-300 group-hover:scale-105"
+                className="h-[130px] w-auto max-w-[130px] bg-transparent transition-transform duration-300 group-hover:scale-105"
               />
 
-              <div className="absolute top-[19px] -z-10 h-[125px] w-[125px] rounded-full p-2 opacity-0 transition-all duration-300 group-hover:bg-[#8cff64] group-hover:opacity-100" />
+              <div className="group-hover:bg-accent absolute top-[19px] -z-10 h-[125px] w-[125px] rounded-full p-2 opacity-0 transition-all duration-300 group-hover:opacity-100" />
             </div>
-            <p className="mt-6 text-lg font-bold text-black">{item.label}</p>
+            <p className="mt-6 text-lg font-bold text-black">{item.name}</p>
           </Link>
         ))}
       </div>

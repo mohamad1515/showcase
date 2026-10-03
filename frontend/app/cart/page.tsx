@@ -1,18 +1,13 @@
-"use client";
+'use client';
 
-import Image from "next/image";
-import Link from "next/link";
-import { useEffect, useState } from "react";
-import { FiMinus, FiPlus, FiShoppingBag, FiTrash2 } from "react-icons/fi";
-import type { Cart } from "../lib/products";
-import {
-  createOrderFromCart,
-  getCart,
-  removeCartItem,
-  updateCartItem,
-} from "../lib/graphql";
-import { errorMessage, notifyError, notifyInfo } from "../lib/toast";
-import { useAuth } from "../providers/AuthProvider";
+import Image from 'next/image';
+import Link from 'next/link';
+import { useEffect, useState } from 'react';
+import { FiMinus, FiPlus, FiShoppingBag, FiTrash2 } from 'react-icons/fi';
+import type { Cart } from '../lib/products';
+import { getCart, removeCartItem, updateCartItem } from '../lib/graphql';
+import { errorMessage, notifyError, notifyInfo } from '../lib/toast';
+import { useAuth } from '../providers/AuthProvider';
 
 export default function CartPage() {
   const { token, loading: authLoading } = useAuth();
@@ -30,9 +25,7 @@ export default function CartPage() {
 
     getCart()
       .then(setCart)
-      .catch((err) =>
-        notifyError(errorMessage(err, "دریافت سبد خرید ناموفق بود.")),
-      )
+      .catch((err) => notifyError(errorMessage(err, 'دریافت سبد خرید ناموفق بود.')))
       .finally(() => setLoading(false));
   }, [authLoading, token]);
 
@@ -46,9 +39,9 @@ export default function CartPage() {
     try {
       const nextCart = await updateCartItem(itemId, quantity);
       setCart(nextCart);
-      window.dispatchEvent(new CustomEvent("cart:refresh"));
+      window.dispatchEvent(new CustomEvent('cart:refresh'));
     } catch (err) {
-      notifyError(errorMessage(err, "به‌روزرسانی سبد خرید ناموفق بود."));
+      notifyError(errorMessage(err, 'به‌روزرسانی سبد خرید ناموفق بود.'));
     } finally {
       setBusyId(null);
     }
@@ -59,9 +52,9 @@ export default function CartPage() {
     try {
       const nextCart = await removeCartItem(itemId);
       setCart(nextCart);
-      window.dispatchEvent(new CustomEvent("cart:refresh"));
+      window.dispatchEvent(new CustomEvent('cart:refresh'));
     } catch (err) {
-      notifyError(errorMessage(err, "حذف محصول ناموفق بود."));
+      notifyError(errorMessage(err, 'حذف محصول ناموفق بود.'));
     } finally {
       setBusyId(null);
     }
@@ -70,16 +63,9 @@ export default function CartPage() {
   async function checkout() {
     setCheckoutLoading(true);
     try {
-      if (cart && cart.items.length > 0) {
-        await createOrderFromCart();
-      }
-      notifyInfo(
-        "این درگاه بانکی موقتا خاموش میباشد لطفا در زمان دیگری تلاش کنید",
-      );
+      notifyInfo('درگاه پرداخت هنوز فعال نیست؛ سفارشی ثبت نشد.');
     } catch {
-      notifyInfo(
-        "این درگاه بانکی موقتا خاموش میباشد لطفا در زمان دیگری تلاش کنید",
-      );
+      notifyInfo('درگاه پرداخت هنوز فعال نیست؛ سفارشی ثبت نشد.');
     } finally {
       setCheckoutLoading(false);
     }
@@ -88,7 +74,7 @@ export default function CartPage() {
   if (authLoading || loading) {
     return (
       <main className="mx-auto max-w-7xl px-5 py-10 sm:px-8 lg:px-12">
-        <div className="rounded-lg border border-border bg-surface p-8 text-sm font-bold text-muted">
+        <div className="border-border bg-surface text-muted rounded-lg border p-8 text-sm font-bold">
           در حال بارگذاری سبد خرید...
         </div>
       </main>
@@ -98,15 +84,15 @@ export default function CartPage() {
   if (!token) {
     return (
       <main className="mx-auto max-w-3xl px-5 py-10 sm:px-8 lg:px-12">
-        <section className="rounded-lg border border-border bg-surface p-8 text-center shadow-sm">
-          <FiShoppingBag className="mx-auto text-4xl text-accent" aria-hidden />
-          <h1 className="mt-4 text-2xl font-black text-foreground">سبد خرید</h1>
-          <p className="mt-3 text-sm leading-7 text-muted">
+        <section className="border-border bg-surface rounded-lg border p-8 text-center shadow-sm">
+          <FiShoppingBag className="text-accent mx-auto text-4xl" aria-hidden />
+          <h1 className="text-foreground mt-4 text-2xl font-black">سبد خرید</h1>
+          <p className="text-muted mt-3 text-sm leading-7">
             برای مشاهده و مدیریت سبد خرید ابتدا وارد حساب کاربری شوید.
           </p>
           <Link
             href="/auth/login"
-            className="mt-6 inline-flex h-11 items-center justify-center rounded-md bg-accent px-6 text-sm font-black text-white transition hover:bg-accent-strong"
+            className="bg-accent hover:bg-accent-strong mt-6 inline-flex h-11 items-center justify-center rounded-md px-6 text-sm font-black text-white transition"
           >
             ورود به حساب
           </Link>
@@ -119,19 +105,19 @@ export default function CartPage() {
 
   return (
     <main className="mx-auto max-w-7xl px-5 py-10 sm:px-8 lg:px-12">
-      <section className="mb-8 border-b border-border pb-6">
-        <p className="text-sm font-bold text-accent">سبد خرید</p>
-        <h1 className="mt-3 text-3xl font-black text-foreground sm:text-4xl">
+      <section className="border-border mb-8 border-b pb-6">
+        <p className="text-accent text-sm font-bold">سبد خرید</p>
+        <h1 className="text-foreground mt-3 text-3xl font-black sm:text-4xl">
           مرور محصولات انتخاب‌شده
         </h1>
       </section>
 
       {isEmpty ? (
-        <section className="rounded-lg border border-border bg-surface p-8 text-center shadow-sm">
-          <p className="text-sm font-bold text-muted">سبد خرید شما خالی است.</p>
+        <section className="border-border bg-surface rounded-lg border p-8 text-center shadow-sm">
+          <p className="text-muted text-sm font-bold">سبد خرید شما خالی است.</p>
           <Link
             href="/products"
-            className="mt-5 inline-flex h-11 items-center justify-center rounded-md bg-accent px-6 text-sm font-black text-white transition hover:bg-accent-strong"
+            className="bg-accent hover:bg-accent-strong mt-5 inline-flex h-11 items-center justify-center rounded-md px-6 text-sm font-black text-white transition"
           >
             مشاهده محصولات
           </Link>
@@ -142,11 +128,11 @@ export default function CartPage() {
             {cart.items.map((item) => (
               <article
                 key={item.id}
-                className="grid gap-4 rounded-lg border border-border bg-card p-4 shadow-sm sm:grid-cols-[120px_1fr] sm:items-center"
+                className="border-border bg-card grid gap-4 rounded-lg border p-4 shadow-sm sm:grid-cols-[120px_1fr] sm:items-center"
               >
-                <div className="relative aspect-square overflow-hidden rounded-lg bg-background">
+                <div className="bg-background relative aspect-square overflow-hidden rounded-lg">
                   <Image
-                    src={item.product.images?.[0] ?? "/images/product.png"}
+                    src={item.product.images?.[0] ?? '/images/product.png'}
                     alt={item.product.name}
                     fill
                     sizes="120px"
@@ -157,18 +143,16 @@ export default function CartPage() {
                   <div>
                     <Link
                       href={`/products/${item.product.slug}`}
-                      className="text-base font-black text-foreground transition hover:text-accent"
+                      className="text-foreground hover:text-accent text-base font-black transition"
                     >
                       {item.product.name}
                     </Link>
-                    <div className="mt-3 flex items-center gap-2 text-xs font-bold text-muted">
+                    <div className="text-muted mt-3 flex items-center gap-2 text-xs font-bold">
                       <span>تعداد: {item.quantity}</span>
                       <span>•</span>
                       <span>{item.product.weight}</span>
                     </div>
-                    <p className="mt-3 text-sm font-bold text-gold">
-                      {item.lineTotal} تومان
-                    </p>
+                    <p className="text-gold mt-3 text-sm font-bold">{item.lineTotal} تومان</p>
                   </div>
 
                   <div className="flex items-center gap-2">
@@ -176,19 +160,19 @@ export default function CartPage() {
                       type="button"
                       onClick={() => changeQuantity(item.id, item.quantity + 1)}
                       disabled={busyId === item.id}
-                      className="grid h-10 w-10 place-items-center rounded-md border border-border bg-surface text-foreground transition hover:border-accent hover:text-accent disabled:opacity-60"
+                      className="border-border bg-surface text-foreground hover:border-accent hover:text-accent grid h-10 w-10 place-items-center rounded-md border transition disabled:opacity-60"
                       title="افزایش تعداد"
                     >
                       <FiPlus aria-hidden />
                     </button>
-                    <span className="grid h-10 min-w-12 place-items-center rounded-md bg-background px-3 text-sm font-black text-foreground">
+                    <span className="bg-background text-foreground grid h-10 min-w-12 place-items-center rounded-md px-3 text-sm font-black">
                       {item.quantity}
                     </span>
                     <button
                       type="button"
                       onClick={() => changeQuantity(item.id, item.quantity - 1)}
                       disabled={busyId === item.id}
-                      className="grid h-10 w-10 place-items-center rounded-md border border-border bg-surface text-foreground transition hover:border-accent hover:text-accent disabled:opacity-60"
+                      className="border-border bg-surface text-foreground hover:border-accent hover:text-accent grid h-10 w-10 place-items-center rounded-md border transition disabled:opacity-60"
                       title="کاهش تعداد"
                     >
                       <FiMinus aria-hidden />
@@ -197,7 +181,7 @@ export default function CartPage() {
                       type="button"
                       onClick={() => removeItem(item.id)}
                       disabled={busyId === item.id}
-                      className="grid h-10 w-10 place-items-center rounded-md border border-border bg-surface text-danger transition hover:border-danger disabled:opacity-60"
+                      className="border-border bg-surface text-danger hover:border-danger grid h-10 w-10 place-items-center rounded-md border transition disabled:opacity-60"
                       title="حذف"
                     >
                       <FiTrash2 aria-hidden />
@@ -208,22 +192,20 @@ export default function CartPage() {
             ))}
           </div>
 
-          <aside className="h-fit rounded-lg border border-border bg-surface p-6 shadow-sm">
-            <h2 className="text-xl font-black text-foreground">فاکتور</h2>
-            <div className="mt-5 grid gap-3 border-t border-border pt-5 text-sm font-bold">
-              <div className="flex items-center justify-between text-muted">
+          <aside className="border-border bg-surface h-fit rounded-lg border p-6 shadow-sm">
+            <h2 className="text-foreground text-xl font-black">فاکتور</h2>
+            <div className="border-border mt-5 grid gap-3 border-t pt-5 text-sm font-bold">
+              <div className="text-muted flex items-center justify-between">
                 <span>تعداد آیتم‌ها</span>
                 <span>{cart.itemCount}</span>
               </div>
-              <div className="flex items-center justify-between text-muted">
+              <div className="text-muted flex items-center justify-between">
                 <span>جمع مبالغ</span>
                 <span>{cart.total} تومان</span>
               </div>
-              <div className="flex items-center justify-between border-t border-border pt-3 text-foreground">
+              <div className="border-border text-foreground flex items-center justify-between border-t pt-3">
                 <span>مبلغ قابل پرداخت</span>
-                <span className="text-lg font-black text-gold">
-                  {cart.total} تومان
-                </span>
+                <span className="text-gold text-lg font-black">{cart.total} تومان</span>
               </div>
             </div>
             <div className="mt-6 grid gap-3">
@@ -231,13 +213,13 @@ export default function CartPage() {
                 type="button"
                 onClick={checkout}
                 disabled={checkoutLoading}
-                className="inline-flex h-12 w-full items-center justify-center rounded-md bg-accent px-5 text-sm font-black text-white transition hover:bg-accent-strong disabled:cursor-not-allowed disabled:opacity-60"
+                className="bg-accent hover:bg-accent-strong inline-flex h-12 w-full items-center justify-center rounded-md px-5 text-sm font-black text-white transition disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {checkoutLoading ? "در حال ثبت سفارش" : "ثبت سفارش"}
+                {checkoutLoading ? 'در حال ثبت سفارش' : 'ثبت سفارش'}
               </button>
               <Link
                 href="/"
-                className="inline-flex h-12 w-full items-center justify-center rounded-md border border-border bg-background px-5 text-sm font-black text-foreground transition hover:border-accent hover:text-accent"
+                className="border-border bg-background text-foreground hover:border-accent hover:text-accent inline-flex h-12 w-full items-center justify-center rounded-md border px-5 text-sm font-black transition"
               >
                 بازگشت به صفحه اصلی
               </Link>

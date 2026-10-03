@@ -23,7 +23,7 @@ import SearchBox from './SearchBox';
 export const navItems = [
   { href: '/', label: 'صفحه اصلی' },
   { href: '/products', label: 'محصولات' },
-  { href: '/#articles', label: 'مقالات' },
+  { href: '/blog', label: 'مقالات' },
   { href: '/#about', label: 'درباره ما' },
   { href: '/#contact', label: 'تماس با ما' },
 ];

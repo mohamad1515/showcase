@@ -1,0 +1,296 @@
+{
+  "meta": {
+    "name": "Nutreko Home 2 UI Specification",
+    "reference": "Nutreko Nutrition & Supplement WooCommerce Theme — Home 2 / preview 02",
+    "purpose": "Visual source of truth for a React/Next.js recreation",
+    "precision_note": "The public preview does not expose the original design-token source. Values marked estimated are forensic approximations from the public visual reference and should be calibrated with screenshot comparison."
+  },
+  "design_direction": {
+    "background": "light/white",
+    "visual_style": [
+      "athletic",
+      "premium",
+      "minimal",
+      "high-contrast",
+      "product-first"
+    ],
+    "primary_accent": {
+      "value": "#7DFF2A",
+      "confidence": "estimated",
+      "usage": [
+        "announcement/accent strip",
+        "active states",
+        "service strip",
+        "CTA emphasis"
+      ]
+    },
+    "primary_text": {
+      "value": "#111111",
+      "confidence": "high"
+    },
+    "secondary_text": {
+      "value": "#666666",
+      "confidence": "estimated"
+    },
+    "surface": {
+      "value": "#FFFFFF",
+      "confidence": "high"
+    },
+    "muted_surface": {
+      "value": "#F5F5F5",
+      "confidence": "estimated"
+    },
+    "dark_surface": {
+      "value": "#171717",
+      "confidence": "estimated"
+    }
+  },
+  "colors": {
+    "brand": "#7DFF2A",
+    "brand_hover": "#6FE61F",
+    "text_primary": "#111111",
+    "text_secondary": "#666666",
+    "text_muted": "#8A8A8A",
+    "surface": "#FFFFFF",
+    "surface_soft": "#F6F6F6",
+    "surface_alt": "#F1F1F1",
+    "border": "#E5E5E5",
+    "border_strong": "#D7D7D7",
+    "success": "#20B15A",
+    "danger": "#E53935",
+    "warning": "#F59E0B",
+    "black": "#000000",
+    "footer": "#171717",
+    "footer_text": "#BDBDBD"
+  },
+  "typography": {
+    "font_family_primary": "Inter, Arial, sans-serif",
+    "font_family_rtl_replacement": "Vazir, Inter, Arial, sans-serif",
+    "body": {
+      "font_size": "14px",
+      "line_height": 1.65,
+      "font_weight": 400
+    },
+    "small": {
+      "font_size": "12px",
+      "line_height": 1.5,
+      "font_weight": 400
+    },
+    "product_title": {
+      "font_size": "14px",
+      "line_height": 1.45,
+      "font_weight": 500
+    },
+    "section_title": {
+      "font_size": "28px",
+      "line_height": 1.1,
+      "font_weight": 800,
+      "letter_spacing": "-0.02em",
+      "text_transform": "uppercase"
+    },
+    "hero_title": {
+      "font_size": "clamp(38px, 5vw, 72px)",
+      "line_height": 0.95,
+      "font_weight": 900,
+      "letter_spacing": "-0.04em",
+      "text_transform": "uppercase"
+    },
+    "price": {
+      "font_size": "15px",
+      "font_weight": 700
+    },
+    "old_price": {
+      "font_size": "13px",
+      "font_weight": 400,
+      "text_decoration": "line-through"
+    }
+  },
+  "layout": {
+    "container": {
+      "max_width": "1200px",
+      "desktop_padding": "24px",
+      "tablet_padding": "20px",
+      "mobile_padding": "16px"
+    },
+    "section_vertical_spacing": {
+      "desktop": "72px",
+      "tablet": "56px",
+      "mobile": "40px"
+    },
+    "grid_gap": {
+      "desktop": "24px",
+      "tablet": "20px",
+      "mobile": "16px"
+    },
+    "product_columns": {
+      "desktop": 4,
+      "tablet": 3,
+      "mobile": 2
+    }
+  },
+  "radius": {
+    "none": "0px",
+    "xs": "4px",
+    "sm": "6px",
+    "md": "10px",
+    "lg": "14px",
+    "xl": "18px",
+    "pill": "999px"
+  },
+  "borders": {
+    "default": "1px solid #E5E5E5",
+    "strong": "1px solid #D7D7D7",
+    "dark": "1px solid #2B2B2B",
+    "accent": "1px solid #7DFF2A"
+  },
+  "shadows": {
+    "none": "none",
+    "card": "0 1px 2px rgba(0,0,0,0.04)",
+    "hover": "0 10px 30px rgba(0,0,0,0.08)",
+    "dropdown": "0 12px 32px rgba(0,0,0,0.12)",
+    "modal": "0 20px 60px rgba(0,0,0,0.18)"
+  },
+  "controls": {
+    "button_height_sm": "36px",
+    "button_height_md": "44px",
+    "button_height_lg": "52px",
+    "input_height": "46px",
+    "icon_button": "40px",
+    "button_radius": "6px"
+  },
+  "breakpoints": {
+    "mobile": "0-639px",
+    "tablet": "640-1023px",
+    "desktop": "1024-1279px",
+    "wide": "1280px+"
+  },
+  "home2_sections": [
+    {
+      "id": "hero",
+      "layout": "large promotional hero",
+      "surface": "dark image",
+      "radius": "md",
+      "content": "high-contrast uppercase headline + CTA",
+      "notes": "Product packshots occupy the visual focus; keep text area uncluttered."
+    },
+    {
+      "id": "promo-grid",
+      "layout": "two compact promotional cards",
+      "gap": "16px-24px",
+      "radius": "md"
+    },
+    {
+      "id": "shop-by-goals",
+      "layout": "horizontal goal cards",
+      "card_radius": "md",
+      "image_ratio": "approximately 1:1",
+      "notes": "Goal discovery is a major Home 2 navigation pattern."
+    },
+    {
+      "id": "best-sellers",
+      "layout": "product grid with dark promotional tile",
+      "columns": 4,
+      "notes": "Promotional tile visually anchors the product grid."
+    },
+    {
+      "id": "trending-now",
+      "layout": "product section with strong promotional imagery",
+      "notes": "Use a distinct campaign background without overpowering product cards."
+    },
+    {
+      "id": "service-strip",
+      "layout": "full-width accent strip",
+      "surface": "#7DFF2A",
+      "text": "#111111"
+    },
+    {
+      "id": "exceptional-service",
+      "layout": "split editorial image + text",
+      "surface": "#F6F6F6",
+      "radius": "md"
+    },
+    {
+      "id": "top-picks",
+      "layout": "product grid + featured visual",
+      "columns": 4
+    },
+    {
+      "id": "customer-love",
+      "layout": "dark testimonial section",
+      "surface": "#171717",
+      "text": "#FFFFFF",
+      "radius": "md"
+    },
+    {
+      "id": "articles",
+      "layout": "3 article cards",
+      "card_radius": "md"
+    },
+    {
+      "id": "community",
+      "layout": "horizontal social image strip",
+      "notes": "Use consistent square crops."
+    },
+    {
+      "id": "footer",
+      "layout": "dark multi-column footer",
+      "surface": "#171717",
+      "text": "#FFFFFF"
+    }
+  ],
+  "interaction": {
+    "product_hover": {
+      "transform": "translateY(-4px)",
+      "duration": "180ms",
+      "easing": "ease-out"
+    },
+    "button_hover": {
+      "duration": "160ms",
+      "easing": "ease-out"
+    },
+    "link_transition": "150ms ease"
+  },
+  "responsive_rules": {
+    "hero": "stack or crop intelligently; preserve headline readability",
+    "promo_grid": "2 columns desktop/tablet, 1 column mobile",
+    "goal_cards": "horizontal scroll/carousel on mobile",
+    "product_grid": "4 -> 3 -> 2 columns",
+    "footer": "4+ columns desktop -> 2 tablet -> stacked mobile",
+    "navigation": "desktop menu -> mobile drawer"
+  },
+  "page_inventory": {
+    "verified_theme_scope": [
+      "Homepage demos (5+)",
+      "Shop pages",
+      "Product pages",
+      "Blog pages",
+      "Premade functional/inner pages",
+      "Header/footer variants",
+      "Sidebar variants"
+    ],
+    "implementation_routes": [
+      "/",
+      "/shop",
+      "/category/[slug]",
+      "/product/[slug]",
+      "/cart",
+      "/checkout",
+      "/account",
+      "/account/login",
+      "/account/register",
+      "/account/orders",
+      "/account/order/[id]",
+      "/account/profile",
+      "/account/addresses",
+      "/account/wishlist",
+      "/blog",
+      "/blog/[slug]",
+      "/about",
+      "/contact",
+      "/faq",
+      "/search",
+      "/404"
+    ],
+    "note": "The public listing confirms these functional areas but does not publish a complete route-by-route sitemap. Routes beyond the explicitly documented Shop/Product/Blog/functional-page scope are the recommended implementation inventory for reproducing the storefront experience, not a claim that every route is an exact Nutreko template."
+  }
+}

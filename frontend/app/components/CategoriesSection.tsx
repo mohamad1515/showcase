@@ -2,17 +2,20 @@
 
 import React from 'react';
 import ByCategories from './byCategories';
+import type { Category } from '../lib/products';
 
-const CategoriesSection = () => {
+const CategoriesSection = ({ categories }: { categories: Category[] }) => {
   return (
     <section id="categories" className="space-y-5">
-      <div className="flex">
-        <h2 className="h-display mt-2 pl-4 text-5xl font-extrabold text-[#a8a8a8]">خرید بر اساس</h2>
-        <h1 className="h-display text-foreground mt-2 text-5xl font-black">دسته‌بندی</h1>
+      <div className="flex flex-wrap items-baseline gap-x-2">
+        <h2 className="h-display text-muted text-2xl font-extrabold sm:text-[28px]">
+          خرید بر اساس
+        </h2>
+        <h2 className="h-display text-foreground text-2xl font-black sm:text-[28px]">دسته‌بندی</h2>
       </div>
 
       <div>
-        <ByCategories />
+        <ByCategories categories={categories} />
       </div>
     </section>
   );

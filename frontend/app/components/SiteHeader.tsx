@@ -10,9 +10,9 @@ import { LuAlignJustify } from 'react-icons/lu';
 export default function SiteHeader() {
   return (
     <header className="border-border top-0 z-50 border-b bg-white" dir="rtl">
-      <div className="overflow-hidden border-b border-black bg-[#8cff64]">
+      <div className="bg-accent overflow-hidden border-b border-black">
         <div className="relative flex h-9 items-center overflow-hidden">
-          <div className="announcement-track absolute text-sm font-bold whitespace-nowrap text-black">
+          <div className="announcement-track text-foreground absolute text-sm font-bold whitespace-nowrap">
             تخفیف ویژه محصولات منتخب فیت مکمل — ارسال رایگان برای سفارش‌های بالای یک میلیون تومان
           </div>
         </div>
@@ -23,13 +23,21 @@ export default function SiteHeader() {
           {/* Logo */}
           <Link
             href="/"
-            className="text-foreground flex h-9 flex-shrink-0 items-center rounded-full bg-transparent px-4 text-sm font-bold transition-colors"
+            aria-label="فیت مکمل، صفحهٔ اصلی"
+            className="text-foreground flex h-9 flex-shrink-0 items-center bg-transparent"
           >
-            <Image src={Logo} alt={'تصویر محصول'} width={300} height={80} />
+            <Image
+              src={Logo}
+              alt="فیت مکمل"
+              width={300}
+              height={80}
+              priority
+              className="h-auto w-[132px] sm:w-[180px] lg:w-[210px]"
+            />
           </Link>
 
           {/* Search */}
-          <div className="flex flex-1 items-center justify-center px-2 sm:px-6">
+          <div className="hidden min-w-0 flex-1 items-center justify-center px-2 lg:flex lg:px-6">
             <div className="w-full">
               <SearchBox />
             </div>
@@ -48,13 +56,13 @@ export default function SiteHeader() {
       <div className="border-border border-b py-1">
         <div className="flex min-h-14 w-full items-center gap-6 px-4 sm:px-6 lg:px-10">
           {/* Categories Button */}
-          <button
-            type="button"
-            className="border-border text-foreground hover:border-foreground hover:bg-surface flex h-12 w-[300px] items-center justify-between rounded-full border bg-transparent px-6 text-sm font-bold transition-colors"
+          <Link
+            href="/products"
+            className="border-border text-foreground hover:border-foreground hover:bg-surface hidden h-11 w-[220px] flex-shrink-0 items-center justify-between rounded-md border bg-transparent px-5 text-sm font-bold transition-colors lg:flex"
           >
-            <h1 className="text-lg font-black">دسـته‌بـندی‌ها</h1>
+            <span className="text-base font-black">دسته‌بندی‌ها</span>
             <LuAlignJustify size={15} />
-          </button>
+          </Link>
 
           {/* Main Navigation */}
           <nav className="hidden flex-1 items-center gap-2 md:flex" aria-label="منوی اصلی">
@@ -62,7 +70,7 @@ export default function SiteHeader() {
               <Link
                 key={item.href}
                 href={item.href}
-                className="text-foreground after:bg-foreground relative flex items-center rounded-md px-4 py-2 text-lg font-extrabold tracking-[-3px] after:absolute after:right-4 after:bottom-0 after:left-4 after:h-px after:origin-center after:scale-x-0 after:transition-transform after:duration-300 hover:after:scale-x-100"
+                className="text-foreground after:bg-foreground relative flex items-center rounded-md px-3 py-2 text-sm font-bold after:absolute after:right-3 after:bottom-0 after:left-3 after:h-px after:origin-center after:scale-x-0 after:transition-transform after:duration-300 hover:after:scale-x-100"
               >
                 {item.label}
               </Link>
@@ -70,7 +78,7 @@ export default function SiteHeader() {
           </nav>
 
           {/* Social Links */}
-          <div className="mr-auto hidden items-center gap-2 sm:flex">
+          <div className="mr-auto hidden items-center gap-2 lg:flex">
             {socialLinks.map(({ href, label, icon: Icon }) => (
               <a
                 key={href}
