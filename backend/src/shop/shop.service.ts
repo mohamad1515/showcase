@@ -1,24 +1,20 @@
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from "@nestjs/common";
-import { and, desc, eq } from "drizzle-orm";
-import { DatabaseService } from "../db/database.service";
-import {
-  cartItems,
-  carts,
-  orderItems,
-  orders,
-  products,
-} from "../db/schema";
-import { calculateCartTotal, calculateLineTotal } from "./pricing";
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { and, desc, eq } from 'drizzle-orm';
+import { DatabaseService } from '../db/database.service';
+import { cartItems, carts, orderItems, orders, products } from '../db/schema';
+import { calculateCartTotal, calculateLineTotal } from './pricing';
 
 type ProductRecord = {
   id: number;
   slug: string;
-  name: string;
-  tagline: string;
+  persianName: string;
+  englishName: string;
+  brand: string;
+  brands: unknown;
+  status: string;
+  rating: number;
+  flavor: string;
+  flavors: unknown;
   summary: string;
   description: string;
   features: unknown;
@@ -26,34 +22,21 @@ type ProductRecord = {
   productType?: string | null;
   tags?: unknown;
   price: string;
+  compareAtPrice: string | null;
   weight: string;
-  quantity: string;
+  reviewCount: number;
   stock: number;
-  images: unknown;
+  mainImage: string;
+  galleryImages: unknown;
   createdAt: string;
   updatedAt: string;
 };
 
-type CartItemRecord = {
+type CartItemRecord = Omit<ProductRecord, 'id'> & {
   id: number;
   quantity: number;
   product_id: number;
-  slug: string;
-  name: string;
-  tagline: string;
-  summary: string;
-  description: string;
-  features: unknown;
-  category: string;
-  productType?: string | null;
-  tags?: unknown;
-  price: string;
-  weight: string;
-  productQuantity: string;
-  stock: number;
-  images: unknown;
-  createdAt: string;
-  updatedAt: string;
+  productQuantity?: string;
 };
 
 type OrderRecord = {
@@ -73,7 +56,7 @@ type OrderItemRecord = {
 };
 
 /** A Drizzle db handle: either the base connection or a transaction (`tx`). */
-type Db = DatabaseService["db"];
+type Db = DatabaseService['db'];
 
 @Injectable()
 export class ShopService {
@@ -92,12 +75,10 @@ export class ShopService {
     const existing = await db
       .select({ id: cartItems.id, quantity: cartItems.quantity })
       .from(cartItems)
-      .where(
-        and(eq(cartItems.cartId, cart.id), eq(cartItems.productId, product.id)),
-      )
+      .where(and(eq(cartItems.cartId, cart.id), eq(cartItems.productId, product.id)))
       .then((rows) => rows[0] as { id: number; quantity: number } | undefined);
     const nextQuantity = (existing?.quantity ?? 0) + requestedQuantity;
-    this.assertStock(product, nextQuantity);
+    this.assertStock({ stock: product.stock, name: product.persianName }, nextQuantity);
     const now = new Date().toISOString();
 
     if (existing) {
@@ -130,20 +111,15 @@ export class ShopService {
       .from(cartItems)
       .innerJoin(products, eq(products.id, cartItems.productId))
       .where(and(eq(cartItems.id, itemId), eq(cartItems.cartId, cart.id)))
-      .then(
-        (rows) =>
-          rows[0] as
-            | { id: number; productId: number; stock: number }
-            | undefined,
-      );
-    if (!item) throw new NotFoundException("Cart item was not found.");
+      .then((rows) => rows[0] as { id: number; productId: number; stock: number } | undefined);
+    if (!item) throw new NotFoundException('Cart item was not found.');
 
     if (quantity <= 0) {
       await db.delete(cartItems).where(eq(cartItems.id, itemId));
       return this.touchAndBuildCart(db, cart.id);
     }
 
-    this.assertStock({ stock: item.stock, name: "Product" }, quantity);
+    this.assertStock({ stock: item.stock, name: 'Product' }, quantity);
     await db
       .update(cartItems)
       .set({ quantity: Math.floor(quantity), updatedAt: new Date().toISOString() })
@@ -154,9 +130,7 @@ export class ShopService {
   async removeCartItem(userId: number, itemId: number) {
     const db = this.database.db;
     const cart = await this.findOrCreateCart(db, userId);
-    await db
-      .delete(cartItems)
-      .where(and(eq(cartItems.id, itemId), eq(cartItems.cartId, cart.id)));
+    await db.delete(cartItems).where(and(eq(cartItems.id, itemId), eq(cartItems.cartId, cart.id)));
     return this.touchAndBuildCart(db, cart.id);
   }
 
@@ -172,7 +146,7 @@ export class ShopService {
     const cart = await this.findOrCreateCart(db, userId);
     const builtCart = await this.buildCart(db, cart.id);
     if (builtCart.items.length === 0) {
-      throw new BadRequestException("Cart is empty.");
+      throw new BadRequestException('Cart is empty.');
     }
 
     const now = new Date().toISOString();
@@ -180,9 +154,7 @@ export class ShopService {
     const order = await this.database.db.transaction(async (tx) => {
       for (const item of builtCart.items) {
         if (item.product.stock < item.quantity) {
-          throw new BadRequestException(
-            `${item.product.name} does not have enough stock.`,
-          );
+          throw new BadRequestException(`${item.product.name} does not have enough stock.`);
         }
       }
 
@@ -190,7 +162,7 @@ export class ShopService {
         .insert(orders)
         .values({
           userId,
-          status: "pending",
+          status: 'pending',
           total: builtCart.total,
           createdAt: now,
           updatedAt: now,
@@ -227,10 +199,7 @@ export class ShopService {
       }
 
       await tx.delete(cartItems).where(eq(cartItems.cartId, cart.id));
-      await tx
-        .update(carts)
-        .set({ updatedAt: now })
-        .where(eq(carts.id, cart.id));
+      await tx.update(carts).set({ updatedAt: now }).where(eq(carts.id, cart.id));
 
       return orderRecord;
     });
@@ -251,11 +220,11 @@ export class ShopService {
       .where(eq(orders.userId, userId))
       .orderBy(desc(orders.id));
     const ordered = rows.map((row) => ({
-        id: row.id,
-        status: row.status,
-        total: row.total,
-        created_at: row.createdAt,
-      }));
+      id: row.id,
+      status: row.status,
+      total: row.total,
+      created_at: row.createdAt,
+    }));
     return Promise.all(ordered.map((order) => this.buildOrder(db, order)));
   }
 
@@ -266,8 +235,14 @@ export class ShopService {
         quantity: cartItems.quantity,
         product_id: products.id,
         slug: products.slug,
-        name: products.persianName,
-        tagline: products.englishName,
+        persianName: products.persianName,
+        englishName: products.englishName,
+        brand: products.brand,
+        brands: products.brands,
+        status: products.status,
+        rating: products.rating,
+        flavor: products.flavor,
+        flavors: products.flavors,
         summary: products.summary,
         description: products.description,
         features: products.features,
@@ -275,9 +250,12 @@ export class ShopService {
         productType: products.productType,
         tags: products.tags,
         price: products.price,
+        compareAtPrice: products.compareAtPrice,
         weight: products.weight,
         stock: products.stock,
-        images: products.mainImage,
+        mainImage: products.mainImage,
+        galleryImages: products.galleryImages,
+        reviewCount: products.reviewCount,
         createdAt: products.createdAt,
         updatedAt: products.updatedAt,
       })
@@ -286,18 +264,14 @@ export class ShopService {
       .where(eq(cartItems.cartId, cartId))
       .orderBy(desc(cartItems.id));
 
-    const orderedRows = rows as unknown as (Omit<
-      CartItemRecord,
-      "productQuantity"
-    > & { productQuantity?: string })[];
+    const orderedRows = rows as unknown as CartItemRecord[];
 
     const items = orderedRows.map((row) => {
-      const record: CartItemRecord = { ...row, productQuantity: "1" } as CartItemRecord;
-      const product = this.mapProduct(record);
+      const product = this.mapProduct(row);
       return {
-        id: record.id,
-        quantity: record.quantity,
-        lineTotal: calculateLineTotal(product.price, record.quantity),
+        id: row.id,
+        quantity: row.quantity,
+        lineTotal: calculateLineTotal(product.price, row.quantity),
         product,
       };
     });
@@ -372,8 +346,14 @@ export class ShopService {
       .select({
         id: products.id,
         slug: products.slug,
-        name: products.persianName,
-        tagline: products.englishName,
+        persianName: products.persianName,
+        englishName: products.englishName,
+        brand: products.brand,
+        brands: products.brands,
+        status: products.status,
+        rating: products.rating,
+        flavor: products.flavor,
+        flavors: products.flavors,
         summary: products.summary,
         description: products.description,
         features: products.features,
@@ -381,45 +361,59 @@ export class ShopService {
         productType: products.productType,
         tags: products.tags,
         price: products.price,
+        compareAtPrice: products.compareAtPrice,
         weight: products.weight,
+        reviewCount: products.reviewCount,
         stock: products.stock,
-        images: products.mainImage,
+        mainImage: products.mainImage,
+        galleryImages: products.galleryImages,
         createdAt: products.createdAt,
         updatedAt: products.updatedAt,
       })
       .from(products)
       .where(eq(products.slug, slug))
       .then((rows) => rows[0]);
-    if (!product) throw new NotFoundException("Product was not found.");
-    return { ...product, quantity: "1" } as ProductRecord;
+    if (!product) throw new NotFoundException('Product was not found.');
+    return product as ProductRecord;
   }
 
   private async touchAndBuildCart(db: Db, cartId: number) {
-    await db
-      .update(carts)
-      .set({ updatedAt: new Date().toISOString() })
-      .where(eq(carts.id, cartId));
+    await db.update(carts).set({ updatedAt: new Date().toISOString() }).where(eq(carts.id, cartId));
     return this.buildCart(db, cartId);
   }
 
   private mapProduct(row: CartItemRecord | ProductRecord) {
+    const galleryImages = this.asList(row.galleryImages, [row.mainImage]);
+    const persianName = row.persianName || row.englishName || row.slug;
+
     return {
-      id:
-        row instanceof Object && "product_id" in row ? row.product_id : row.id,
+      id: row instanceof Object && 'product_id' in row ? row.product_id : row.id,
       slug: row.slug,
-      name: row.name,
-      tagline: row.tagline,
+      persianName,
+      englishName: row.englishName,
+      brand: row.brand,
+      brands: this.asList(row.brands, []),
+      status: row.status,
+      rating: row.rating,
+      flavor: row.flavor,
+      flavors: this.asList(row.flavors, []),
       summary: row.summary,
       description: row.description,
       features: this.asList(row.features, []),
       category: row.category,
-      productType: row.productType ?? "powder",
+      productType: row.productType ?? 'powder',
       tags: this.asList(row.tags ?? [], []),
       price: row.price,
+      compareAtPrice: row.compareAtPrice,
       weight: row.weight,
-      quantity: "productQuantity" in row ? row.productQuantity : row.quantity,
+      quantity: 'productQuantity' in row ? (row.productQuantity ?? '1') : '1',
       stock: row.stock,
-      images: this.asList(row.images, ["/images/product.png"]),
+      mainImage: row.mainImage,
+      galleryImages,
+      reviewCount: row.reviewCount,
+      name: persianName,
+      tagline: row.englishName,
+      images: galleryImages,
       createdAt: row.createdAt,
       updatedAt: row.updatedAt,
     };
@@ -427,26 +421,21 @@ export class ShopService {
 
   private normalizeQuantity(quantity: number) {
     if (!Number.isFinite(quantity) || quantity < 1) {
-      throw new BadRequestException("Quantity must be at least 1.");
+      throw new BadRequestException('Quantity must be at least 1.');
     }
     return Math.floor(quantity);
   }
 
-  private assertStock(
-    product: { stock: number; name: string },
-    quantity: number,
-  ) {
+  private assertStock(product: { stock: number; name: string }, quantity: number) {
     if (product.stock < quantity) {
-      throw new BadRequestException(
-        `${product.name} does not have enough stock.`,
-      );
+      throw new BadRequestException(`${product.name} does not have enough stock.`);
     }
   }
 
   /** `features`/`tags`/`images` come back from jsonb columns already parsed as arrays. */
   private asList<T>(value: unknown, fallback: T): T {
     if (Array.isArray(value)) return value as unknown as T;
-    if (typeof value === "string") {
+    if (typeof value === 'string') {
       try {
         const parsed = JSON.parse(value);
         return Array.isArray(parsed) ? (parsed as unknown as T) : fallback;

@@ -1,7 +1,7 @@
-import { Injectable, OnModuleDestroy, OnModuleInit } from "@nestjs/common";
-import { Pool } from "pg";
-import { drizzle, NodePgDatabase } from "drizzle-orm/node-postgres";
-import * as schema from "./schema";
+import { Injectable, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
+import { Pool } from 'pg';
+import { drizzle, NodePgDatabase } from 'drizzle-orm/node-postgres';
+import * as schema from './schema';
 
 @Injectable()
 export class DatabaseService implements OnModuleInit, OnModuleDestroy {
@@ -9,9 +9,12 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
   readonly db: NodePgDatabase<typeof schema>;
 
   constructor() {
-    const connectionString =
-      process.env.DATABASE_URL ??
-      "postgresql://your_username:your_password@localhost:5432/your_database";
+    const connectionString = process.env.DATABASE_URL;
+    if (!connectionString) {
+      throw new Error(
+        'DATABASE_URL is required. Copy backend/.env.example to backend/.env and set a valid PostgreSQL connection string.',
+      );
+    }
     this.pool = new Pool({ connectionString });
     this.db = drizzle(this.pool, { schema });
   }
@@ -28,16 +31,12 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
   private async createTables() {
     const existingProductColumns = await this.pool.query<{
       column_name: string;
-    }>(
-      "SELECT column_name FROM information_schema.columns WHERE table_name = 'products'",
-    );
+    }>("SELECT column_name FROM information_schema.columns WHERE table_name = 'products'");
     const shouldResetProducts =
       existingProductColumns.rows.length > 0 &&
-      !existingProductColumns.rows.some(
-        (column) => column.column_name === "persian_name",
-      );
+      !existingProductColumns.rows.some((column) => column.column_name === 'persian_name');
     if (shouldResetProducts) {
-      await this.pool.query("DROP TABLE products");
+      await this.pool.query('DROP TABLE products');
     }
     await this.pool.query(`
       CREATE TABLE IF NOT EXISTS products (
@@ -182,29 +181,23 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
         UNIQUE(comment_id, user_id)
       );
     `);
-    if (shouldResetProducts) await this.pool.query("DELETE FROM products");
-    await this.ensureColumn("users", "role", "TEXT NOT NULL DEFAULT 'USER'");
-    await this.ensureColumn(
-      "users",
-      "is_active",
-      "BOOLEAN NOT NULL DEFAULT true",
-    );
-    await this.ensureColumn(
-      "products",
-      "product_type",
-      "TEXT NOT NULL DEFAULT 'powder'",
-    );
-    await this.ensureColumn(
-      "products",
-      "brands",
-      "JSONB NOT NULL DEFAULT '[]'::jsonb",
-    );
-    await this.ensureColumn(
-      "products",
-      "flavors",
-      "JSONB NOT NULL DEFAULT '[]'::jsonb",
-    );
+    if (shouldResetProducts) await this.pool.query('DELETE FROM products');
+    await this.ensureColumn('users', 'role', "TEXT NOT NULL DEFAULT 'USER'");
+    await this.ensureColumn('users', 'is_active', 'BOOLEAN NOT NULL DEFAULT true');
+    await this.ensureColumn('products', 'product_type', "TEXT NOT NULL DEFAULT 'powder'");
+    await this.ensureColumn('products', 'brands', "JSONB NOT NULL DEFAULT '[]'::jsonb");
+    await this.ensureColumn('products', 'flavors', "JSONB NOT NULL DEFAULT '[]'::jsonb");
+    await this.migratePersianNames();
     await this.migrateProductSlugs();
+  }
+
+  private async migratePersianNames() {
+    await this.pool.query(`
+      UPDATE products
+      SET persian_name = COALESCE(NULLIF(BTRIM(persian_name), ''), NULLIF(BTRIM(english_name), ''), slug)
+      WHERE persian_name IS NULL OR BTRIM(persian_name) = ''
+    `);
+    await this.pool.query('ALTER TABLE products ALTER COLUMN persian_name SET NOT NULL');
   }
 
   private async migrateProductSlugs() {
@@ -212,15 +205,15 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
       id: number;
       slug: string;
       english_name: string;
-    }>("SELECT id, slug, english_name FROM products");
+    }>('SELECT id, slug, english_name FROM products');
     const used = new Set<string>();
     for (const row of rows) {
       const base =
         row.english_name
           .trim()
           .toLowerCase()
-          .replace(/[^a-z0-9]+/g, "-")
-          .replace(/^-+|-+$/g, "") || "product";
+          .replace(/[^a-z0-9]+/g, '-')
+          .replace(/^-+|-+$/g, '') || 'product';
       let slug = base;
       let suffix = 2;
       while (used.has(slug) || (await this.slugTakenByAnother(slug, row.slug))) {
@@ -228,20 +221,14 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
       }
       used.add(slug);
       if (slug !== row.slug) {
-        await this.pool.query("UPDATE products SET slug = $1 WHERE id = $2", [
-          slug,
-          row.id,
-        ]);
+        await this.pool.query('UPDATE products SET slug = $1 WHERE id = $2', [slug, row.id]);
       }
     }
   }
 
   private async slugTakenByAnother(slug: string, currentSlug: string) {
     if (slug === currentSlug) return false;
-    const { rows } = await this.pool.query(
-      "SELECT id FROM products WHERE slug = $1",
-      [slug],
-    );
+    const { rows } = await this.pool.query('SELECT id FROM products WHERE slug = $1', [slug]);
     return rows.length > 0;
   }
 
@@ -251,19 +238,27 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
       `INSERT INTO users (name, email, provider_id, password, role, is_active, created_at)
        VALUES ($1, $2, $3, $4, $5, $6, $7)
        ON CONFLICT (email) DO NOTHING`,
-      ["Admin", "adminmokamelshop@gmail.com", "adminmokamelshop", "admin123!@#", "ADMIN", true, now],
+      [
+        'Admin',
+        'adminmokamelshop@gmail.com',
+        'adminmokamelshop',
+        'admin123!@#',
+        'ADMIN',
+        true,
+        now,
+      ],
     );
 
     const defaultCategories = [
-      { slug: "sports-supplements", name: "مکمل های ورزشی" },
-      { slug: "food-supplements", name: "مکمل های غذایی" },
+      { slug: 'sports-supplements', name: 'مکمل های ورزشی' },
+      { slug: 'food-supplements', name: 'مکمل های غذایی' },
     ];
     for (const category of defaultCategories) {
       await this.pool.query(
         `INSERT INTO categories (slug, name, description, created_at, updated_at)
          VALUES ($1, $2, $3, $4, $5)
          ON CONFLICT (slug) DO NOTHING`,
-        [category.slug, category.name, "", now, now],
+        [category.slug, category.name, '', now, now],
       );
     }
 
@@ -273,10 +268,10 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
        ON CONFLICT (id) DO NOTHING`,
       [
         1,
-        "بهترین مکمل را برای هدف تمرینی خودت انتخاب کن",
-        "محصولات ورزشی و غذایی با اطلاعات شفاف و کاربردی",
-        "/images/slider/slider-1.jpg",
-        "/products",
+        'بهترین مکمل را برای هدف تمرینی خودت انتخاب کن',
+        'محصولات ورزشی و غذایی با اطلاعات شفاف و کاربردی',
+        '/images/slider/slider-1.jpg',
+        '/products',
         now,
         now,
       ],
@@ -285,12 +280,10 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
 
   private async ensureColumn(table: string, column: string, definition: string) {
     const { rows } = await this.pool.query<{ column_name: string }>(
-      "SELECT column_name FROM information_schema.columns WHERE table_name = $1 AND column_name = $2",
+      'SELECT column_name FROM information_schema.columns WHERE table_name = $1 AND column_name = $2',
       [table, column],
     );
     if (rows.length > 0) return;
-    await this.pool.query(
-      `ALTER TABLE ${table} ADD COLUMN ${column} ${definition}`,
-    );
+    await this.pool.query(`ALTER TABLE ${table} ADD COLUMN ${column} ${definition}`);
   }
 }
