@@ -238,7 +238,7 @@ export default function RegisterForm({ onSwitchToLogin }: RegisterFormProps) {
               type="button"
               onClick={() => setShowPassword(!showPassword)}
               disabled={busy}
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-muted transition hover:text-foreground disabled:cursor-not-allowed"
+              className="absolute left-3 top-1/2 -translate-y-1/2 rounded-md p-1 text-muted transition-colors duration-150 ease-out hover:text-foreground active:scale-[0.97] disabled:cursor-not-allowed"
               aria-label={
                 showPassword ? "مخفی کردن رمز عبور" : "نمایش رمز عبور"
               }
@@ -292,7 +292,7 @@ export default function RegisterForm({ onSwitchToLogin }: RegisterFormProps) {
               type="button"
               onClick={() => setShowConfirmPassword(!showConfirmPassword)}
               disabled={busy}
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-muted transition hover:text-foreground disabled:cursor-not-allowed"
+              className="absolute left-3 top-1/2 -translate-y-1/2 rounded-md p-1 text-muted transition-colors duration-150 ease-out hover:text-foreground active:scale-[0.97] disabled:cursor-not-allowed"
               aria-label={
                 showConfirmPassword ? "مخفی کردن رمز عبور" : "نمایش رمز عبور"
               }
@@ -346,7 +346,7 @@ export default function RegisterForm({ onSwitchToLogin }: RegisterFormProps) {
         <button
           type="submit"
           disabled={busy}
-          className="mt-8 flex h-11 w-full items-center justify-center gap-2 rounded-md bg-[var(--brand)] font-black text-white transition-colors hover:bg-[var(--brand-hover)] active:bg-[var(--accent-pressed)] disabled:cursor-not-allowed disabled:opacity-70"
+          className="mt-8 flex h-11 w-full items-center justify-center gap-2 rounded-md bg-[var(--brand)] font-black text-white transition-[background-color,transform] duration-150 ease-out hover:bg-[var(--brand-hover)] active:scale-[0.97] active:bg-[var(--accent-pressed)] disabled:cursor-not-allowed disabled:opacity-70 disabled:active:scale-100"
         >
           {busy ? (
             <>

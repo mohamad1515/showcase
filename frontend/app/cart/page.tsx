@@ -84,7 +84,7 @@ export default function CartPage() {
   if (!token) {
     return (
       <main className="mx-auto max-w-3xl px-5 py-10 sm:px-8 lg:px-12">
-        <section className="border-border bg-surface rounded-lg border p-8 text-center shadow-sm">
+        <section className="border-border bg-surface rounded-lg border p-8 text-center shadow-[var(--shadow-card)]">
           <FiShoppingBag className="text-accent mx-auto text-4xl" aria-hidden />
           <h1 className="text-foreground mt-4 text-2xl font-black">سبد خرید</h1>
           <p className="text-muted mt-3 text-sm leading-7">
@@ -92,7 +92,7 @@ export default function CartPage() {
           </p>
           <Link
             href="/auth/login"
-            className="bg-accent hover:bg-accent-strong mt-6 inline-flex h-11 items-center justify-center rounded-md px-6 text-sm font-black text-white transition"
+            className="bg-accent hover:bg-accent-strong mt-6 inline-flex h-11 items-center justify-center rounded-md px-6 text-sm font-black text-white transition-[background-color,transform] duration-150 ease-out active:scale-[0.97]"
           >
             ورود به حساب
           </Link>
@@ -113,11 +113,11 @@ export default function CartPage() {
       </section>
 
       {isEmpty ? (
-        <section className="border-border bg-surface rounded-lg border p-8 text-center shadow-sm">
+        <section className="border-border bg-surface rounded-lg border p-8 text-center shadow-[var(--shadow-card)]">
           <p className="text-muted text-sm font-bold">سبد خرید شما خالی است.</p>
           <Link
             href="/products"
-            className="bg-accent hover:bg-accent-strong mt-5 inline-flex h-11 items-center justify-center rounded-md px-6 text-sm font-black text-white transition"
+            className="bg-accent hover:bg-accent-strong mt-5 inline-flex h-11 items-center justify-center rounded-md px-6 text-sm font-black text-white transition-[background-color,transform] duration-150 ease-out active:scale-[0.97]"
           >
             مشاهده محصولات
           </Link>
@@ -128,7 +128,7 @@ export default function CartPage() {
             {cart.items.map((item) => (
               <article
                 key={item.id}
-                className="border-border bg-card grid gap-4 rounded-lg border p-4 shadow-sm sm:grid-cols-[120px_1fr] sm:items-center"
+                className="border-border bg-card grid gap-4 rounded-lg border p-4 shadow-[var(--shadow-card)] sm:grid-cols-[120px_1fr] sm:items-center"
               >
                 <div className="bg-background relative aspect-square overflow-hidden rounded-lg">
                   <Image
@@ -160,7 +160,7 @@ export default function CartPage() {
                       type="button"
                       onClick={() => changeQuantity(item.id, item.quantity + 1)}
                       disabled={busyId === item.id}
-                      className="border-border bg-surface text-foreground hover:border-accent hover:text-accent grid h-10 w-10 place-items-center rounded-md border transition disabled:opacity-60"
+                      className="border-border bg-surface text-foreground hover:border-accent hover:text-accent grid h-10 w-10 place-items-center rounded-md border transition-[color,border-color,transform] duration-150 ease-out active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-60 disabled:active:scale-100"
                       title="افزایش تعداد"
                     >
                       <FiPlus aria-hidden />
@@ -172,7 +172,7 @@ export default function CartPage() {
                       type="button"
                       onClick={() => changeQuantity(item.id, item.quantity - 1)}
                       disabled={busyId === item.id}
-                      className="border-border bg-surface text-foreground hover:border-accent hover:text-accent grid h-10 w-10 place-items-center rounded-md border transition disabled:opacity-60"
+                      className="border-border bg-surface text-foreground hover:border-accent hover:text-accent grid h-10 w-10 place-items-center rounded-md border transition-[color,border-color,transform] duration-150 ease-out active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-60 disabled:active:scale-100"
                       title="کاهش تعداد"
                     >
                       <FiMinus aria-hidden />
@@ -181,7 +181,7 @@ export default function CartPage() {
                       type="button"
                       onClick={() => removeItem(item.id)}
                       disabled={busyId === item.id}
-                      className="border-border bg-surface text-danger hover:border-danger grid h-10 w-10 place-items-center rounded-md border transition disabled:opacity-60"
+                      className="border-border bg-surface text-danger hover:border-danger grid h-10 w-10 place-items-center rounded-md border transition-[color,border-color,transform] duration-150 ease-out active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-60 disabled:active:scale-100"
                       title="حذف"
                     >
                       <FiTrash2 aria-hidden />
@@ -192,7 +192,7 @@ export default function CartPage() {
             ))}
           </div>
 
-          <aside className="border-border bg-surface h-fit rounded-lg border p-6 shadow-sm">
+          <aside className="border-border bg-surface h-fit rounded-lg border p-6 shadow-[var(--shadow-card)]">
             <h2 className="text-foreground text-xl font-black">فاکتور</h2>
             <div className="border-border mt-5 grid gap-3 border-t pt-5 text-sm font-bold">
               <div className="text-muted flex items-center justify-between">
@@ -213,13 +213,13 @@ export default function CartPage() {
                 type="button"
                 onClick={checkout}
                 disabled={checkoutLoading}
-                className="bg-accent hover:bg-accent-strong inline-flex h-12 w-full items-center justify-center rounded-md px-5 text-sm font-black text-white transition disabled:cursor-not-allowed disabled:opacity-60"
+                className="bg-accent hover:bg-accent-strong inline-flex h-12 w-full items-center justify-center rounded-md px-5 text-sm font-black text-white transition-[background-color,transform] duration-150 ease-out active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-60 disabled:active:scale-100"
               >
                 {checkoutLoading ? 'در حال ثبت سفارش' : 'ثبت سفارش'}
               </button>
               <Link
                 href="/"
-                className="border-border bg-background text-foreground hover:border-accent hover:text-accent inline-flex h-12 w-full items-center justify-center rounded-md border px-5 text-sm font-black transition"
+                className="border-border bg-background text-foreground hover:border-accent hover:text-accent inline-flex h-12 w-full items-center justify-center rounded-md border px-5 text-sm font-black transition-[color,border-color,transform] duration-150 ease-out active:scale-[0.97]"
               >
                 بازگشت به صفحه اصلی
               </Link>

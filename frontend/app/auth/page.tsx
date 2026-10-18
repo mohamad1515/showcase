@@ -46,17 +46,17 @@ function AuthPageContent() {
     <AuthLayout>
       <main
         dir="rtl"
-        className="mx-auto w-full max-w-7xl px-3 py-3 sm:px-5 sm:py-5 lg:px-8 lg:py-8"
+        className="mx-auto w-full max-w-7xl px-3 py-4 sm:px-5 sm:py-6 lg:px-8 lg:py-10"
       >
         <Link
           href="/"
-          className="flex items-center justify-self-end gap-2 w-40 text-sm font-bold text-muted transition-colors hover:text-foreground p-2 border border-border rounded-lg bg-surface shadow-sm shadow-black/5 mb-0 lg:mb-2"
+          className="flex items-center justify-self-end gap-2 w-40 text-sm font-bold text-muted transition-[color,transform] duration-150 ease-out hover:text-foreground active:scale-[0.97] p-2 border border-border rounded-md bg-surface shadow-[var(--shadow-card)] mb-0 lg:mb-2"
         >
           بازگشت به فروشگاه
           <FiArrowLeft size={16} />
         </Link>
         {/* ================= Desktop ================= */}
-        <div className="hidden overflow-hidden rounded-lg border border-border/60 bg-surface shadow-2xl shadow-black/5 lg:block">
+        <div className="hidden overflow-hidden rounded-lg border border-border/60 bg-surface shadow-[var(--shadow-modal)] lg:block">
           <div className="grid min-h-[680px] grid-cols-2">
             {/* Visual */}
             <div className="p-0">
@@ -107,7 +107,7 @@ function AuthPageContent() {
 
           {/* Form */}
           <div
-            className={`mt-3 overflow-hidden rounded-lg border border-border/60 bg-surface transition-all duration-300 ${
+            className={`mt-3 overflow-hidden rounded-lg border border-border/60 bg-surface shadow-[var(--shadow-card)] transition-all duration-300 ${
               isTransitioning
                 ? "translate-y-1 opacity-0"
                 : "translate-y-0 opacity-100"

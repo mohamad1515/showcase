@@ -48,7 +48,7 @@ export default function OrdersPage() {
   if (!token) {
     return (
       <main className="mx-auto max-w-3xl px-5 py-10 sm:px-8 lg:px-12">
-        <section className="rounded-lg border border-border bg-surface p-8 text-center shadow-sm">
+        <section className="rounded-lg border border-border bg-surface p-8 text-center shadow-[var(--shadow-card)]">
           <FiPackage className="mx-auto text-4xl text-accent" aria-hidden />
           <h1 className="mt-4 text-2xl font-black text-foreground">
             سفارش‌های من
@@ -58,7 +58,7 @@ export default function OrdersPage() {
           </p>
           <Link
             href="/auth/login"
-            className="mt-6 inline-flex h-11 items-center justify-center rounded-md bg-accent px-6 text-sm font-black text-white transition hover:bg-accent-strong"
+            className="mt-6 inline-flex h-11 items-center justify-center rounded-md bg-accent px-6 text-sm font-black text-white transition-[background-color,transform] duration-150 ease-out hover:bg-accent-strong active:scale-[0.97]"
           >
             ورود به حساب
           </Link>
@@ -77,11 +77,11 @@ export default function OrdersPage() {
       </section>
 
       {orders.length === 0 ? (
-        <section className="rounded-lg border border-border bg-surface p-8 text-center shadow-sm">
+        <section className="rounded-lg border border-border bg-surface p-8 text-center shadow-[var(--shadow-card)]">
           <p className="text-sm font-bold text-muted">هنوز سفارشی ثبت نشده است.</p>
           <Link
             href="/products"
-            className="mt-5 inline-flex h-11 items-center justify-center rounded-md bg-accent px-6 text-sm font-black text-white transition hover:bg-accent-strong"
+            className="mt-5 inline-flex h-11 items-center justify-center rounded-md bg-accent px-6 text-sm font-black text-white transition-[background-color,transform] duration-150 ease-out hover:bg-accent-strong active:scale-[0.97]"
           >
             مشاهده محصولات
           </Link>
@@ -91,7 +91,7 @@ export default function OrdersPage() {
           {orders.map((order) => (
             <article
               key={order.id}
-              className="rounded-lg border border-border bg-card p-5 shadow-sm"
+              className="rounded-lg border border-border bg-card p-5 shadow-[var(--shadow-card)]"
             >
               <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-4">
                 <div>

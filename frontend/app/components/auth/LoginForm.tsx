@@ -93,7 +93,7 @@ export default function LoginForm({ onSwitchToRegister }: LoginFormProps) {
   }
 
   const inputBase =
-    "h-[52px] w-full rounded-xl border bg-background text-sm transition-all duration-200 placeholder:text-muted/50 focus:outline-none focus:ring-4 disabled:cursor-not-allowed disabled:opacity-50";
+    "h-[52px] w-full rounded-md border bg-background text-sm transition-all duration-200 placeholder:text-muted/50 focus:outline-none focus:ring-4 disabled:cursor-not-allowed disabled:opacity-50";
 
   return (
     <div
@@ -227,7 +227,7 @@ export default function LoginForm({ onSwitchToRegister }: LoginFormProps) {
               aria-label={
                 showPassword ? "مخفی کردن رمز عبور" : "نمایش رمز عبور"
               }
-              className="absolute left-3 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-lg text-muted transition hover:bg-foreground/5 hover:text-foreground disabled:cursor-not-allowed"
+              className="absolute left-3 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-md text-muted transition-colors duration-150 ease-out hover:bg-foreground/5 hover:text-foreground active:scale-[0.97] disabled:cursor-not-allowed"
             >
               {showPassword ? <FiEye size={18} /> : <FiEyeOff size={18} />}
             </button>
@@ -259,7 +259,7 @@ export default function LoginForm({ onSwitchToRegister }: LoginFormProps) {
         <button
           type="submit"
           disabled={busy}
-          className="group flex h-[52px] w-full items-center justify-center gap-2 rounded-md bg-[var(--brand)] font-black text-white transition-colors duration-200 hover:bg-[var(--brand-hover)] active:bg-[var(--accent-pressed)] disabled:cursor-not-allowed disabled:opacity-60"
+          className="group flex h-[52px] w-full items-center justify-center gap-2 rounded-md bg-[var(--brand)] font-black text-white transition-[background-color,transform] duration-150 ease-out hover:bg-[var(--brand-hover)] active:scale-[0.97] active:bg-[var(--accent-pressed)] disabled:cursor-not-allowed disabled:opacity-60 disabled:active:scale-100"
         >
           {busy ? (
             <>
