@@ -25,7 +25,7 @@ export const navItems = [
   { href: '/products', label: 'محصولات' },
   { href: '/blog', label: 'مقالات' },
   { href: '/#about', label: 'درباره ما' },
-  { href: '/#contact', label: 'تماس با ما' },
+  { href: '/contact', label: 'تماس با ما' },
 ];
 
 export const socialLinks = [

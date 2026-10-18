@@ -5,6 +5,7 @@ export const articles = [
     title: 'برچسب مکمل را چطور بخوانیم؟',
     excerpt: 'پیش از انتخاب، مقدار هر وعده، ترکیبات و هشدارهای روی بسته را با دقت بررسی کن.',
     image: '/images/products/img-6.png',
+    author: 'تیم فیت مکمل',
     readingTime: '۴ دقیقه',
     sections: [
       {
@@ -27,6 +28,7 @@ export const articles = [
     title: 'پروتئین وی چیست؟',
     excerpt: 'با تفاوت‌های کلی شکل‌های رایج وی و نکاتی که هنگام بررسی محصول مهم‌اند آشنا شو.',
     image: '/images/products/back-whey.jpg',
+    author: 'تیم فیت مکمل',
     readingTime: '۵ دقیقه',
     sections: [
       {
@@ -49,6 +51,7 @@ export const articles = [
     title: 'برای انتخاب کراتین به چه چیزهایی توجه کنیم؟',
     excerpt: 'ترکیبات، اندازهٔ بسته و اصالت کالا از معیارهای ساده برای مقایسهٔ محصولات‌اند.',
     image: '/images/products/cratine.jpg',
+    author: 'تیم فیت مکمل',
     readingTime: '۳ دقیقه',
     sections: [
       {

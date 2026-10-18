@@ -1,5 +1,4 @@
-import ArticleCard from '../components/ArticleCard';
-import { articles } from '../data/articles';
+import BlogListing from '../components/BlogListing';
 
 export const metadata = {
   title: 'مقاله‌ها و راهنماها | فیت مکمل',
@@ -13,11 +12,7 @@ export default function BlogPage() {
         <p className="text-muted text-sm font-bold">فیت مکمل</p>
         <h1 className="text-foreground mt-2 text-3xl font-black">مقاله‌ها و راهنماها</h1>
       </header>
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 lg:gap-8">
-        {articles.map((article) => (
-          <ArticleCard key={article.slug} article={article} />
-        ))}
-      </div>
+      <BlogListing />
     </main>
   );
 }

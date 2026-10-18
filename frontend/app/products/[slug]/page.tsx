@@ -1,12 +1,13 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { FiCheck, FiInfo } from "react-icons/fi";
 
-import AddToCartButton from "../../components/AddToCartButton";
 import ProductImageGallery from "../../components/ProductImageGallery";
+import ProductPurchaseRow from "../../components/ProductPurchaseRow";
 import ProductReviews from "../../components/reviews/ProductReviews";
+import RelatedProducts from "../../components/RelatedProducts";
 import StarRating from "../../components/reviews/StarRating";
-import { getProductBySlug } from "../../lib/graphql";
+import Tabs from "../../components/ui/Tabs";
+import { getProductBySlug, getProducts } from "../../lib/graphql";
 import type { Product } from "../../lib/products";
 
 // Product data is fetched with `cache: "no-store"` (live price, stock and rating), so
@@ -38,8 +39,15 @@ export async function generateMetadata({ params }: PageProps) {
 
 export default async function ProductPage({ params }: PageProps) {
   const { slug } = await params;
-  const product = await getProductBySlug(slug);
+  const [product, allProducts] = await Promise.all([
+    getProductBySlug(slug),
+    getProducts(),
+  ]);
   if (!product) notFound();
+
+  const siblingProducts = allProducts.filter(
+    (candidate) => candidate.category === product.category,
+  );
 
   const typeLabel =
     product.productType === "powder"
@@ -125,86 +133,89 @@ export default async function ProductPage({ params }: PageProps) {
             </span>
           </div>
 
-          {/* Spec panel — supplement-facts styling */}
-          <div className="border-2 border-foreground text-foreground">
-            <div className="border-b-2 border-foreground px-4 py-2.5">
-              <span className="text-sm font-black">مشخصات محصول</span>
-            </div>
-            <div>
-              {specRows.map((row, index) => (
-                <div
-                  key={row.label}
-                  className={
-                    index !== specRows.length - 1
-                      ? "flex items-center justify-between border-b border-foreground/25 px-4 py-2.5"
-                      : "flex items-center justify-between px-4 py-2.5"
-                  }
-                >
-                  <span className="text-sm font-bold text-muted">
-                    {row.label}
-                  </span>
-                  <span className="text-sm font-black tabular-nums">
-                    {row.value}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="flex flex-col gap-3 sm:flex-row">
-            <AddToCartButton
-              productSlug={product.slug}
-              disabled={!inStock}
-              className="h-12 flex-1 text-sm font-black"
-            />
-            <Link
-              href="/products"
-              className="inline-flex h-12 items-center justify-center rounded-md border border-border bg-background px-5 text-sm font-black text-foreground transition hover:border-accent hover:text-accent"
-            >
-              مشاهده محصولات دیگر
-            </Link>
-          </div>
+          <ProductPurchaseRow productSlug={product.slug} inStock={inStock} />
         </div>
       </section>
 
-      <section className="mt-10 grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
-        <article className="rounded-lg border border-border bg-card p-6 shadow-sm sm:p-8">
-          <h2 className="text-xl font-black text-foreground">ویژگی‌های اصلی</h2>
-          <div className="mt-6 grid gap-3 sm:grid-cols-2">
-            {product.features.map((feature) => (
-              <div
-                key={feature}
-                className="flex items-start gap-3 rounded-lg border border-border bg-background p-4"
-              >
-                <span className="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full bg-accent text-background">
-                  <FiCheck className="h-3.5 w-3.5" strokeWidth={3} />
-                </span>
-                <p className="text-sm leading-7 text-foreground">{feature}</p>
-              </div>
-            ))}
-          </div>
-        </article>
+      <section className="mt-12">
+        <Tabs
+          defaultTabId="description"
+          items={[
+            {
+              id: "description",
+              label: "توضیحات",
+              content: (
+                <article className="rounded-lg border border-border bg-card p-6 shadow-sm sm:p-8">
+                  <h2 className="text-xl font-black text-foreground">ویژگی‌های اصلی</h2>
+                  <p className="mt-4 max-w-[62ch] text-sm leading-8 text-muted">
+                    {product.description}
+                  </p>
+                  <div className="mt-6 grid gap-3 sm:grid-cols-2">
+                    {product.features.map((feature) => (
+                      <div
+                        key={feature}
+                        className="flex items-start gap-3 rounded-lg border border-border bg-background p-4"
+                      >
+                        <span className="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full bg-accent text-background">
+                          <FiCheck className="h-3.5 w-3.5" strokeWidth={3} />
+                        </span>
+                        <p className="text-sm leading-7 text-foreground">{feature}</p>
+                      </div>
+                    ))}
+                  </div>
+                </article>
+              ),
+            },
+            {
+              id: "specs",
+              label: "مشخصات",
+              content: (
+                <div className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
+                  <div className="border-2 border-foreground text-foreground">
+                    <div className="border-b-2 border-foreground px-4 py-2.5">
+                      <span className="text-sm font-black">مشخصات محصول</span>
+                    </div>
+                    <div>
+                      {specRows.map((row, index) => (
+                        <div
+                          key={row.label}
+                          className={
+                            index !== specRows.length - 1
+                              ? "flex items-center justify-between border-b border-foreground/25 px-4 py-2.5"
+                              : "flex items-center justify-between px-4 py-2.5"
+                          }
+                        >
+                          <span className="text-sm font-bold text-muted">{row.label}</span>
+                          <span className="text-sm font-black tabular-nums">{row.value}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
 
-        <aside className="rounded-lg border border-border bg-surface p-6 shadow-sm sm:p-8">
-          <div className="flex items-center gap-2">
-            <FiInfo className="h-5 w-5 text-accent" aria-hidden />
-            <h2 className="text-lg font-black text-foreground">نکته مصرف</h2>
-          </div>
-          <p className="mt-4 text-sm leading-8 text-muted">
-            مقدار و زمان مصرف مکمل‌ها به هدف تمرینی، وضعیت سلامت و رژیم غذایی
-            بستگی دارد. قبل از مصرف منظم، برچسب محصول و نظر متخصص را در نظر
-            بگیرید.
-          </p>
-          <Link
-            href="/"
-            className="mt-6 inline-flex h-11 w-full items-center justify-center rounded-md border border-border bg-background px-5 text-sm font-black text-foreground transition hover:border-accent hover:text-accent"
-          >
-            بازگشت به صفحه اصلی
-          </Link>
-        </aside>
+                  <aside className="rounded-lg border border-border bg-surface p-6 shadow-sm">
+                    <div className="flex items-center gap-2">
+                      <FiInfo className="h-5 w-5 text-accent" aria-hidden />
+                      <h2 className="text-lg font-black text-foreground">نکته مصرف</h2>
+                    </div>
+                    <p className="mt-4 text-sm leading-8 text-muted">
+                      مقدار و زمان مصرف مکمل‌ها به هدف تمرینی، وضعیت سلامت و رژیم غذایی
+                      بستگی دارد. قبل از مصرف منظم، برچسب محصول و نظر متخصص را در نظر
+                      بگیرید.
+                    </p>
+                  </aside>
+                </div>
+              ),
+            },
+            {
+              id: "reviews",
+              label: `نظرات (${product.reviewCount})`,
+              content: <ProductReviews productSlug={product.slug} />,
+            },
+          ]}
+        />
       </section>
 
-      <ProductReviews productSlug={product.slug} />
+      <RelatedProducts products={siblingProducts} excludeSlug={product.slug} />
     </main>
   );
 }
