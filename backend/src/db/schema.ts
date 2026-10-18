@@ -1,35 +1,40 @@
-import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import {
+  boolean,
+  doublePrecision,
+  integer,
+  jsonb,
+  pgTable,
+  serial,
+  text,
+} from "drizzle-orm/pg-core";
 
-export const products = sqliteTable("products", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const products = pgTable("products", {
+  id: serial("id").primaryKey(),
   slug: text("slug").notNull().unique(),
   persianName: text("persian_name").notNull(),
   englishName: text("english_name").notNull(),
   brand: text("brand").notNull(),
-  brands: text("brands", { mode: "json" })
-    .$type<string[]>()
-    .notNull()
-    .default([]),
+  brands: jsonb("brands").$type<string[]>().notNull().default([]),
   status: text("status").notNull().default("active"),
-  rating: integer("rating").notNull().default(0),
+  // A decimal average of comment ratings (e.g. 4.3), not an integer — SQLite's
+  // dynamic typing let this live in an INTEGER column; Postgres enforces the
+  // declared type, so this needs a real numeric column.
+  rating: doublePrecision("rating").notNull().default(0),
   flavor: text("flavor").notNull().default(""),
-  flavors: text("flavors", { mode: "json" })
-    .$type<string[]>()
-    .notNull()
-    .default([]),
+  flavors: jsonb("flavors").$type<string[]>().notNull().default([]),
   productType: text("product_type").notNull().default("powder"),
   category: text("category").notNull(),
   summary: text("summary").notNull(),
   description: text("description").notNull(),
-  features: text("features", { mode: "json" }).$type<string[]>().notNull(),
+  features: jsonb("features").$type<string[]>().notNull(),
   price: text("price").notNull(),
   compareAtPrice: text("compare_at_price"),
   weight: text("weight").notNull(),
   reviewCount: integer("review_count").notNull().default(0),
-  tags: text("tags", { mode: "json" }).$type<string[]>().notNull().default([]),
+  tags: jsonb("tags").$type<string[]>().notNull().default([]),
   stock: integer("stock").notNull().default(100),
   mainImage: text("main_image").notNull().default("/images/product.png"),
-  galleryImages: text("gallery_images", { mode: "json" })
+  galleryImages: jsonb("gallery_images")
     .$type<string[]>()
     .notNull()
     .default(["/images/product.png"]),
@@ -37,15 +42,15 @@ export const products = sqliteTable("products", {
   updatedAt: text("updated_at").notNull(),
 });
 
-export const carts = sqliteTable("carts", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const carts = pgTable("carts", {
+  id: serial("id").primaryKey(),
   userId: integer("user_id").notNull(),
   createdAt: text("created_at").notNull(),
   updatedAt: text("updated_at").notNull(),
 });
 
-export const cartItems = sqliteTable("cart_items", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const cartItems = pgTable("cart_items", {
+  id: serial("id").primaryKey(),
   cartId: integer("cart_id").notNull(),
   productId: integer("product_id").notNull(),
   quantity: integer("quantity").notNull().default(1),
@@ -53,8 +58,8 @@ export const cartItems = sqliteTable("cart_items", {
   updatedAt: text("updated_at").notNull(),
 });
 
-export const orders = sqliteTable("orders", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const orders = pgTable("orders", {
+  id: serial("id").primaryKey(),
   userId: integer("user_id").notNull(),
   status: text("status", {
     enum: ["pending", "paid", "shipped", "canceled"],
@@ -66,8 +71,8 @@ export const orders = sqliteTable("orders", {
   updatedAt: text("updated_at").notNull(),
 });
 
-export const orderItems = sqliteTable("order_items", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const orderItems = pgTable("order_items", {
+  id: serial("id").primaryKey(),
   orderId: integer("order_id").notNull(),
   productId: integer("product_id").notNull(),
   productName: text("product_name").notNull(),
@@ -76,8 +81,8 @@ export const orderItems = sqliteTable("order_items", {
   total: text("total").notNull(),
 });
 
-export const categories = sqliteTable("categories", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const categories = pgTable("categories", {
+  id: serial("id").primaryKey(),
   slug: text("slug").notNull().unique(),
   name: text("name").notNull(),
   description: text("description").notNull().default(""),
@@ -85,8 +90,8 @@ export const categories = sqliteTable("categories", {
   updatedAt: text("updated_at").notNull(),
 });
 
-export const sliders = sqliteTable("sliders", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const sliders = pgTable("sliders", {
+  id: serial("id").primaryKey(),
   title: text("title").notNull(),
   subtitle: text("subtitle").notNull(),
   image: text("image").notNull(),
@@ -95,35 +100,35 @@ export const sliders = sqliteTable("sliders", {
   updatedAt: text("updated_at").notNull(),
 });
 
-export const flavors = sqliteTable("flavors", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const flavors = pgTable("flavors", {
+  id: serial("id").primaryKey(),
   name: text("name").notNull().unique(),
   createdAt: text("created_at").notNull(),
   updatedAt: text("updated_at").notNull(),
 });
 
-export const brands = sqliteTable("brands", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const brands = pgTable("brands", {
+  id: serial("id").primaryKey(),
   name: text("name").notNull().unique(),
   createdAt: text("created_at").notNull(),
   updatedAt: text("updated_at").notNull(),
 });
 
-export const users = sqliteTable("users", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const users = pgTable("users", {
+  id: serial("id").primaryKey(),
   name: text("name").notNull(),
   email: text("email").notNull().unique(),
   providerId: text("provider_id").notNull(),
   password: text("password"),
   role: text("role").notNull().default("USER"),
-  isActive: integer("is_active", { mode: "boolean" }).notNull().default(true),
+  isActive: boolean("is_active").notNull().default(true),
   accessToken: text("access_token"),
   refreshToken: text("refresh_token"),
   createdAt: text("created_at").notNull(),
 });
 
-export const comments = sqliteTable("comments", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const comments = pgTable("comments", {
+  id: serial("id").primaryKey(),
   userId: integer("user_id").notNull(),
   productId: integer("product_id").notNull(),
   content: text("content").notNull(),
@@ -131,15 +136,13 @@ export const comments = sqliteTable("comments", {
   status: text("status", { enum: ["UNANSWERED", "ANSWERED"] })
     .notNull()
     .default("UNANSWERED"),
-  editedByAdmin: integer("edited_by_admin", { mode: "boolean" })
-    .notNull()
-    .default(false),
+  editedByAdmin: boolean("edited_by_admin").notNull().default(false),
   createdAt: text("created_at").notNull(),
   updatedAt: text("updated_at").notNull(),
 });
 
-export const replies = sqliteTable("replies", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const replies = pgTable("replies", {
+  id: serial("id").primaryKey(),
   commentId: integer("comment_id").notNull(),
   adminId: integer("admin_id").notNull(),
   content: text("content").notNull(),
@@ -147,8 +150,8 @@ export const replies = sqliteTable("replies", {
   updatedAt: text("updated_at").notNull(),
 });
 
-export const commentVotes = sqliteTable("comment_votes", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const commentVotes = pgTable("comment_votes", {
+  id: serial("id").primaryKey(),
   commentId: integer("comment_id").notNull(),
   userId: integer("user_id").notNull(),
   type: text("type", { enum: ["LIKE", "DISLIKE"] }).notNull(),

@@ -12,23 +12,23 @@ import { CreateSliderInput, UpdateSliderInput } from "./slider.input";
 export class SlidersService {
   constructor(private readonly database: DatabaseService) {}
 
-  findAll() {
-    return this.database.db.select().from(sliders).all();
+  async findAll() {
+    return this.database.db.select().from(sliders);
   }
 
-  findById(id: number) {
-    const slider = this.database.db
+  async findById(id: number) {
+    const slider = await this.database.db
       .select()
       .from(sliders)
       .where(eq(sliders.id, id))
-      .get();
+      .then((rows) => rows[0]);
     if (!slider) throw new NotFoundException("Slide not found");
     return slider;
   }
 
-  create(input: CreateSliderInput) {
+  async create(input: CreateSliderInput) {
     const now = new Date().toISOString();
-    return this.database.db
+    const [slider] = await this.database.db
       .insert(sliders)
       .values({
         title: input.title.trim(),
@@ -38,12 +38,12 @@ export class SlidersService {
         createdAt: now,
         updatedAt: now,
       })
-      .returning()
-      .get();
+      .returning();
+    return slider;
   }
 
-  update(id: number, input: UpdateSliderInput) {
-    this.findById(id);
+  async update(id: number, input: UpdateSliderInput) {
+    await this.findById(id);
     const values: Partial<NewSliderRow> = {
       ...(input.title ? { title: input.title.trim() } : {}),
       ...(input.subtitle ? { subtitle: input.subtitle.trim() } : {}),
@@ -51,21 +51,21 @@ export class SlidersService {
       ...(input.link ? { link: input.link.trim() } : {}),
       updatedAt: new Date().toISOString(),
     };
-    return this.database.db
+    const [slider] = await this.database.db
       .update(sliders)
       .set(values)
       .where(eq(sliders.id, id))
-      .returning()
-      .get();
+      .returning();
+    return slider;
   }
 
-  remove(id: number) {
-    const count = this.database.db.select().from(sliders).all().length;
-    if (count <= 1) {
+  async remove(id: number) {
+    const all = await this.database.db.select().from(sliders);
+    if (all.length <= 1) {
       throw new BadRequestException("At least one slide is required");
     }
-    const slider = this.findById(id);
-    this.database.db.delete(sliders).where(eq(sliders.id, id)).run();
+    const slider = await this.findById(id);
+    await this.database.db.delete(sliders).where(eq(sliders.id, id));
     return slider;
   }
 }

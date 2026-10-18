@@ -8,23 +8,23 @@ import { CreateCategoryInput, UpdateCategoryInput } from "./category.input";
 export class CategoriesService {
   constructor(private readonly database: DatabaseService) {}
 
-  findAll() {
-    return this.database.db.select().from(categories).all();
+  async findAll() {
+    return this.database.db.select().from(categories);
   }
 
-  findBySlug(slug: string) {
-    const category = this.database.db
+  async findBySlug(slug: string) {
+    const category = await this.database.db
       .select()
       .from(categories)
       .where(eq(categories.slug, slug))
-      .get();
+      .then((rows) => rows[0]);
     if (!category) throw new NotFoundException("Category not found");
     return category;
   }
 
-  create(input: CreateCategoryInput) {
+  async create(input: CreateCategoryInput) {
     const now = new Date().toISOString();
-    return this.database.db
+    const [category] = await this.database.db
       .insert(categories)
       .values({
         slug: input.slug.trim(),
@@ -33,12 +33,12 @@ export class CategoriesService {
         createdAt: now,
         updatedAt: now,
       })
-      .returning()
-      .get();
+      .returning();
+    return category;
   }
 
-  update(slug: string, input: UpdateCategoryInput) {
-    this.findBySlug(slug);
+  async update(slug: string, input: UpdateCategoryInput) {
+    await this.findBySlug(slug);
     const values: Partial<NewCategoryRow> = {
       ...(input.slug ? { slug: input.slug.trim() } : {}),
       ...(input.name ? { name: input.name.trim() } : {}),
@@ -47,17 +47,17 @@ export class CategoriesService {
         : {}),
       updatedAt: new Date().toISOString(),
     };
-    return this.database.db
+    const [category] = await this.database.db
       .update(categories)
       .set(values)
       .where(eq(categories.slug, slug))
-      .returning()
-      .get();
+      .returning();
+    return category;
   }
 
-  remove(slug: string) {
-    const category = this.findBySlug(slug);
-    this.database.db.delete(categories).where(eq(categories.slug, slug)).run();
+  async remove(slug: string) {
+    const category = await this.findBySlug(slug);
+    await this.database.db.delete(categories).where(eq(categories.slug, slug));
     return category;
   }
 }

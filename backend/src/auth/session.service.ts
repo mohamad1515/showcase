@@ -22,7 +22,7 @@ interface UserRow {
   name: string;
   email: string;
   role: string;
-  is_active: number;
+  is_active: boolean;
 }
 
 const DEV_SECRET = "showcase-insecure-development-secret";

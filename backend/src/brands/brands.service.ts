@@ -12,45 +12,45 @@ import { CreateBrandInput, UpdateBrandInput } from "./brand.input";
 export class BrandsService {
   constructor(private readonly database: DatabaseService) {}
 
-  findAll() {
-    return this.database.db.select().from(brands).all();
+  async findAll() {
+    return this.database.db.select().from(brands);
   }
 
-  create(input: CreateBrandInput) {
+  async create(input: CreateBrandInput) {
     const name = input.name.trim();
     if (!name) throw new BadRequestException("نام برند الزامی است.");
     const now = new Date().toISOString();
-    return this.database.db
+    const [brand] = await this.database.db
       .insert(brands)
       .values({ name, createdAt: now, updatedAt: now })
-      .returning()
-      .get();
-  }
-
-  update(id: number, input: UpdateBrandInput) {
-    this.findById(id);
-    const name = input.name?.trim();
-    if (!name) throw new BadRequestException("نام برند الزامی است.");
-    return this.database.db
-      .update(brands)
-      .set({ name, updatedAt: new Date().toISOString() })
-      .where(eq(brands.id, id))
-      .returning()
-      .get();
-  }
-
-  remove(id: number) {
-    const brand = this.findById(id);
-    this.database.db.delete(brands).where(eq(brands.id, id)).run();
+      .returning();
     return brand;
   }
 
-  private findById(id: number) {
-    const brand = this.database.db
+  async update(id: number, input: UpdateBrandInput) {
+    await this.findById(id);
+    const name = input.name?.trim();
+    if (!name) throw new BadRequestException("نام برند الزامی است.");
+    const [brand] = await this.database.db
+      .update(brands)
+      .set({ name, updatedAt: new Date().toISOString() })
+      .where(eq(brands.id, id))
+      .returning();
+    return brand;
+  }
+
+  async remove(id: number) {
+    const brand = await this.findById(id);
+    await this.database.db.delete(brands).where(eq(brands.id, id));
+    return brand;
+  }
+
+  private async findById(id: number) {
+    const brand = await this.database.db
       .select()
       .from(brands)
       .where(eq(brands.id, id))
-      .get();
+      .then((rows) => rows[0]);
     if (!brand) throw new NotFoundException("برند پیدا نشد.");
     return brand;
   }

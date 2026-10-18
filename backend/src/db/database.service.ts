@@ -1,86 +1,86 @@
 import { Injectable, OnModuleDestroy, OnModuleInit } from "@nestjs/common";
-import Database from "better-sqlite3";
-import { mkdirSync } from "node:fs";
-import { dirname, join } from "node:path";
-import { drizzle, BetterSQLite3Database } from "drizzle-orm/better-sqlite3";
+import { Pool } from "pg";
+import { drizzle, NodePgDatabase } from "drizzle-orm/node-postgres";
 import * as schema from "./schema";
 
 @Injectable()
 export class DatabaseService implements OnModuleInit, OnModuleDestroy {
-  private readonly sqlite: Database.Database;
-  readonly db: BetterSQLite3Database<typeof schema>;
+  private readonly pool: Pool;
+  readonly db: NodePgDatabase<typeof schema>;
 
   constructor() {
-    const dbPath =
+    const connectionString =
       process.env.DATABASE_URL ??
-      join(process.cwd(), "data", "showcase.sqlite");
-    mkdirSync(dirname(dbPath), { recursive: true });
-    this.sqlite = new Database(dbPath);
-    this.db = drizzle(this.sqlite, { schema });
+      "postgresql://your_username:your_password@localhost:5432/your_database";
+    this.pool = new Pool({ connectionString });
+    this.db = drizzle(this.pool, { schema });
   }
 
-  onModuleInit() {
-    this.sqlite.pragma("journal_mode = WAL");
-    this.createTables();
-    this.seed();
+  async onModuleInit() {
+    await this.createTables();
+    await this.seed();
   }
 
-  onModuleDestroy() {
-    this.sqlite.close();
+  async onModuleDestroy() {
+    await this.pool.end();
   }
 
-  private createTables() {
-    const existingProductColumns = this.sqlite
-      .prepare("PRAGMA table_info(products)")
-      .all() as { name: string }[];
+  private async createTables() {
+    const existingProductColumns = await this.pool.query<{
+      column_name: string;
+    }>(
+      "SELECT column_name FROM information_schema.columns WHERE table_name = 'products'",
+    );
     const shouldResetProducts =
-      existingProductColumns.length > 0 &&
-      !existingProductColumns.some((column) => column.name === "persian_name");
+      existingProductColumns.rows.length > 0 &&
+      !existingProductColumns.rows.some(
+        (column) => column.column_name === "persian_name",
+      );
     if (shouldResetProducts) {
-      this.sqlite.exec("DROP TABLE products");
+      await this.pool.query("DROP TABLE products");
     }
-    this.sqlite.exec(`
+    await this.pool.query(`
       CREATE TABLE IF NOT EXISTS products (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id SERIAL PRIMARY KEY,
         slug TEXT NOT NULL UNIQUE,
         persian_name TEXT NOT NULL,
         english_name TEXT NOT NULL,
         brand TEXT NOT NULL,
         status TEXT NOT NULL DEFAULT 'active',
-        rating INTEGER NOT NULL DEFAULT 0,
+        rating DOUBLE PRECISION NOT NULL DEFAULT 0,
         flavor TEXT NOT NULL DEFAULT '',
         product_type TEXT NOT NULL DEFAULT 'powder',
         category TEXT NOT NULL,
         summary TEXT NOT NULL,
         description TEXT NOT NULL,
-        features TEXT NOT NULL,
+        features JSONB NOT NULL,
         price TEXT NOT NULL,
         compare_at_price TEXT,
         weight TEXT NOT NULL,
         review_count INTEGER NOT NULL DEFAULT 0,
-        tags TEXT NOT NULL DEFAULT '[]',
+        tags JSONB NOT NULL DEFAULT '[]'::jsonb,
         stock INTEGER NOT NULL DEFAULT 100,
         main_image TEXT NOT NULL DEFAULT '/images/product.png',
-        gallery_images TEXT NOT NULL DEFAULT '["/images/product.png"]',
+        gallery_images JSONB NOT NULL DEFAULT '["/images/product.png"]'::jsonb,
         created_at TEXT NOT NULL,
         updated_at TEXT NOT NULL
       );
 
       CREATE TABLE IF NOT EXISTS users (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id SERIAL PRIMARY KEY,
         name TEXT NOT NULL,
         email TEXT NOT NULL UNIQUE,
         provider_id TEXT NOT NULL,
         password TEXT,
         role TEXT NOT NULL DEFAULT 'USER',
-        is_active INTEGER NOT NULL DEFAULT 1,
+        is_active BOOLEAN NOT NULL DEFAULT true,
         access_token TEXT,
         refresh_token TEXT,
         created_at TEXT NOT NULL
       );
 
       CREATE TABLE IF NOT EXISTS categories (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id SERIAL PRIMARY KEY,
         slug TEXT NOT NULL UNIQUE,
         name TEXT NOT NULL,
         description TEXT NOT NULL DEFAULT '',
@@ -89,7 +89,7 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
       );
 
       CREATE TABLE IF NOT EXISTS sliders (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id SERIAL PRIMARY KEY,
         title TEXT NOT NULL,
         subtitle TEXT NOT NULL,
         image TEXT NOT NULL,
@@ -99,28 +99,28 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
       );
 
       CREATE TABLE IF NOT EXISTS flavors (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id SERIAL PRIMARY KEY,
         name TEXT NOT NULL UNIQUE,
         created_at TEXT NOT NULL,
         updated_at TEXT NOT NULL
       );
 
       CREATE TABLE IF NOT EXISTS brands (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id SERIAL PRIMARY KEY,
         name TEXT NOT NULL UNIQUE,
         created_at TEXT NOT NULL,
         updated_at TEXT NOT NULL
       );
 
       CREATE TABLE IF NOT EXISTS carts (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id SERIAL PRIMARY KEY,
         user_id INTEGER NOT NULL UNIQUE,
         created_at TEXT NOT NULL,
         updated_at TEXT NOT NULL
       );
 
       CREATE TABLE IF NOT EXISTS cart_items (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id SERIAL PRIMARY KEY,
         cart_id INTEGER NOT NULL,
         product_id INTEGER NOT NULL,
         quantity INTEGER NOT NULL DEFAULT 1,
@@ -130,7 +130,7 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
       );
 
       CREATE TABLE IF NOT EXISTS orders (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id SERIAL PRIMARY KEY,
         user_id INTEGER NOT NULL,
         status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'paid', 'shipped', 'canceled')),
         total TEXT NOT NULL,
@@ -139,7 +139,7 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
       );
 
       CREATE TABLE IF NOT EXISTS order_items (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id SERIAL PRIMARY KEY,
         order_id INTEGER NOT NULL,
         product_id INTEGER NOT NULL,
         product_name TEXT NOT NULL,
@@ -149,13 +149,13 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
       );
 
       CREATE TABLE IF NOT EXISTS comments (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id SERIAL PRIMARY KEY,
         user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
         product_id INTEGER NOT NULL REFERENCES products(id) ON DELETE CASCADE,
         content TEXT NOT NULL,
         rating INTEGER NOT NULL CHECK (rating BETWEEN 1 AND 5),
         status TEXT NOT NULL DEFAULT 'UNANSWERED' CHECK (status IN ('UNANSWERED', 'ANSWERED')),
-        edited_by_admin INTEGER NOT NULL DEFAULT 0,
+        edited_by_admin BOOLEAN NOT NULL DEFAULT false,
         created_at TEXT NOT NULL,
         updated_at TEXT NOT NULL,
         UNIQUE(user_id, product_id)
@@ -164,7 +164,7 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
       CREATE INDEX IF NOT EXISTS idx_comments_status ON comments(status);
 
       CREATE TABLE IF NOT EXISTS replies (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id SERIAL PRIMARY KEY,
         comment_id INTEGER NOT NULL UNIQUE REFERENCES comments(id) ON DELETE CASCADE,
         admin_id INTEGER NOT NULL REFERENCES users(id),
         content TEXT NOT NULL,
@@ -173,7 +173,7 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
       );
 
       CREATE TABLE IF NOT EXISTS comment_votes (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id SERIAL PRIMARY KEY,
         comment_id INTEGER NOT NULL REFERENCES comments(id) ON DELETE CASCADE,
         user_id INTEGER NOT NULL REFERENCES users(id),
         type TEXT NOT NULL CHECK (type IN ('LIKE', 'DISLIKE')),
@@ -182,23 +182,37 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
         UNIQUE(comment_id, user_id)
       );
     `);
-    if (shouldResetProducts) this.sqlite.prepare("DELETE FROM products").run();
-    this.ensureColumn("users", "role", "TEXT NOT NULL DEFAULT 'USER'");
-    this.ensureColumn("users", "is_active", "INTEGER NOT NULL DEFAULT 1");
-    this.ensureColumn(
+    if (shouldResetProducts) await this.pool.query("DELETE FROM products");
+    await this.ensureColumn("users", "role", "TEXT NOT NULL DEFAULT 'USER'");
+    await this.ensureColumn(
+      "users",
+      "is_active",
+      "BOOLEAN NOT NULL DEFAULT true",
+    );
+    await this.ensureColumn(
       "products",
       "product_type",
       "TEXT NOT NULL DEFAULT 'powder'",
     );
-    this.ensureColumn("products", "brands", "TEXT NOT NULL DEFAULT '[]'");
-    this.ensureColumn("products", "flavors", "TEXT NOT NULL DEFAULT '[]'");
-    this.migrateProductSlugs();
+    await this.ensureColumn(
+      "products",
+      "brands",
+      "JSONB NOT NULL DEFAULT '[]'::jsonb",
+    );
+    await this.ensureColumn(
+      "products",
+      "flavors",
+      "JSONB NOT NULL DEFAULT '[]'::jsonb",
+    );
+    await this.migrateProductSlugs();
   }
 
-  private migrateProductSlugs() {
-    const rows = this.sqlite
-      .prepare("SELECT id, slug, english_name FROM products")
-      .all() as { id: number; slug: string; english_name: string }[];
+  private async migrateProductSlugs() {
+    const { rows } = await this.pool.query<{
+      id: number;
+      slug: string;
+      english_name: string;
+    }>("SELECT id, slug, english_name FROM products");
     const used = new Set<string>();
     for (const row of rows) {
       const base =
@@ -209,59 +223,55 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
           .replace(/^-+|-+$/g, "") || "product";
       let slug = base;
       let suffix = 2;
-      while (
-        used.has(slug) ||
-        (slug !== row.slug &&
-          this.sqlite
-            .prepare("SELECT id FROM products WHERE slug = ?")
-            .get(slug))
-      ) {
+      while (used.has(slug) || (await this.slugTakenByAnother(slug, row.slug))) {
         slug = `${base}-${suffix++}`;
       }
       used.add(slug);
       if (slug !== row.slug) {
-        this.sqlite
-          .prepare("UPDATE products SET slug = ? WHERE id = ?")
-          .run(slug, row.id);
+        await this.pool.query("UPDATE products SET slug = $1 WHERE id = $2", [
+          slug,
+          row.id,
+        ]);
       }
     }
   }
-  private seed() {
+
+  private async slugTakenByAnother(slug: string, currentSlug: string) {
+    if (slug === currentSlug) return false;
+    const { rows } = await this.pool.query(
+      "SELECT id FROM products WHERE slug = $1",
+      [slug],
+    );
+    return rows.length > 0;
+  }
+
+  private async seed() {
     const now = new Date().toISOString();
-    this.sqlite
-      .prepare(
-        `INSERT OR IGNORE INTO users (name, email, provider_id, password, role, is_active, created_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?)`,
-      )
-      .run(
-        "Admin",
-        "adminmokamelshop@gmail.com",
-        "adminmokamelshop",
-        "admin123!@#",
-        "ADMIN",
-        1,
-        now,
-      );
+    await this.pool.query(
+      `INSERT INTO users (name, email, provider_id, password, role, is_active, created_at)
+       VALUES ($1, $2, $3, $4, $5, $6, $7)
+       ON CONFLICT (email) DO NOTHING`,
+      ["Admin", "adminmokamelshop@gmail.com", "adminmokamelshop", "admin123!@#", "ADMIN", true, now],
+    );
 
     const defaultCategories = [
       { slug: "sports-supplements", name: "مکمل های ورزشی" },
       { slug: "food-supplements", name: "مکمل های غذایی" },
     ];
     for (const category of defaultCategories) {
-      this.sqlite
-        .prepare(
-          `INSERT OR IGNORE INTO categories (slug, name, description, created_at, updated_at)
-           VALUES (?, ?, ?, ?, ?)`,
-        )
-        .run(category.slug, category.name, "", now, now);
+      await this.pool.query(
+        `INSERT INTO categories (slug, name, description, created_at, updated_at)
+         VALUES ($1, $2, $3, $4, $5)
+         ON CONFLICT (slug) DO NOTHING`,
+        [category.slug, category.name, "", now, now],
+      );
     }
 
-    this.sqlite
-      .prepare(
-        `INSERT OR IGNORE INTO sliders (id, title, subtitle, image, link, created_at, updated_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?)`,
-      )
-      .run(
+    await this.pool.query(
+      `INSERT INTO sliders (id, title, subtitle, image, link, created_at, updated_at)
+       VALUES ($1, $2, $3, $4, $5, $6, $7)
+       ON CONFLICT (id) DO NOTHING`,
+      [
         1,
         "بهترین مکمل را برای هدف تمرینی خودت انتخاب کن",
         "محصولات ورزشی و غذایی با اطلاعات شفاف و کاربردی",
@@ -269,14 +279,18 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
         "/products",
         now,
         now,
-      );
+      ],
+    );
   }
 
-  private ensureColumn(table: string, column: string, definition: string) {
-    const columns = this.sqlite
-      .prepare(`PRAGMA table_info(${table})`)
-      .all() as { name: string }[];
-    if (columns.some((item) => item.name === column)) return;
-    this.sqlite.exec(`ALTER TABLE ${table} ADD COLUMN ${column} ${definition}`);
+  private async ensureColumn(table: string, column: string, definition: string) {
+    const { rows } = await this.pool.query<{ column_name: string }>(
+      "SELECT column_name FROM information_schema.columns WHERE table_name = $1 AND column_name = $2",
+      [table, column],
+    );
+    if (rows.length > 0) return;
+    await this.pool.query(
+      `ALTER TABLE ${table} ADD COLUMN ${column} ${definition}`,
+    );
   }
 }

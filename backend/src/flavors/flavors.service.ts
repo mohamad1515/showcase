@@ -12,45 +12,45 @@ import { CreateFlavorInput, UpdateFlavorInput } from "./flavor.input";
 export class FlavorsService {
   constructor(private readonly database: DatabaseService) {}
 
-  findAll() {
-    return this.database.db.select().from(flavors).all();
+  async findAll() {
+    return this.database.db.select().from(flavors);
   }
 
-  create(input: CreateFlavorInput) {
+  async create(input: CreateFlavorInput) {
     const name = input.name.trim();
     if (!name) throw new BadRequestException("نام طعم الزامی است.");
     const now = new Date().toISOString();
-    return this.database.db
+    const [flavor] = await this.database.db
       .insert(flavors)
       .values({ name, createdAt: now, updatedAt: now })
-      .returning()
-      .get();
-  }
-
-  update(id: number, input: UpdateFlavorInput) {
-    this.findById(id);
-    const name = input.name?.trim();
-    if (!name) throw new BadRequestException("نام طعم الزامی است.");
-    return this.database.db
-      .update(flavors)
-      .set({ name, updatedAt: new Date().toISOString() })
-      .where(eq(flavors.id, id))
-      .returning()
-      .get();
-  }
-
-  remove(id: number) {
-    const flavor = this.findById(id);
-    this.database.db.delete(flavors).where(eq(flavors.id, id)).run();
+      .returning();
     return flavor;
   }
 
-  private findById(id: number) {
-    const flavor = this.database.db
+  async update(id: number, input: UpdateFlavorInput) {
+    await this.findById(id);
+    const name = input.name?.trim();
+    if (!name) throw new BadRequestException("نام طعم الزامی است.");
+    const [flavor] = await this.database.db
+      .update(flavors)
+      .set({ name, updatedAt: new Date().toISOString() })
+      .where(eq(flavors.id, id))
+      .returning();
+    return flavor;
+  }
+
+  async remove(id: number) {
+    const flavor = await this.findById(id);
+    await this.database.db.delete(flavors).where(eq(flavors.id, id));
+    return flavor;
+  }
+
+  private async findById(id: number) {
+    const flavor = await this.database.db
       .select()
       .from(flavors)
       .where(eq(flavors.id, id))
-      .get();
+      .then((rows) => rows[0]);
     if (!flavor) throw new NotFoundException("طعم پیدا نشد.");
     return flavor;
   }

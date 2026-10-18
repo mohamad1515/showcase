@@ -3,7 +3,15 @@ import {
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
+import { and, desc, eq } from "drizzle-orm";
 import { DatabaseService } from "../db/database.service";
+import {
+  cartItems,
+  carts,
+  orderItems,
+  orders,
+  products,
+} from "../db/schema";
 import { calculateCartTotal, calculateLineTotal } from "./pricing";
 
 type ProductRecord = {
@@ -13,24 +21,17 @@ type ProductRecord = {
   tagline: string;
   summary: string;
   description: string;
-  features: string;
+  features: unknown;
   category: string;
   productType?: string | null;
-  tags?: string | null;
+  tags?: unknown;
   price: string;
   weight: string;
   quantity: string;
   stock: number;
-  images: string;
+  images: unknown;
   createdAt: string;
   updatedAt: string;
-};
-
-type CartRecord = {
-  id: number;
-  user_id: number;
-  created_at: string;
-  updated_at: string;
 };
 
 type CartItemRecord = {
@@ -42,15 +43,15 @@ type CartItemRecord = {
   tagline: string;
   summary: string;
   description: string;
-  features: string;
+  features: unknown;
   category: string;
   productType?: string | null;
-  tags?: string | null;
+  tags?: unknown;
   price: string;
   weight: string;
   productQuantity: string;
   stock: number;
-  images: string;
+  images: unknown;
   createdAt: string;
   updatedAt: string;
 };
@@ -71,99 +72,112 @@ type OrderItemRecord = {
   total: string;
 };
 
+/** A Drizzle db handle: either the base connection or a transaction (`tx`). */
+type Db = DatabaseService["db"];
+
 @Injectable()
 export class ShopService {
   constructor(private readonly database: DatabaseService) {}
 
-  getCart(userId: number) {
-    const cart = this.findOrCreateCart(userId);
-    return this.buildCart(cart.id);
+  async getCart(userId: number) {
+    const cart = await this.findOrCreateCart(this.database.db, userId);
+    return this.buildCart(this.database.db, cart.id);
   }
 
-  addCartItem(userId: number, productSlug: string, quantity: number) {
+  async addCartItem(userId: number, productSlug: string, quantity: number) {
     const requestedQuantity = this.normalizeQuantity(quantity);
-    const product = this.findProductBySlug(productSlug);
-    const cart = this.findOrCreateCart(userId);
-    const existing = this.sqlite
-      .prepare(
-        "SELECT id, quantity FROM cart_items WHERE cart_id = ? AND product_id = ?",
+    const db = this.database.db;
+    const product = await this.findProductBySlug(db, productSlug);
+    const cart = await this.findOrCreateCart(db, userId);
+    const existing = await db
+      .select({ id: cartItems.id, quantity: cartItems.quantity })
+      .from(cartItems)
+      .where(
+        and(eq(cartItems.cartId, cart.id), eq(cartItems.productId, product.id)),
       )
-      .get(cart.id, product.id) as { id: number; quantity: number } | undefined;
+      .then((rows) => rows[0] as { id: number; quantity: number } | undefined);
     const nextQuantity = (existing?.quantity ?? 0) + requestedQuantity;
     this.assertStock(product, nextQuantity);
     const now = new Date().toISOString();
 
     if (existing) {
-      this.sqlite
-        .prepare(
-          "UPDATE cart_items SET quantity = ?, updated_at = ? WHERE id = ?",
-        )
-        .run(nextQuantity, now, existing.id);
+      await db
+        .update(cartItems)
+        .set({ quantity: nextQuantity, updatedAt: now })
+        .where(eq(cartItems.id, existing.id));
     } else {
-      this.sqlite
-        .prepare(
-          `INSERT INTO cart_items (cart_id, product_id, quantity, created_at, updated_at)
-           VALUES (?, ?, ?, ?, ?)`,
-        )
-        .run(cart.id, product.id, requestedQuantity, now, now);
+      await db.insert(cartItems).values({
+        cartId: cart.id,
+        productId: product.id,
+        quantity: requestedQuantity,
+        createdAt: now,
+        updatedAt: now,
+      });
     }
 
-    return this.touchAndBuildCart(cart.id);
+    return this.touchAndBuildCart(db, cart.id);
   }
 
-  updateCartItem(userId: number, itemId: number, quantity: number) {
-    const cart = this.findOrCreateCart(userId);
-    const item = this.sqlite
-      .prepare(
-        `SELECT ci.id, ci.product_id, p.stock
-         FROM cart_items ci
-         JOIN products p ON p.id = ci.product_id
-         WHERE ci.id = ? AND ci.cart_id = ?`,
-      )
-      .get(itemId, cart.id) as
-      | { id: number; product_id: number; stock: number }
-      | undefined;
+  async updateCartItem(userId: number, itemId: number, quantity: number) {
+    const db = this.database.db;
+    const cart = await this.findOrCreateCart(db, userId);
+    const item = await db
+      .select({
+        id: cartItems.id,
+        productId: cartItems.productId,
+        stock: products.stock,
+      })
+      .from(cartItems)
+      .innerJoin(products, eq(products.id, cartItems.productId))
+      .where(and(eq(cartItems.id, itemId), eq(cartItems.cartId, cart.id)))
+      .then(
+        (rows) =>
+          rows[0] as
+            | { id: number; productId: number; stock: number }
+            | undefined,
+      );
     if (!item) throw new NotFoundException("Cart item was not found.");
 
     if (quantity <= 0) {
-      this.sqlite.prepare("DELETE FROM cart_items WHERE id = ?").run(itemId);
-      return this.touchAndBuildCart(cart.id);
+      await db.delete(cartItems).where(eq(cartItems.id, itemId));
+      return this.touchAndBuildCart(db, cart.id);
     }
 
     this.assertStock({ stock: item.stock, name: "Product" }, quantity);
-    this.sqlite
-      .prepare(
-        "UPDATE cart_items SET quantity = ?, updated_at = ? WHERE id = ?",
-      )
-      .run(Math.floor(quantity), new Date().toISOString(), itemId);
-    return this.touchAndBuildCart(cart.id);
+    await db
+      .update(cartItems)
+      .set({ quantity: Math.floor(quantity), updatedAt: new Date().toISOString() })
+      .where(eq(cartItems.id, itemId));
+    return this.touchAndBuildCart(db, cart.id);
   }
 
-  removeCartItem(userId: number, itemId: number) {
-    const cart = this.findOrCreateCart(userId);
-    this.sqlite
-      .prepare("DELETE FROM cart_items WHERE id = ? AND cart_id = ?")
-      .run(itemId, cart.id);
-    return this.touchAndBuildCart(cart.id);
+  async removeCartItem(userId: number, itemId: number) {
+    const db = this.database.db;
+    const cart = await this.findOrCreateCart(db, userId);
+    await db
+      .delete(cartItems)
+      .where(and(eq(cartItems.id, itemId), eq(cartItems.cartId, cart.id)));
+    return this.touchAndBuildCart(db, cart.id);
   }
 
-  clearCart(userId: number) {
-    const cart = this.findOrCreateCart(userId);
-    this.sqlite
-      .prepare("DELETE FROM cart_items WHERE cart_id = ?")
-      .run(cart.id);
-    return this.touchAndBuildCart(cart.id);
+  async clearCart(userId: number) {
+    const db = this.database.db;
+    const cart = await this.findOrCreateCart(db, userId);
+    await db.delete(cartItems).where(eq(cartItems.cartId, cart.id));
+    return this.touchAndBuildCart(db, cart.id);
   }
 
-  createOrderFromCart(userId: number) {
-    const cart = this.findOrCreateCart(userId);
-    const builtCart = this.buildCart(cart.id);
+  async createOrderFromCart(userId: number) {
+    const db = this.database.db;
+    const cart = await this.findOrCreateCart(db, userId);
+    const builtCart = await this.buildCart(db, cart.id);
     if (builtCart.items.length === 0) {
       throw new BadRequestException("Cart is empty.");
     }
 
     const now = new Date().toISOString();
-    const transaction = this.sqlite.transaction(() => {
+
+    const order = await this.database.db.transaction(async (tx) => {
       for (const item of builtCart.items) {
         if (item.product.stock < item.quantity) {
           throw new BadRequestException(
@@ -172,91 +186,118 @@ export class ShopService {
         }
       }
 
-      const order = this.sqlite
-        .prepare(
-          `INSERT INTO orders (user_id, status, total, created_at, updated_at)
-           VALUES (?, 'pending', ?, ?, ?) RETURNING id, status, total, created_at`,
-        )
-        .get(userId, builtCart.total, now, now) as OrderRecord;
+      const [createdOrder] = await tx
+        .insert(orders)
+        .values({
+          userId,
+          status: "pending",
+          total: builtCart.total,
+          createdAt: now,
+          updatedAt: now,
+        })
+        .returning({
+          id: orders.id,
+          status: orders.status,
+          total: orders.total,
+          createdAt: orders.createdAt,
+        });
+      const orderRecord: OrderRecord = {
+        id: createdOrder.id,
+        status: createdOrder.status,
+        total: createdOrder.total,
+        created_at: createdOrder.createdAt,
+      };
 
       for (const item of builtCart.items) {
-        this.sqlite
-          .prepare(
-            `INSERT INTO order_items (order_id, product_id, product_name, unit_price, quantity, total)
-             VALUES (?, ?, ?, ?, ?, ?)`,
-          )
-          .run(
-            order.id,
-            Number(item.product.id),
-            item.product.name,
-            item.product.price,
-            item.quantity,
-            item.lineTotal,
-          );
-        this.sqlite
-          .prepare(
-            "UPDATE products SET stock = stock - ?, updated_at = ? WHERE id = ?",
-          )
-          .run(item.quantity, now, Number(item.product.id));
+        await tx.insert(orderItems).values({
+          orderId: orderRecord.id,
+          productId: Number(item.product.id),
+          productName: item.product.name,
+          unitPrice: item.product.price,
+          quantity: item.quantity,
+          total: item.lineTotal,
+        });
+        await tx
+          .update(products)
+          .set({
+            stock: item.product.stock - item.quantity,
+            updatedAt: now,
+          })
+          .where(eq(products.id, Number(item.product.id)));
       }
 
-      this.sqlite
-        .prepare("DELETE FROM cart_items WHERE cart_id = ?")
-        .run(cart.id);
-      this.sqlite
-        .prepare("UPDATE carts SET updated_at = ? WHERE id = ?")
-        .run(now, cart.id);
+      await tx.delete(cartItems).where(eq(cartItems.cartId, cart.id));
+      await tx
+        .update(carts)
+        .set({ updatedAt: now })
+        .where(eq(carts.id, cart.id));
 
-      return order;
+      return orderRecord;
     });
 
-    return this.buildOrder(transaction());
+    return this.buildOrder(db, order);
   }
 
-  getOrders(userId: number) {
-    const rows = this.sqlite
-      .prepare(
-        "SELECT id, status, total, created_at FROM orders WHERE user_id = ? ORDER BY id DESC",
-      )
-      .all(userId) as OrderRecord[];
-    return rows.map((order) => this.buildOrder(order));
-  }
-
-  private buildCart(cartId: number) {
-    const rows = this.sqlite
-      .prepare(
-        `SELECT
-          ci.id,
-          ci.quantity,
-          p.id AS product_id,
-          p.slug,
-          p.persian_name AS name,
-          p.english_name AS tagline,
-          p.summary,
-          p.description,
-          p.features,
-          p.category,
-          COALESCE(p.tags, '[]') AS tags,
-          p.price,
-          p.weight,
-          '1' AS productQuantity,
-          p.stock,
-          p.main_image AS images,
-          p.created_at AS createdAt,
-          p.updated_at AS updatedAt
-        FROM cart_items ci
-        JOIN products p ON p.id = ci.product_id
-        WHERE ci.cart_id = ?
-        ORDER BY ci.id DESC`,
-      )
-      .all(cartId) as CartItemRecord[];
-
-    const items = rows.map((row) => {
-      const product = this.mapProduct(row);
-      return {
+  async getOrders(userId: number) {
+    const db = this.database.db;
+    const rows = await db
+      .select({
+        id: orders.id,
+        status: orders.status,
+        total: orders.total,
+        createdAt: orders.createdAt,
+      })
+      .from(orders)
+      .where(eq(orders.userId, userId))
+      .orderBy(desc(orders.id));
+    const ordered = rows.map((row) => ({
         id: row.id,
-        quantity: row.quantity,
-        lineTotal: calculateLineTotal(product.price, row.quantity),
+        status: row.status,
+        total: row.total,
+        created_at: row.createdAt,
+      }));
+    return Promise.all(ordered.map((order) => this.buildOrder(db, order)));
+  }
+
+  private async buildCart(db: Db, cartId: number) {
+    const rows = await db
+      .select({
+        id: cartItems.id,
+        quantity: cartItems.quantity,
+        product_id: products.id,
+        slug: products.slug,
+        name: products.persianName,
+        tagline: products.englishName,
+        summary: products.summary,
+        description: products.description,
+        features: products.features,
+        category: products.category,
+        productType: products.productType,
+        tags: products.tags,
+        price: products.price,
+        weight: products.weight,
+        stock: products.stock,
+        images: products.mainImage,
+        createdAt: products.createdAt,
+        updatedAt: products.updatedAt,
+      })
+      .from(cartItems)
+      .innerJoin(products, eq(products.id, cartItems.productId))
+      .where(eq(cartItems.cartId, cartId))
+      .orderBy(desc(cartItems.id));
+
+    const orderedRows = rows as unknown as (Omit<
+      CartItemRecord,
+      "productQuantity"
+    > & { productQuantity?: string })[];
+
+    const items = orderedRows.map((row) => {
+      const record: CartItemRecord = { ...row, productQuantity: "1" } as CartItemRecord;
+      const product = this.mapProduct(record);
+      return {
+        id: record.id,
+        quantity: record.quantity,
+        lineTotal: calculateLineTotal(product.price, record.quantity),
         product,
       };
     });
@@ -269,22 +310,27 @@ export class ShopService {
     };
   }
 
-  private buildOrder(order: OrderRecord) {
-    const rows = this.sqlite
-      .prepare(
-        `SELECT id, product_id, product_name, unit_price, quantity, total
-         FROM order_items
-         WHERE order_id = ?
-         ORDER BY id ASC`,
-      )
-      .all(order.id) as OrderItemRecord[];
+  private async buildOrder(db: Db, order: OrderRecord) {
+    const rows = await db
+      .select({
+        id: orderItems.id,
+        product_id: orderItems.productId,
+        product_name: orderItems.productName,
+        unit_price: orderItems.unitPrice,
+        quantity: orderItems.quantity,
+        total: orderItems.total,
+      })
+      .from(orderItems)
+      .where(eq(orderItems.orderId, order.id))
+      .orderBy(orderItems.id);
+    const items = rows as unknown as OrderItemRecord[];
 
     return {
       id: order.id,
       status: order.status,
       total: order.total,
       createdAt: order.created_at,
-      items: rows.map((item) => ({
+      items: items.map((item) => ({
         id: item.id,
         productId: item.product_id,
         productName: item.product_name,
@@ -295,43 +341,65 @@ export class ShopService {
     };
   }
 
-  private findOrCreateCart(userId: number): CartRecord {
-    const existing = this.sqlite
-      .prepare(
-        "SELECT id, user_id, created_at, updated_at FROM carts WHERE user_id = ?",
-      )
-      .get(userId) as CartRecord | undefined;
+  private async findOrCreateCart(db: Db, userId: number) {
+    const existing = await db
+      .select({
+        id: carts.id,
+        user_id: carts.userId,
+        created_at: carts.createdAt,
+        updated_at: carts.updatedAt,
+      })
+      .from(carts)
+      .where(eq(carts.userId, userId))
+      .then((rows) => rows[0]);
     if (existing) return existing;
 
     const now = new Date().toISOString();
-    return this.sqlite
-      .prepare(
-        `INSERT INTO carts (user_id, created_at, updated_at)
-         VALUES (?, ?, ?) RETURNING id, user_id, created_at, updated_at`,
-      )
-      .get(userId, now, now) as CartRecord;
+    const [created] = await db
+      .insert(carts)
+      .values({ userId, createdAt: now, updatedAt: now })
+      .returning({
+        id: carts.id,
+        user_id: carts.userId,
+        created_at: carts.createdAt,
+        updated_at: carts.updatedAt,
+      });
+    return created;
   }
 
-  private findProductBySlug(slug: string): ProductRecord {
-    const product = this.sqlite
-      .prepare(
-        `SELECT
-          id, slug, persian_name AS name, english_name AS tagline, summary, description, features, category,
-          COALESCE(tags, '[]') AS tags,
-          price, weight, '1' AS quantity, stock, main_image AS images, created_at AS createdAt,
-          updated_at AS updatedAt
-         FROM products WHERE slug = ?`,
-      )
-      .get(slug) as ProductRecord | undefined;
+  private async findProductBySlug(db: Db, slug: string) {
+    const product = await db
+      .select({
+        id: products.id,
+        slug: products.slug,
+        name: products.persianName,
+        tagline: products.englishName,
+        summary: products.summary,
+        description: products.description,
+        features: products.features,
+        category: products.category,
+        productType: products.productType,
+        tags: products.tags,
+        price: products.price,
+        weight: products.weight,
+        stock: products.stock,
+        images: products.mainImage,
+        createdAt: products.createdAt,
+        updatedAt: products.updatedAt,
+      })
+      .from(products)
+      .where(eq(products.slug, slug))
+      .then((rows) => rows[0]);
     if (!product) throw new NotFoundException("Product was not found.");
-    return product;
+    return { ...product, quantity: "1" } as ProductRecord;
   }
 
-  private touchAndBuildCart(cartId: number) {
-    this.sqlite
-      .prepare("UPDATE carts SET updated_at = ? WHERE id = ?")
-      .run(new Date().toISOString(), cartId);
-    return this.buildCart(cartId);
+  private async touchAndBuildCart(db: Db, cartId: number) {
+    await db
+      .update(carts)
+      .set({ updatedAt: new Date().toISOString() })
+      .where(eq(carts.id, cartId));
+    return this.buildCart(db, cartId);
   }
 
   private mapProduct(row: CartItemRecord | ProductRecord) {
@@ -343,15 +411,15 @@ export class ShopService {
       tagline: row.tagline,
       summary: row.summary,
       description: row.description,
-      features: this.parseJson<string[]>(row.features, []),
+      features: this.asList(row.features, []),
       category: row.category,
       productType: row.productType ?? "powder",
-      tags: this.parseJson<string[]>(row.tags ?? "[]", []),
+      tags: this.asList(row.tags ?? [], []),
       price: row.price,
       weight: row.weight,
       quantity: "productQuantity" in row ? row.productQuantity : row.quantity,
       stock: row.stock,
-      images: this.parseJson<string[]>(row.images, ["/images/product.png"]),
+      images: this.asList(row.images, ["/images/product.png"]),
       createdAt: row.createdAt,
       updatedAt: row.updatedAt,
     };
@@ -375,15 +443,17 @@ export class ShopService {
     }
   }
 
-  private parseJson<T>(value: string, fallback: T): T {
-    try {
-      return JSON.parse(value) as T;
-    } catch {
-      return fallback;
+  /** `features`/`tags`/`images` come back from jsonb columns already parsed as arrays. */
+  private asList<T>(value: unknown, fallback: T): T {
+    if (Array.isArray(value)) return value as unknown as T;
+    if (typeof value === "string") {
+      try {
+        const parsed = JSON.parse(value);
+        return Array.isArray(parsed) ? (parsed as unknown as T) : fallback;
+      } catch {
+        return fallback;
+      }
     }
-  }
-
-  private get sqlite() {
-    return this.database["sqlite"];
+    return fallback;
   }
 }

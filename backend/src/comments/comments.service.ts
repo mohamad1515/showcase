@@ -30,40 +30,42 @@ interface CommentWithMeta {
   productName: string;
 }
 
+/** A Drizzle db handle: either the base connection or a transaction (`tx`). */
+type Db = DatabaseService["db"];
+
 /**
  * Comments, admin replies and votes. Every write that touches more than one
- * table runs in a transaction. better-sqlite3 has a single connection, so all
- * statements executed inside a transaction callback belong to that transaction.
+ * table runs in an async Drizzle transaction (`db.transaction(async (tx) => ...)`),
+ * with every statement inside the callback using `tx` so it is part of that
+ * transaction.
  */
 @Injectable()
 export class CommentsService {
   constructor(private readonly database: DatabaseService) {}
 
-  findByProduct(
+  async findByProduct(
     productSlug: string,
     viewerId: number | null,
-  ): ProductReviews {
-    const product = this.requireProductBySlug(productSlug);
-    const rows = this.selectWithMeta()
+  ): Promise<ProductReviews> {
+    const product = await this.requireProductBySlug(productSlug);
+    const rows = await this.selectWithMeta()
       .where(eq(comments.productId, product.id))
-      .orderBy(desc(comments.createdAt), desc(comments.id))
-      .all();
+      .orderBy(desc(comments.createdAt), desc(comments.id));
 
     return {
-      ...this.ratingSummary(product.id),
-      comments: this.hydrate(rows, viewerId),
+      ...(await this.ratingSummary(product.id)),
+      comments: await this.hydrate(rows, viewerId),
     };
   }
 
-  findAllForAdmin(adminId: number, status?: CommentStatus) {
-    const rows = this.selectWithMeta()
-      .where(status ? eq(comments.status, status) : undefined)
-      .orderBy(desc(comments.createdAt), desc(comments.id))
-      .all();
+  async findAllForAdmin(adminId: number, status?: CommentStatus) {
+    const rows = await this.selectWithMeta().where(
+      status ? eq(comments.status, status) : undefined,
+    ).orderBy(desc(comments.createdAt), desc(comments.id));
     return this.hydrate(rows, adminId);
   }
 
-  create(userId: number, input: CreateCommentInput) {
+  async create(userId: number, input: CreateCommentInput) {
     const content = this.cleanContent(input.content);
     if (
       !Number.isInteger(input.rating) ||
@@ -72,16 +74,16 @@ export class CommentsService {
     ) {
       throw new BadRequestException("امتیاز باید عددی صحیح بین ۱ تا ۵ باشد.");
     }
-    const product = this.requireProductBySlug(input.productSlug);
+    const product = await this.requireProductBySlug(input.productSlug);
 
-    const id = this.database.db.transaction(() => {
-      const existing = this.database.db
+    const id = await this.database.db.transaction(async (tx) => {
+      const existing = await tx
         .select({ id: comments.id })
         .from(comments)
         .where(
           and(eq(comments.userId, userId), eq(comments.productId, product.id)),
         )
-        .get();
+        .then((rows) => rows[0]);
       if (existing) {
         throw new BadRequestException(
           "شما قبلاً برای این محصول نظر ثبت کرده‌اید.",
@@ -89,7 +91,7 @@ export class CommentsService {
       }
 
       const now = new Date().toISOString();
-      const created = this.database.db
+      const [created] = await tx
         .insert(comments)
         .values({
           userId,
@@ -99,9 +101,8 @@ export class CommentsService {
           createdAt: now,
           updatedAt: now,
         })
-        .returning({ id: comments.id })
-        .get();
-      this.syncProductRating(product.id);
+        .returning({ id: comments.id });
+      await this.syncProductRating(tx, product.id);
       return created.id;
     });
 
@@ -109,11 +110,11 @@ export class CommentsService {
   }
 
   /** Like, dislike, remove a vote, or switch it: one rule for all four cases. */
-  vote(userId: number, commentId: number, type: VoteType) {
-    this.requireComment(commentId);
+  async vote(userId: number, commentId: number, type: VoteType) {
+    await this.requireComment(commentId);
 
-    this.database.db.transaction(() => {
-      const existing = this.database.db
+    await this.database.db.transaction(async (tx) => {
+      const existing = await tx
         .select()
         .from(commentVotes)
         .where(
@@ -122,113 +123,104 @@ export class CommentsService {
             eq(commentVotes.userId, userId),
           ),
         )
-        .get();
+        .then((rows) => rows[0]);
       const now = new Date().toISOString();
 
       if (!existing) {
-        this.database.db
+        await tx
           .insert(commentVotes)
-          .values({ commentId, userId, type, createdAt: now, updatedAt: now })
-          .run();
+          .values({ commentId, userId, type, createdAt: now, updatedAt: now });
       } else if (existing.type === type) {
-        this.database.db
-          .delete(commentVotes)
-          .where(eq(commentVotes.id, existing.id))
-          .run();
+        await tx.delete(commentVotes).where(eq(commentVotes.id, existing.id));
       } else {
-        this.database.db
+        await tx
           .update(commentVotes)
           .set({ type, updatedAt: now })
-          .where(eq(commentVotes.id, existing.id))
-          .run();
+          .where(eq(commentVotes.id, existing.id));
       }
     });
 
     return this.findOne(commentId, userId);
   }
 
-  reply(adminId: number, commentId: number, content: string) {
+  async reply(adminId: number, commentId: number, content: string) {
     const text = this.cleanContent(content);
-    this.requireComment(commentId);
+    await this.requireComment(commentId);
 
-    this.database.db.transaction(() => {
-      const existing = this.database.db
+    await this.database.db.transaction(async (tx) => {
+      const existing = await tx
         .select({ id: replies.id })
         .from(replies)
         .where(eq(replies.commentId, commentId))
-        .get();
+        .then((rows) => rows[0]);
       if (existing) {
         throw new BadRequestException("این نظر قبلاً پاسخ داده شده است.");
       }
 
       const now = new Date().toISOString();
-      this.database.db
-        .insert(replies)
-        .values({
-          commentId,
-          adminId,
-          content: text,
-          createdAt: now,
-          updatedAt: now,
-        })
-        .run();
-      this.database.db
+      await tx.insert(replies).values({
+        commentId,
+        adminId,
+        content: text,
+        createdAt: now,
+        updatedAt: now,
+      });
+      await tx
         .update(comments)
         .set({ status: CommentStatus.ANSWERED })
-        .where(eq(comments.id, commentId))
-        .run();
+        .where(eq(comments.id, commentId));
     });
 
     return this.findOne(commentId, adminId);
   }
 
-  update(adminId: number, commentId: number, content: string) {
+  async update(adminId: number, commentId: number, content: string) {
     const text = this.cleanContent(content);
-    this.requireComment(commentId);
+    await this.requireComment(commentId);
 
-    this.database.db
+    await this.database.db
       .update(comments)
       .set({
         content: text,
         editedByAdmin: true,
         updatedAt: new Date().toISOString(),
       })
-      .where(eq(comments.id, commentId))
-      .run();
+      .where(eq(comments.id, commentId));
 
     return this.findOne(commentId, adminId);
   }
 
   /** Replies and votes are removed by ON DELETE CASCADE. */
-  remove(adminId: number, commentId: number) {
-    const row = this.requireComment(commentId);
-    const [removed] = this.hydrate([row], adminId);
+  async remove(adminId: number, commentId: number) {
+    const row = await this.requireComment(commentId);
+    const [removed] = await this.hydrate([row], adminId);
 
-    this.database.db.transaction(() => {
-      this.database.db.delete(comments).where(eq(comments.id, commentId)).run();
-      this.syncProductRating(row.comment.productId);
+    await this.database.db.transaction(async (tx) => {
+      await tx.delete(comments).where(eq(comments.id, commentId));
+      await this.syncProductRating(tx, row.comment.productId);
     });
 
     return removed;
   }
 
   /** Comments are the single source of truth for `products.rating` / `review_count`. */
-  private syncProductRating(productId: number) {
-    const { average, count: total } = this.ratingSummary(productId);
-    this.database.db
+  private async syncProductRating(db: Db, productId: number) {
+    const { average, count: total } = await this.ratingSummary(
+      productId,
+      db,
+    );
+    await db
       .update(products)
       .set({ rating: average, reviewCount: total })
-      .where(eq(products.id, productId))
-      .run();
+      .where(eq(products.id, productId));
   }
 
-  private ratingSummary(productId: number) {
-    const rows = this.database.db
+  private async ratingSummary(productId: number, db: Db = this.database.db) {
+    const rows = await db
       .select({ rating: comments.rating, total: count() })
       .from(comments)
       .where(eq(comments.productId, productId))
-      .groupBy(comments.rating)
-      .all();
+      .groupBy(comments.rating);
 
     const distribution = [0, 0, 0, 0, 0];
     let sum = 0;
@@ -259,12 +251,15 @@ export class CommentsService {
   }
 
   /** Loads likes, dislikes, the viewer's vote and the reply for many comments at once. */
-  private hydrate(rows: CommentWithMeta[], viewerId: number | null): Comment[] {
+  private async hydrate(
+    rows: CommentWithMeta[],
+    viewerId: number | null,
+  ): Promise<Comment[]> {
     if (rows.length === 0) return [];
     const ids = rows.map((row) => row.comment.id);
     const db = this.database.db;
 
-    const voteRows = db
+    const voteRows = await db
       .select({
         commentId: commentVotes.commentId,
         type: commentVotes.type,
@@ -272,12 +267,11 @@ export class CommentsService {
       })
       .from(commentVotes)
       .where(inArray(commentVotes.commentId, ids))
-      .groupBy(commentVotes.commentId, commentVotes.type)
-      .all();
+      .groupBy(commentVotes.commentId, commentVotes.type);
     const myVoteRows =
       viewerId === null
         ? []
-        : db
+        : await db
             .select({ commentId: commentVotes.commentId, type: commentVotes.type })
             .from(commentVotes)
             .where(
@@ -285,14 +279,12 @@ export class CommentsService {
                 inArray(commentVotes.commentId, ids),
                 eq(commentVotes.userId, viewerId),
               ),
-            )
-            .all();
-    const replyRows = db
+            );
+    const replyRows = await db
       .select({ reply: replies, adminName: users.name })
       .from(replies)
       .innerJoin(users, eq(users.id, replies.adminId))
-      .where(inArray(replies.commentId, ids))
-      .all();
+      .where(inArray(replies.commentId, ids));
 
     const counts = new Map<string, number>();
     for (const row of voteRows) {
@@ -330,24 +322,25 @@ export class CommentsService {
     });
   }
 
-  private findOne(commentId: number, viewerId: number | null) {
-    return this.hydrate([this.requireComment(commentId)], viewerId)[0];
+  private async findOne(commentId: number, viewerId: number | null) {
+    const row = await this.requireComment(commentId);
+    return (await this.hydrate([row], viewerId))[0];
   }
 
-  private requireComment(commentId: number) {
-    const row = this.selectWithMeta()
+  private async requireComment(commentId: number) {
+    const row = await this.selectWithMeta()
       .where(eq(comments.id, commentId))
-      .get();
+      .then((rows) => rows[0]);
     if (!row) throw new NotFoundException("نظر پیدا نشد.");
     return row;
   }
 
-  private requireProductBySlug(slug: string) {
-    const product = this.database.db
+  private async requireProductBySlug(slug: string) {
+    const product = await this.database.db
       .select({ id: products.id })
       .from(products)
       .where(eq(products.slug, slug))
-      .get();
+      .then((rows) => rows[0]);
     if (!product) throw new NotFoundException("محصول پیدا نشد.");
     return product;
   }

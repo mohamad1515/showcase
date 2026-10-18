@@ -15,7 +15,7 @@ export class ShopResolver {
   @Query(() => Cart)
   async myCart(@Context("req") req: Request) {
     const user = await this.session.requireUser(req);
-    return this.shopService.getCart(user.id);
+    return await this.shopService.getCart(user.id);
   }
 
   @Mutation(() => Cart)
@@ -24,7 +24,7 @@ export class ShopResolver {
     @Context("req") req: Request,
   ) {
     const user = await this.session.requireUser(req);
-    return this.shopService.addCartItem(
+    return await this.shopService.addCartItem(
       user.id,
       input.productSlug,
       input.quantity,
@@ -37,7 +37,11 @@ export class ShopResolver {
     @Context("req") req: Request,
   ) {
     const user = await this.session.requireUser(req);
-    return this.shopService.updateCartItem(user.id, input.itemId, input.quantity);
+    return await this.shopService.updateCartItem(
+      user.id,
+      input.itemId,
+      input.quantity,
+    );
   }
 
   @Mutation(() => Cart)
@@ -46,24 +50,24 @@ export class ShopResolver {
     @Context("req") req: Request,
   ) {
     const user = await this.session.requireUser(req);
-    return this.shopService.removeCartItem(user.id, itemId);
+    return await this.shopService.removeCartItem(user.id, itemId);
   }
 
   @Mutation(() => Cart)
   async clearCart(@Context("req") req: Request) {
     const user = await this.session.requireUser(req);
-    return this.shopService.clearCart(user.id);
+    return await this.shopService.clearCart(user.id);
   }
 
   @Mutation(() => Order)
   async createOrderFromCart(@Context("req") req: Request) {
     const user = await this.session.requireUser(req);
-    return this.shopService.createOrderFromCart(user.id);
+    return await this.shopService.createOrderFromCart(user.id);
   }
 
   @Query(() => [Order])
   async myOrders(@Context("req") req: Request) {
     const user = await this.session.requireUser(req);
-    return this.shopService.getOrders(user.id);
+    return await this.shopService.getOrders(user.id);
   }
 }

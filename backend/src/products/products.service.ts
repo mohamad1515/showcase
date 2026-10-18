@@ -20,40 +20,39 @@ const productTypes = [
 export class ProductsService {
   constructor(private readonly database: DatabaseService) {}
 
-  findAll(category?: string) {
+  async findAll(category?: string) {
     const rows = category
-      ? this.database.db
+      ? await this.database.db
           .select()
           .from(products)
-          .where(eq(products.category, this.toCategory(category)))
-          .all()
-      : this.database.db.select().from(products).all();
+          .where(eq(products.category, await this.toCategory(category)))
+      : await this.database.db.select().from(products);
 
     return rows.map((product) => this.normalizeProduct(product));
   }
 
-  findBySlug(slug: string) {
+  async findBySlug(slug: string) {
     const normalizedSlug = this.decodeSlug(slug);
-    const product = this.database.db
+    const product = await this.database.db
       .select()
       .from(products)
       .where(eq(products.slug, normalizedSlug))
-      .get();
+      .then((rows) => rows[0]);
     if (!product)
       throw new NotFoundException(`Product with slug "${slug}" was not found.`);
 
     return this.normalizeProduct(product);
   }
 
-  create(input: CreateProductInput) {
-    const category = this.toCategory(input.category);
+  async create(input: CreateProductInput) {
+    const category = await this.toCategory(input.category);
     const productType = this.toProductType(input.productType);
     const flavor = this.toFlavor(input.flavor, productType);
     const now = new Date().toISOString();
 
-    const slug = this.generateSlug(input.englishName);
+    const slug = await this.generateSlug(input.englishName);
 
-    return this.database.db
+    const [product] = await this.database.db
       .insert(products)
       .values({
         slug,
@@ -84,12 +83,12 @@ export class ProductsService {
         createdAt: now,
         updatedAt: now,
       })
-      .returning()
-      .get();
+      .returning();
+    return product;
   }
 
-  update(slug: string, input: UpdateProductInput) {
-    this.findBySlug(slug);
+  async update(slug: string, input: UpdateProductInput) {
+    await this.findBySlug(slug);
     const {
       category,
       price,
@@ -103,13 +102,13 @@ export class ProductsService {
       englishName,
       ...rest
     } = input;
-    const current = this.findBySlug(slug);
+    const current = await this.findBySlug(slug);
     const resolvedType = productType
       ? this.toProductType(productType)
       : current.productType;
     const values: Partial<NewProductRow> = {
       ...rest,
-      ...(category ? { category: this.toCategory(category) } : {}),
+      ...(category ? { category: await this.toCategory(category) } : {}),
       ...(price ? { price: this.formatPrice(price) } : {}),
       ...(productType ? { productType: resolvedType } : {}),
       ...(flavor !== undefined || productType
@@ -128,7 +127,7 @@ export class ProductsService {
           }
         : {}),
       ...(englishName !== undefined
-        ? { englishName, slug: this.generateSlug(englishName, slug) }
+        ? { englishName, slug: await this.generateSlug(englishName, slug) }
         : {}),
       ...(tags !== undefined ? { tags: this.normalizeTags(tags) } : {}),
       ...(mainImage !== undefined
@@ -140,33 +139,33 @@ export class ProductsService {
       updatedAt: new Date().toISOString(),
     };
 
-    return this.database.db
+    const [product] = await this.database.db
       .update(products)
       .set(values)
       .where(eq(products.slug, slug))
-      .returning()
-      .get();
-  }
-
-  remove(slug: string) {
-    const product = this.findBySlug(slug);
-    this.database.db.delete(products).where(eq(products.slug, slug)).run();
+      .returning();
     return product;
   }
 
-  private toCategory(category: string) {
-    const exists = this.database.db
+  async remove(slug: string) {
+    const product = await this.findBySlug(slug);
+    await this.database.db.delete(products).where(eq(products.slug, slug));
+    return product;
+  }
+
+  private async toCategory(category: string) {
+    const exists = await this.database.db
       .select({ slug: categories.slug })
       .from(categories)
       .where(eq(categories.slug, category.trim()))
-      .get();
+      .then((rows) => rows[0]);
     if (!exists) {
       throw new BadRequestException("دسته‌بندی انتخاب‌شده معتبر نیست.");
     }
     return exists.slug;
   }
 
-  private generateSlug(englishName: string, currentSlug?: string) {
+  private async generateSlug(englishName: string, currentSlug?: string) {
     const base =
       englishName
         .trim()
@@ -177,11 +176,11 @@ export class ProductsService {
     let suffix = 2;
     while (
       candidate !== currentSlug &&
-      this.database.db
+      (await this.database.db
         .select({ slug: products.slug })
         .from(products)
         .where(eq(products.slug, candidate))
-        .get()
+        .then((rows) => rows[0]))
     ) {
       candidate = `${base}-${suffix++}`;
     }
