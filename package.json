@@ -1,4 +1,17 @@
 {
+  "name": "showcase",
+  "private": true,
+  "packageManager": "pnpm@10.15.0",
+  "workspaces": [
+    "backend",
+    "frontend"
+  ],
+  "scripts": {
+    "build:backend": "pnpm --dir backend run build",
+    "build:frontend": "pnpm --dir frontend run build",
+    "dev:backend": "pnpm --dir backend run start:dev",
+    "dev:frontend": "pnpm --dir frontend run dev"
+  },
   "dependencies": {
     "@nestjs/graphql": "^13.4.2",
     "@nestjs/passport": "^11.0.5",
