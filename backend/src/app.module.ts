@@ -18,6 +18,7 @@ import { CommentsModule } from "./comments/comments.module";
     DatabaseModule,
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
+      path: "api/graphql",
       autoSchemaFile: true,
       context: ({ req }: { req: Request }) => ({ req }),
     }),

@@ -7,8 +7,9 @@ import {
 import { FileInterceptor } from "@nestjs/platform-express";
 import { diskStorage } from "multer";
 import { extname } from "path";
+import { getBackendPublicUrl } from "../common/public-url";
 
-@Controller("upload")
+@Controller("api/upload")
 export class UploadController {
   @Post()
   @UseInterceptors(
@@ -29,14 +30,13 @@ export class UploadController {
     }),
   )
   upload(@UploadedFile() file: Express.Multer.File) {
-    // Use BACKEND_PUBLIC_URL if provided (should include protocol), otherwise construct from PORT
-    const backendPublicUrl =
-      process.env.BACKEND_PUBLIC_URL ??
-      `http://localhost:${process.env.PORT ?? 4000}`;
+    const backendPublicUrl = getBackendPublicUrl(
+      Number(process.env.PORT ?? 4000),
+    );
 
     return {
       success: true,
-      url: `${backendPublicUrl.replace(/\/$/, "")}/uploads/${file.filename}`,
+      url: `${backendPublicUrl}/uploads/${file.filename}`,
     };
   }
 }
