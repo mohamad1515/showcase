@@ -8,7 +8,7 @@ import AuthVisual from "@/app/components/auth/AuthVisual";
 import LoginForm from "@/app/components/auth/LoginForm";
 import RegisterForm from "../components/auth/RegisterForm";
 import Link from "next/link";
-import { FiArrowLeft, FiArrowRight } from "react-icons/fi";
+import { FiArrowLeft } from "react-icons/fi";
 
 type AuthMode = "login" | "register";
 

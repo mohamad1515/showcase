@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { IconType } from "react-icons";
-import { FiArrowLeft, FiArrowRight } from "react-icons/fi";
+import { FiArrowLeft } from "react-icons/fi";
 
 export default function AdminPageHeader({
   icon: Icon,

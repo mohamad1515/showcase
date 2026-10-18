@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import type { ColDef, ICellRendererParams } from 'ag-grid-community';
@@ -112,11 +113,13 @@ function SliderForm({
           />
         </div>
         {form.image && (
-          <div className="border-border bg-surface mt-3 rounded-md border p-2">
-            <img
+          <div className="border-border bg-surface relative mt-3 h-28 w-full rounded-md border p-2">
+            <Image
               src={form.image}
               alt={form.title || 'slider preview'}
-              className="h-28 w-full rounded-md object-cover"
+              fill
+              sizes="(min-width: 1024px) 480px, 100vw"
+              className="rounded-md object-cover"
             />
           </div>
         )}
@@ -255,9 +258,11 @@ export default function AdminSlidersPage() {
         maxWidth: 120,
         cellRenderer: (p: ICellRendererParams<Slider>) =>
           p.data ? (
-            <img
+            <Image
               src={p.data.image}
               alt={p.data.title}
+              width={48}
+              height={48}
               className="h-12 w-12 rounded-md object-cover"
             />
           ) : null,

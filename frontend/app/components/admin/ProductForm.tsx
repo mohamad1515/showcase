@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
 import { FiCheck, FiPlus, FiPlusCircle, FiSave } from 'react-icons/fi';
@@ -516,10 +517,12 @@ export default function ProductForm({
                       : 'border-border hover:border-accent'
                   }`}
                 >
-                  <img
+                  <Image
                     src={image}
                     alt={`پیش‌نمایش ${product?.persianName ?? 'محصول'}`}
-                    className="h-full w-full object-cover"
+                    fill
+                    sizes="(min-width: 640px) 25vw, 33vw"
+                    className="object-cover"
                   />
                   {form.mainImage === image && (
                     <span className="bg-accent absolute inset-x-1 bottom-1 rounded px-1 py-0.5 text-center text-[10px] font-black text-white">

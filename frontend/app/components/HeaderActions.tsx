@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import {
@@ -40,9 +41,6 @@ export const socialLinks = [
     icon: SiInstagram,
   },
 ];
-
-const actionClass =
-  'inline-flex h-8 items-center justify-center border border-border bg-surface px-3 text-xs font-bold text-foreground transition-colors hover:border-accent hover:text-accent';
 
 const emptyCart: Cart = { id: '0', items: [], total: '0', itemCount: 0 };
 
@@ -283,10 +281,12 @@ export default function HeaderActions() {
                     className="border-border bg-surface flex gap-3 rounded-lg border p-3"
                   >
                     <div className="bg-background relative h-20 w-20 shrink-0 overflow-hidden rounded-md">
-                      <img
+                      <Image
                         src={item.product.images?.[0] ?? '/images/product.png'}
                         alt={item.product.name}
-                        className="h-full w-full object-cover"
+                        fill
+                        sizes="80px"
+                        className="object-cover"
                       />
                     </div>
 
