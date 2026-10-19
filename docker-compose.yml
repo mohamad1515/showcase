@@ -27,10 +27,10 @@ services:
       FRONTEND_URL: http://localhost:3000
       DATABASE_URL: postgresql://your_username:your_password@postgres:5432/your_database
       BACKEND_PUBLIC_URL: http://localhost:4000/api
-      # Dev-only placeholder — the image runs with NODE_ENV=production
-      # baked in, which refuses to boot without a real JWT_SECRET. Never
-      # reuse this value outside local development.
-      JWT_SECRET: local-dev-only-insecure-secret-do-not-use-in-production
+      # Dev-only value — the image runs with NODE_ENV=production baked
+      # in, which refuses to boot without a real JWT_SECRET. Never reuse
+      # this value outside local development.
+      JWT_SECRET: fe2f0e2d56cf53684835b146746a2ca9
     depends_on:
       postgres:
         condition: service_healthy
