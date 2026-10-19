@@ -4,10 +4,10 @@ WORKDIR /app
 
 RUN corepack enable
 
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY backend/package.json backend/pnpm-lock.yaml backend/pnpm-workspace.yaml ./
 RUN pnpm install --frozen-lockfile
 
-COPY . .
+COPY backend/ .
 RUN pnpm run build
 
 
@@ -18,7 +18,7 @@ ENV NODE_ENV=production
 
 RUN corepack enable
 
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY backend/package.json backend/pnpm-lock.yaml backend/pnpm-workspace.yaml ./
 RUN pnpm install --frozen-lockfile --prod
 
 COPY --from=builder /app/dist ./dist

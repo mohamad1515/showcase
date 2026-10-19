@@ -14,7 +14,8 @@ services:
 
   graphql:
     build:
-      context: ./backend
+      context: .
+      dockerfile: Dockerfile
     container_name: showcase-graphql
     ports:
       - "4000:4000"
