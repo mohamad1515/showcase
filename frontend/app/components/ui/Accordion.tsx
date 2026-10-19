@@ -32,11 +32,21 @@ export default function Accordion({
                 className={`text-muted shrink-0 transition-transform ${isOpen ? 'rotate-180' : ''}`}
               />
             </button>
-            {isOpen && (
-              <div className="px-5 pb-5">
-                <p className="text-muted text-sm leading-7">{item.answer}</p>
+            <div
+              className={`grid transition-[grid-template-rows] duration-200 ease-out ${
+                isOpen ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'
+              }`}
+            >
+              <div
+                className={`overflow-hidden transition-opacity duration-200 ${
+                  isOpen ? 'opacity-100' : 'opacity-0'
+                }`}
+              >
+                <div className="px-5 pb-5">
+                  <p className="text-muted text-sm leading-7">{item.answer}</p>
+                </div>
               </div>
-            )}
+            </div>
           </div>
         );
       })}
