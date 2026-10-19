@@ -2,15 +2,15 @@ services:
   postgres:
     image: postgres:13
     environment:
-      POSTGRES_USER: your_username
-      POSTGRES_PASSWORD: your_password
-      POSTGRES_DB: your_database
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     ports:
-      - 5432:5432
+      - "${POSTGRES_PORT:-5432}:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U your_username -d your_database"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 2s
       timeout: 5s
       retries: 15
@@ -21,16 +21,15 @@ services:
       dockerfile: Dockerfile
     container_name: showcase-graphql
     ports:
-      - "4000:4000"
+      - "${BACKEND_PORT:-4000}:4000"
     environment:
       PORT: 4000
-      FRONTEND_URL: http://localhost:3000
-      DATABASE_URL: postgresql://your_username:your_password@postgres:5432/your_database
-      BACKEND_PUBLIC_URL: http://localhost:4000/api
-      # Dev-only value — the image runs with NODE_ENV=production baked
-      # in, which refuses to boot without a real JWT_SECRET. Never reuse
-      # this value outside local development.
-      JWT_SECRET: fe2f0e2d56cf53684835b146746a2ca9
+      FRONTEND_URL: ${FRONTEND_URL}
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      BACKEND_PUBLIC_URL: ${BACKEND_PUBLIC_URL}
+      # The image runs with NODE_ENV=production baked in, which refuses
+      # to boot without a real JWT_SECRET. See .env.example.docker.
+      JWT_SECRET: ${JWT_SECRET}
     depends_on:
       postgres:
         condition: service_healthy
@@ -42,15 +41,15 @@ services:
       args:
         # Baked into the client bundle — must be reachable from the
         # browser on the host, not from inside the Docker network.
-        NEXT_PUBLIC_API_URL: http://localhost:4000
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
     container_name: showcase-frontend
     ports:
-      - "3000:3000"
+      - "${FRONTEND_PORT:-3000}:3000"
     environment:
       PORT: 3000
       # Server-only override so SSR inside this container reaches the
       # backend via the Docker network instead of the (unreachable from
-      # here) host-published localhost:4000 baked in above.
+      # here) host-published URL baked into the client bundle above.
       INTERNAL_API_URL: http://graphql:4000
     depends_on:
       - graphql
