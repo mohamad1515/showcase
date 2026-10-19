@@ -110,7 +110,7 @@
   --shadow-modal: 0 20px 60px rgba(0, 0, 0, 0.6);
   --glass-bg-soft: rgba(255, 255, 255, 0.035);
   --glass-bg: rgba(255, 255, 255, 0.06);
-  --glass-bg-strong: rgba(255, 255, 255, 0.09);
+  --glass-bg-strong: rgba(255, 255, 255, 0);
   --glass-border: rgba(255, 255, 255, 0.14);
   --glass-highlight: rgba(255, 255, 255, 0.16);
   --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
