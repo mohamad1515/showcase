@@ -35,5 +35,25 @@ services:
       postgres:
         condition: service_healthy
 
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+      args:
+        # Baked into the client bundle — must be reachable from the
+        # browser on the host, not from inside the Docker network.
+        NEXT_PUBLIC_API_URL: http://localhost:4000
+    container_name: showcase-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      PORT: 3000
+      # Server-only override so SSR inside this container reaches the
+      # backend via the Docker network instead of the (unreachable from
+      # here) host-published localhost:4000 baked in above.
+      INTERNAL_API_URL: http://graphql:4000
+    depends_on:
+      - graphql
+
 volumes:
   pgdata:
