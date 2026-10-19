@@ -1,6 +1,2 @@
-packages:
-  - 'backend'
-  - 'frontend'
-
 allowBuilds:
   '@apollo/protobufjs': true

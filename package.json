@@ -2,10 +2,6 @@
   "name": "showcase",
   "private": true,
   "packageManager": "pnpm@10.15.0",
-  "workspaces": [
-    "backend",
-    "frontend"
-  ],
   "scripts": {
     "build:backend": "pnpm --dir backend run build",
     "build:frontend": "pnpm --dir frontend run build",
