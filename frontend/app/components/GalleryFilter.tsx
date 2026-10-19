@@ -24,7 +24,7 @@ export default function GalleryFilter({
   );
 
   return (
-    <section id="gallery" className="space-y-8">
+    <section id="gallery" className="glass-strong space-y-8 rounded-lg p-6 sm:p-8">
       <div className="mx-auto max-w-xl text-center">
         <p className="text-muted text-sm font-bold">گالری</p>
         <h2 className="text-foreground mt-2 text-2xl font-black sm:text-[28px]">نمایش محصولات</h2>

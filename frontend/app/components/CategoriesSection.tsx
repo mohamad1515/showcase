@@ -6,7 +6,7 @@ import type { Category } from '../lib/products';
 
 const CategoriesSection = ({ categories }: { categories: Category[] }) => {
   return (
-    <section id="categories" className="space-y-5">
+    <section id="categories" className="glass-strong space-y-5 rounded-lg p-6 sm:p-8">
       <div className="flex flex-wrap items-baseline gap-x-2">
         <h2 className="h-display text-muted text-2xl font-extrabold sm:text-[28px]">
           خرید بر اساس

@@ -5,7 +5,7 @@ import ArticleCard from './ArticleCard';
 
 export default function HomeArticles() {
   return (
-    <section id="articles" className="space-y-6">
+    <section id="articles" className="glass-strong space-y-6 rounded-lg p-6 sm:p-8">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="text-muted text-sm font-bold">دانش مکمل‌ها</p>

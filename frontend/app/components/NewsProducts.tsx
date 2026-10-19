@@ -17,7 +17,7 @@ export default function NewsProducts({ products }: { products: Product[] }) {
     .slice(0, 8);
 
   return (
-    <section className="space-y-6">
+    <section className="glass-strong space-y-6 rounded-lg p-6 sm:p-8">
       <h2 className="h-display text-foreground text-2xl font-black sm:text-[28px]">
         تازه‌رسیده‌ها
       </h2>

@@ -34,7 +34,15 @@ export default async function Home() {
   );
 
   return (
-    <div>
+    <div className="relative overflow-x-clip">
+      {/* Decorative, blurred color fields — purely visual backdrop for the
+          glass panels below; never affects layout or interaction. */}
+      <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
+        <div className="bg-accent/25 absolute -top-24 -right-32 h-[420px] w-[420px] rounded-full blur-3xl" />
+        <div className="bg-gold/20 absolute top-[55%] -left-32 h-[380px] w-[380px] rounded-full blur-3xl" />
+        <div className="bg-accent/15 absolute top-[85%] right-[10%] h-[320px] w-[320px] rounded-full blur-3xl" />
+      </div>
+
       <div className="mx-auto w-full max-w-[1200px] px-4 pt-6 sm:px-5 lg:px-6">
         <SliderHero slides={sliders} />
       </div>

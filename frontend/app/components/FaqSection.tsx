@@ -24,7 +24,7 @@ const faqItems = [
 
 export default function FaqSection() {
   return (
-    <section id="faq" className="grid gap-8 lg:grid-cols-2 lg:items-start">
+    <section id="faq" className="glass-strong grid gap-8 rounded-lg p-6 sm:p-10 lg:grid-cols-2 lg:items-start">
       <div>
         <p className="text-muted text-sm font-bold">سوالات متداول</p>
         <h2 className="text-foreground mt-2 text-2xl leading-tight font-black sm:text-3xl">

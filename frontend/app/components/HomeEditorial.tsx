@@ -6,7 +6,7 @@ export default function HomeEditorial() {
   return (
     <section
       id="about"
-      className="bg-surface-1 grid overflow-hidden rounded-lg md:grid-cols-2"
+      className="glass-strong grid overflow-hidden rounded-lg md:grid-cols-2"
       dir="rtl"
     >
       <div className="relative min-h-64 bg-white sm:min-h-80">

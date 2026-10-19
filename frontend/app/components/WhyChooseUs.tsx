@@ -21,7 +21,7 @@ const reasons = [
 
 export default function WhyChooseUs() {
   return (
-    <section id="about" className="border-border bg-surface-1 grid gap-8 rounded-lg border p-6 sm:p-10 lg:grid-cols-2">
+    <section id="about" className="glass-strong grid gap-8 rounded-lg p-6 sm:p-10 lg:grid-cols-2">
       <div className="flex flex-col justify-center">
         <p className="text-muted text-sm font-bold">چرا ما را انتخاب کنید</p>
         <h2 className="text-foreground mt-2 text-2xl leading-tight font-black sm:text-3xl">
@@ -47,7 +47,7 @@ export default function WhyChooseUs() {
           return (
             <li
               key={reason.title}
-              className="border-border bg-card flex items-start gap-4 rounded-lg border p-4"
+              className="glass flex items-start gap-4 rounded-lg p-4"
             >
               <span className="bg-accent/15 text-accent-strong grid h-11 w-11 shrink-0 place-items-center rounded-full">
                 <Icon size={20} aria-hidden />

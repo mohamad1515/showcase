@@ -19,7 +19,7 @@ export default function FeaturedProduct({ product }: { product: Product | undefi
     ) ?? '/images/product.png';
 
   return (
-    <section className="border-border bg-card grid gap-8 rounded-lg border p-6 sm:p-10 lg:grid-cols-2 lg:items-center">
+    <section className="glass-strong grid gap-8 rounded-lg p-6 sm:p-10 lg:grid-cols-2 lg:items-center">
       <div className="bg-background relative order-2 aspect-square overflow-hidden rounded-lg lg:order-1">
         <Image
           src={image}

@@ -77,8 +77,8 @@ function PricingBox({ plan }: { plan: Plan }) {
     <div
       className={
         plan.bestValue
-          ? 'border-accent-strong bg-card relative flex flex-col rounded-lg border-2 p-6'
-          : 'border-border bg-card relative flex flex-col rounded-lg border p-6'
+          ? 'glass ring-accent-strong relative flex flex-col rounded-lg p-6 ring-2'
+          : 'glass relative flex flex-col rounded-lg p-6'
       }
     >
       {plan.bestValue && (

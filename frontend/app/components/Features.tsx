@@ -37,7 +37,7 @@ export default function Features() {
           return (
             <div
               key={feature.count}
-              className="border-border bg-card relative rounded-lg border p-6 text-center"
+              className="glass relative rounded-lg p-6 text-center"
             >
               <span className="text-border absolute top-4 right-5 text-3xl font-black">
                 {feature.count}
