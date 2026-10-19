@@ -4,6 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import type { Product } from '../lib/products';
 import AddToCartButton from './AddToCartButton';
+import StarRating from './reviews/StarRating';
 
 export default function NewsProductCard({ product }: { product: Product }) {
   const inStock = product.stock > 0;
@@ -14,19 +15,16 @@ export default function NewsProductCard({ product }: { product: Product }) {
     ) ?? '/images/product.png';
 
   return (
-    <article className="group border-border bg-card hover:border-accent relative flex h-full flex-col overflow-hidden rounded-lg border transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-lg">
-      {/* Product title */}
-      <Link href={`/products/${product.slug}`} className="pt-2 pr-4">
-        <h1 className="text-foreground group-hover:text-accent text-lg leading-6 font-black transition-colors duration-300">
-          {product.name}
-        </h1>
-
-        <p className="text-muted mt-2 line-clamp-2 min-h-6 text-xs leading-5">{product.tagline}</p>
-      </Link>
-
-      {/* Product image */}
-      <Link href={`/products/${product.slug}`} className="block">
-        <div className="bg-background relative mt-2 aspect-[4/3.6] overflow-hidden rounded-md">
+    <article
+      className="group glass relative flex h-full flex-col overflow-hidden rounded-lg transition-[border-color,transform,box-shadow] duration-200 [@media(hover:hover)_and_(pointer:fine)]:hover:border-accent/70 [@media(hover:hover)_and_(pointer:fine)]:hover:shadow-lg motion-safe:[@media(hover:hover)_and_(pointer:fine)]:hover:-translate-y-1"
+      style={{ transitionTimingFunction: 'var(--motion-ease-out)' }}
+    >
+      <Link
+        href={`/products/${product.slug}`}
+        className="flex flex-1 flex-col transition-transform duration-100 ease-out active:scale-[0.98]"
+      >
+        {/* Product image */}
+        <div className="bg-background relative aspect-[4/3.6] overflow-hidden">
           <Image
             src={image}
             alt={product.name || product.persianName || 'تصویر محصول'}
@@ -36,34 +34,43 @@ export default function NewsProductCard({ product }: { product: Product }) {
           />
 
           {!inStock && (
-            <span className="bg-danger-soft text-danger absolute top-3 left-3 rounded-full px-2.5 py-1 text-[10px] font-bold">
+            <span className="bg-danger-soft text-danger backdrop-blur-sm absolute top-3 left-3 rounded-full px-2.5 py-1 text-[10px] font-bold">
               ناموجود
             </span>
           )}
         </div>
+
+        {/* Product info */}
+        <div className="flex flex-1 flex-col gap-1.5 px-3 pt-3 sm:px-4">
+          <h2 className="text-foreground group-hover:text-accent line-clamp-2 min-h-12 text-lg leading-6 font-black transition-colors duration-300">
+            {product.name}
+          </h2>
+
+          <p className="text-muted line-clamp-1 min-h-5 text-xs leading-5">{product.tagline}</p>
+
+          <span className="flex min-h-4 items-center gap-1.5">
+            {product.reviewCount > 0 && (
+              <>
+                <StarRating value={product.rating} size="sm" />
+                <span className="text-muted text-[11px]">({product.reviewCount})</span>
+              </>
+            )}
+          </span>
+
+          <p className="tabular-fa text-foreground mt-auto text-base font-black">
+            {product.price}
+            <span className="text-muted mr-1 text-[10px] font-bold">تومان</span>
+          </p>
+        </div>
       </Link>
 
       {/* Bottom area */}
-      <div className="relative mt-auto pt-3">
-        {/* Reserved bottom space */}
-        <div className="relative h-[80px] overflow-hidden">
-          {/* Price */}
-          <div className="absolute bottom-6 left-4 z-20 transition-transform duration-500 ease-out group-hover:-translate-y-[30px]">
-            <span className="tabular-fa text-foreground text-base font-black">
-              {product.price}
-              <span className="text-muted mr-1 text-[10px] font-bold">تومان</span>
-            </span>
-          </div>
-
-          {/* Sliding cart panel */}
-          <div className="absolute right-[-8px] bottom-0 left-[-8px] z-10 translate-y-full transition-transform duration-500 ease-out group-hover:translate-y-0">
-            <AddToCartButton
-              productSlug={product.slug}
-              disabled={!inStock}
-              className="!mt-0 !w-full !rounded-none border-0 py-3 text-lg transition-none"
-            />
-          </div>
-        </div>
+      <div className="px-3 pt-3 pb-3 sm:px-4 sm:pb-4">
+        <AddToCartButton
+          productSlug={product.slug}
+          disabled={!inStock}
+          className="!mt-0 !min-h-10 !w-full !rounded-md !py-2 !text-xs sm:!text-sm"
+        />
       </div>
     </article>
   );

@@ -21,7 +21,8 @@ export default function Pagination({
         type="button"
         disabled={page <= 1}
         onClick={() => onChange(page - 1)}
-        className="border-border text-foreground hover:border-accent hover:text-accent grid h-10 w-10 place-items-center rounded-md border transition-colors disabled:opacity-40"
+        style={{ transitionTimingFunction: 'var(--motion-ease-out)' }}
+        className="border-border text-foreground hover:border-accent hover:text-accent active:scale-[0.97] disabled:active:scale-100 grid h-10 w-10 place-items-center rounded-md border transition-[border-color,color,transform] duration-150 disabled:cursor-not-allowed disabled:opacity-40"
         aria-label="صفحه قبلی"
       >
         <FiChevronRight aria-hidden />
@@ -33,10 +34,11 @@ export default function Pagination({
           type="button"
           onClick={() => onChange(p)}
           aria-current={p === page}
+          style={{ transitionTimingFunction: 'var(--motion-ease-out)' }}
           className={
             p === page
-              ? 'bg-accent text-black grid h-10 w-10 place-items-center rounded-md text-sm font-black'
-              : 'border-border text-foreground hover:border-accent grid h-10 w-10 place-items-center rounded-md border text-sm font-bold transition-colors'
+              ? 'bg-accent text-black active:scale-[0.97] grid h-10 w-10 place-items-center rounded-md text-sm font-black transition-transform duration-150'
+              : 'border-border text-foreground hover:border-accent active:scale-[0.97] grid h-10 w-10 place-items-center rounded-md border text-sm font-bold transition-[border-color,color,transform] duration-150'
           }
         >
           {p}
@@ -47,7 +49,8 @@ export default function Pagination({
         type="button"
         disabled={page >= pageCount}
         onClick={() => onChange(page + 1)}
-        className="border-border text-foreground hover:border-accent hover:text-accent grid h-10 w-10 place-items-center rounded-md border transition-colors disabled:opacity-40"
+        style={{ transitionTimingFunction: 'var(--motion-ease-out)' }}
+        className="border-border text-foreground hover:border-accent hover:text-accent active:scale-[0.97] disabled:active:scale-100 grid h-10 w-10 place-items-center rounded-md border transition-[border-color,color,transform] duration-150 disabled:cursor-not-allowed disabled:opacity-40"
         aria-label="صفحه بعدی"
       >
         <FiChevronLeft aria-hidden />

@@ -28,7 +28,7 @@ export default function NewsProducts({ products }: { products: Product[] }) {
           spaceBetween={16}
           breakpoints={{
             640: { slidesPerView: 2, spaceBetween: 20 },
-            1024: { slidesPerView: 4, spaceBetween: 24 },
+            1024: { slidesPerView: 3, spaceBetween: 24 },
           }}
           className="w-full"
         >

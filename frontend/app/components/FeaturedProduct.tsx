@@ -53,7 +53,7 @@ export default function FeaturedProduct({ product }: { product: Product | undefi
           <AddToCartButton productSlug={product.slug} disabled={product.stock <= 0} />
           <Link
             href={`/products/${product.slug}`}
-            className="text-foreground hover:text-accent-strong text-sm font-bold underline-offset-4 hover:underline"
+            className="text-foreground hover:text-accent-strong active:opacity-70 text-sm font-bold underline-offset-4 transition-opacity duration-100 hover:underline"
           >
             مشاهدهٔ کامل محصول
           </Link>

@@ -14,7 +14,7 @@ export default function RelatedProducts({
   return (
     <section className="mt-12">
       <h2 className="text-foreground text-xl font-black">محصولات مرتبط</h2>
-      <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
+      <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3">
         {related.map((product) => (
           <ProductCard key={product.slug} product={product} />
         ))}

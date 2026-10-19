@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
+import { FiChevronDown, FiSliders } from 'react-icons/fi';
 import type { Product } from '../lib/products';
 import Pagination from './ui/Pagination';
 import PriceRangeSlider from './ui/PriceRangeSlider';
@@ -31,6 +32,7 @@ export default function ProductCatalog({
   const [availability, setAvailability] = useState(false);
   const [sort, setSort] = useState('newest');
   const [page, setPage] = useState(1);
+  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
 
   const priceBounds = useMemo(() => {
     const prices = products.map((product) => numericPrice(product.price));
@@ -48,6 +50,13 @@ export default function ProductCatalog({
   useEffect(() => {
     setPriceRange([priceBounds.min, priceBounds.max]);
   }, [priceBounds.min, priceBounds.max]);
+
+  const activeFilterCount =
+    (category !== 'all' ? 1 : 0) +
+    (availability ? 1 : 0) +
+    (sort !== 'newest' ? 1 : 0) +
+    (priceRange[0] !== priceBounds.min || priceRange[1] !== priceBounds.max ? 1 : 0);
+  const hasActiveFilters = activeFilterCount > 0;
 
   const categories = useMemo(
     () =>
@@ -104,90 +113,119 @@ export default function ProductCatalog({
 
   return (
     <div className="grid gap-8 lg:grid-cols-[260px_minmax(0,1fr)] lg:items-start">
-      <aside
-        className="glass h-fit space-y-6 rounded-md p-4 sm:p-5"
-        aria-label="فیلتر محصولات"
-      >
-        <div className="flex items-center justify-between gap-3">
-          <h2 className="text-foreground text-base font-black">فیلترها</h2>
-          <button
-            type="button"
-            onClick={resetFilters}
-            className="text-muted hover:text-foreground text-xs font-bold underline-offset-4 hover:underline"
-          >
-            پاک‌کردن
-          </button>
-        </div>
+      <aside className="glass h-fit rounded-md lg:sticky lg:top-8" aria-label="فیلتر محصولات">
+        <button
+          type="button"
+          onClick={() => setMobileFiltersOpen((value) => !value)}
+          aria-expanded={mobileFiltersOpen}
+          className="flex w-full items-center justify-between gap-3 p-4 sm:p-5 lg:cursor-default"
+        >
+          <span className="flex items-center gap-2">
+            <FiSliders className="text-muted" aria-hidden />
+            <h2 className="text-foreground text-base font-black">فیلترها</h2>
+            {hasActiveFilters && (
+              <span className="bg-accent text-black grid h-5 min-w-5 place-items-center rounded-full px-1 text-[11px] font-black">
+                {activeFilterCount}
+              </span>
+            )}
+          </span>
+          <FiChevronDown
+            aria-hidden
+            className={`text-muted shrink-0 transition-transform duration-200 lg:hidden ${
+              mobileFiltersOpen ? 'rotate-180' : ''
+            }`}
+          />
+        </button>
 
-        <div>
-          <h3 className="text-foreground mb-3 text-sm font-black">فیلتر بر اساس قیمت</h3>
-          {priceBounds.max > 0 && (
-            <PriceRangeSlider
-              min={priceBounds.min}
-              max={priceBounds.max}
-              value={priceRange}
-              onChange={(value) => {
-                setPriceRange(value);
-                setPage(1);
-              }}
-            />
-          )}
-        </div>
-
-        <div>
-          <h3 className="text-foreground mb-3 text-sm font-black">دسته‌بندی‌ها</h3>
-          <ul className="space-y-1.5">
-            <li>
-              <button
-                type="button"
-                onClick={() => {
-                  setCategory('all');
-                  setPage(1);
-                }}
-                className={
-                  category === 'all'
-                    ? 'text-accent-strong flex w-full items-center justify-between text-sm font-black'
-                    : 'text-foreground hover:text-accent-strong flex w-full items-center justify-between text-sm font-bold transition-colors'
-                }
-              >
-                همهٔ دسته‌ها
-                <span className="text-muted text-xs">{products.length}</span>
-              </button>
-            </li>
-            {categories.map((item) => (
-              <li key={item.value}>
+        <div
+          className={`grid transition-[grid-template-rows] duration-200 ease-out lg:grid-rows-[1fr] ${
+            mobileFiltersOpen ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'
+          }`}
+        >
+          <div className="overflow-hidden">
+            <div className="space-y-5 px-4 pb-4 sm:px-5 sm:pb-5">
+              <div className="flex items-center justify-between gap-3 border-t border-border/60 pt-4">
+                <h3 className="text-foreground text-sm font-black">فیلتر بر اساس قیمت</h3>
                 <button
                   type="button"
-                  onClick={() => {
-                    setCategory(item.value);
+                  onClick={resetFilters}
+                  disabled={!hasActiveFilters}
+                  className="text-muted hover:text-foreground active:opacity-60 text-xs font-bold underline-offset-4 transition-opacity duration-100 hover:underline disabled:pointer-events-none disabled:opacity-0"
+                >
+                  پاک‌کردن همه
+                </button>
+              </div>
+              {priceBounds.max > 0 && (
+                <PriceRangeSlider
+                  min={priceBounds.min}
+                  max={priceBounds.max}
+                  value={priceRange}
+                  onChange={(value) => {
+                    setPriceRange(value);
                     setPage(1);
                   }}
-                  className={
-                    category === item.value
-                      ? 'text-accent-strong flex w-full items-center justify-between text-sm font-black'
-                      : 'text-foreground hover:text-accent-strong flex w-full items-center justify-between text-sm font-bold transition-colors'
-                  }
-                >
-                  {item.label}
-                  <span className="text-muted text-xs">{categoryCounts.get(item.value) ?? 0}</span>
-                </button>
-              </li>
-            ))}
-          </ul>
-        </div>
+                />
+              )}
 
-        <label className="text-foreground flex min-h-10 items-center gap-3 text-sm font-bold">
-          <input
-            type="checkbox"
-            checked={availability}
-            onChange={(event) => {
-              setAvailability(event.target.checked);
-              setPage(1);
-            }}
-            className="h-4 w-4 accent-[var(--brand)]"
-          />
-          فقط کالاهای موجود
-        </label>
+              <div className="border-t border-border/60 pt-5">
+                <h3 className="text-foreground mb-3 text-sm font-black">دسته‌بندی‌ها</h3>
+                <ul className="space-y-1">
+                  <li>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setCategory('all');
+                        setPage(1);
+                      }}
+                      className={
+                        category === 'all'
+                          ? 'bg-accent-soft text-accent-strong flex w-full items-center justify-between rounded-md px-2.5 py-2 text-sm font-black'
+                          : 'text-foreground hover:bg-surface-3 flex w-full items-center justify-between rounded-md px-2.5 py-2 text-sm font-bold transition-colors'
+                      }
+                    >
+                      همهٔ دسته‌ها
+                      <span className="text-muted text-xs">{products.length}</span>
+                    </button>
+                  </li>
+                  {categories.map((item) => (
+                    <li key={item.value}>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setCategory(item.value);
+                          setPage(1);
+                        }}
+                        className={
+                          category === item.value
+                            ? 'bg-accent-soft text-accent-strong flex w-full items-center justify-between rounded-md px-2.5 py-2 text-sm font-black'
+                            : 'text-foreground hover:bg-surface-3 flex w-full items-center justify-between rounded-md px-2.5 py-2 text-sm font-bold transition-colors'
+                        }
+                      >
+                        {item.label}
+                        <span className="text-muted text-xs">
+                          {categoryCounts.get(item.value) ?? 0}
+                        </span>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <label className="text-foreground flex min-h-10 items-center gap-3 border-t border-border/60 pt-5 text-sm font-bold">
+                <input
+                  type="checkbox"
+                  checked={availability}
+                  onChange={(event) => {
+                    setAvailability(event.target.checked);
+                    setPage(1);
+                  }}
+                  className="h-4 w-4 accent-[var(--brand)]"
+                />
+                فقط کالاهای موجود
+              </label>
+            </div>
+          </div>
+        </div>
       </aside>
 
       <section aria-label="فهرست محصولات" className="min-w-0">
@@ -215,7 +253,10 @@ export default function ProductCatalog({
 
         {visibleProducts.length > 0 ? (
           <>
-            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 xl:grid-cols-4">
+            <div
+              key={`${category}-${availability}-${sort}-${priceRange[0]}-${priceRange[1]}-${currentPage}`}
+              className="catalog-fade-in grid grid-cols-2 gap-4"
+            >
               {visibleProducts.map((product) => (
                 <ProductCard key={product.slug} product={product} />
               ))}
@@ -223,13 +264,14 @@ export default function ProductCatalog({
             <Pagination page={currentPage} pageCount={pageCount} onChange={setPage} />
           </>
         ) : (
-          <div className="border-border-strong rounded-md border border-dashed px-5 py-12 text-center">
+          <div className="catalog-fade-in border-border-strong rounded-md border border-dashed px-5 py-12 text-center">
             <h2 className="text-foreground text-lg font-black">محصولی پیدا نشد</h2>
             <p className="text-muted mt-2 text-sm">فیلترها را تغییر بده یا دوباره پاک کن.</p>
             <button
               type="button"
               onClick={resetFilters}
-              className="bg-accent text-black hover:bg-accent-strong active:scale-[0.97] mt-5 min-h-10 rounded-md px-4 text-sm font-bold transition-[background-color,transform] duration-150 ease-out"
+              style={{ transitionTimingFunction: 'var(--motion-ease-out)' }}
+              className="bg-accent text-black hover:bg-accent-strong active:scale-[0.97] mt-5 min-h-10 rounded-md px-4 text-sm font-bold transition-[background-color,transform] duration-150"
             >
               پاک‌کردن فیلترها
             </button>

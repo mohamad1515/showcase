@@ -13,7 +13,7 @@ export default function ProductShowcase({ products }: { products: Product[] }) {
   return (
     <section id="products" className="glass-strong space-y-6 rounded-lg p-6 sm:p-8">
       <h2 className="h-display text-foreground text-2xl font-black sm:text-[28px]">محبوب‌ها</h2>
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {visibleProducts.map((product) => (
           <ProductCard key={product.slug} product={product} />
         ))}

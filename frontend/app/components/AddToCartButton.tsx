@@ -42,8 +42,9 @@ export default function AddToCartButton({
       onClick={handleAdd}
       disabled={disabled || loading}
       title="افزودن به سبد خرید"
+      style={{ transitionTimingFunction: 'var(--motion-ease-out)' }}
       className={`inline-flex h-10 shrink-0 items-center justify-between gap-2 rounded-md bg-accent px-8 text-sm font-black
-         text-black transition-[background-color,transform] duration-150 ease-out hover:bg-accent-strong active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-60 disabled:active:scale-100 cursor-pointer ${className}`}
+         text-black transition-[background-color,transform] duration-150 hover:bg-accent-strong active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-60 disabled:active:scale-100 cursor-pointer ${className}`}
     >
       <FiShoppingCart aria-hidden className="text-lg" />
       {loading ? "در حال افزودن" : "افزودن به سبد خرید"}
