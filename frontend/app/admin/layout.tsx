@@ -17,6 +17,7 @@ import {
   FiUsers,
   FiX,
 } from 'react-icons/fi';
+import AdminThemeToggle from '../components/admin/AdminThemeToggle';
 import AdminGuard from '../components/AdminGuard';
 import { useAuth } from '../providers/AuthProvider';
 
@@ -49,16 +50,16 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   return (
     <AdminGuard>
-      <div className="min-h-screen bg-[#f5f5f5] text-[#1f2937]">
+      <div className="admin-theme bg-background text-foreground min-h-screen">
         <div className="flex min-h-screen">
-          <aside className="fixed inset-y-0 right-0 z-40 hidden w-72 border-l border-[#e5e7eb] bg-white/95 px-4 py-6 backdrop-blur-xl lg:flex lg:flex-col">
-            <div className="mb-8 flex items-center gap-3 border-b border-[#e5e7eb] pb-5">
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#22c55e]/10 text-lg font-black text-[#16a34a] ring-1 ring-[#22c55e]/30">
+          <aside className="border-border bg-surface fixed inset-y-0 right-0 z-40 hidden w-72 border-l px-4 py-6 lg:flex lg:flex-col">
+            <div className="border-border mb-8 flex items-center gap-3 border-b pb-5">
+              <div className="bg-accent-soft text-accent flex h-11 w-11 items-center justify-center rounded-lg text-lg font-black">
                 F
               </div>
               <Link href="/" className="flex flex-col">
-                <p className="text-xs text-[#6b7280]">Management</p>
-                <p className="text-lg font-black text-[#1f2937]">FitMokamel</p>
+                <p className="text-muted text-xs">Management</p>
+                <p className="text-foreground text-lg font-black">FitMokamel</p>
               </Link>
             </div>
 
@@ -72,17 +73,17 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                     key={href}
                     href={href}
                     className={[
-                      'group flex items-center justify-between rounded-xl border px-3 py-3 text-sm font-bold transition',
+                      'group flex min-h-11 items-center justify-between rounded-md border px-3 py-2.5 text-sm font-bold transition',
                       isActive
-                        ? 'border-[#22c55e]/40 bg-[#22c55e]/10 text-[#166534] shadow-[inset_0_0_0_1px_rgba(34,197,94,0.15)]'
-                        : 'border-transparent bg-[#f3f4f6] text-[#374151] hover:border-[#d1d5db] hover:bg-[#e5e7eb] hover:text-[#111827]',
+                        ? 'border-accent/40 bg-accent-soft text-accent'
+                        : 'bg-surface-1 text-foreground hover:border-border-strong hover:bg-surface-3 border-transparent',
                     ].join(' ')}
                   >
                     <span className="flex items-center gap-3">
                       <Icon className="text-base" />
                       {label}
                     </span>
-                    <span className="text-[10px] text-[#6b7280] transition group-hover:text-[#374151]">
+                    <span className="text-muted group-hover:text-foreground text-[10px] transition">
                       →
                     </span>
                   </Link>
@@ -90,16 +91,16 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               })}
             </nav>
 
-            <div className="mt-auto rounded-2xl border border-[#e5e7eb] bg-[#f3f4f6] p-4">
+            <div className="border-border bg-surface-1 mt-auto rounded-lg border p-4">
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#d1d5db] text-sm font-bold text-[#374151]">
+                <div className="bg-surface-3 text-foreground flex h-10 w-10 items-center justify-center rounded-full text-sm font-bold">
                   {user?.name?.slice(0, 1) ?? 'A'}
                 </div>
                 <div className="min-w-0">
-                  <p className="truncate text-sm font-bold text-[#111827]">
+                  <p className="text-foreground truncate text-sm font-bold">
                     {user?.name ?? 'ادمین'}
                   </p>
-                  <p className="truncate text-xs text-[#6b7280]">
+                  <p className="text-muted truncate text-xs">
                     {user?.email ?? 'admin@showcase.com'}
                   </p>
                 </div>
@@ -108,40 +109,42 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </aside>
 
           <div className="flex-1 lg:mr-72">
-            <header className="sticky top-0 z-30 border-b border-[#e5e7eb] bg-white/90 backdrop-blur-xl">
+            <header className="border-border bg-surface/95 sticky top-0 z-30 border-b backdrop-blur-xl">
               <div className="flex items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
                 <div className="flex items-center gap-3">
                   <button
                     type="button"
-                    className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-[#d1d5db] bg-[#f3f4f6] text-[#374151] lg:hidden"
+                    className="border-border bg-surface-1 text-foreground inline-flex h-10 w-10 items-center justify-center rounded-md border lg:hidden"
                     onClick={() => setMobileOpen(true)}
                     aria-label="Open menu"
                   >
                     <FiMenu className="text-lg" />
                   </button>
                   <div>
-                    <p className="text-[11px] font-bold tracking-[0.26em] text-[#6b7280]">
+                    <p className="text-muted text-[11px] font-bold tracking-[0.12em]">
                       ADMIN PANEL
                     </p>
-                    <h1 className="mt-1 text-xl font-black text-[#111827]">{currentTitle}</h1>
+                    <h1 className="text-foreground mt-1 text-xl font-black">{currentTitle}</h1>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-3">
-                  <div className="hidden items-center gap-3 rounded-xl border border-[#e5e7eb] bg-[#f3f4f6] px-3 py-2 md:flex">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#22c55e]/10 text-[#16a34a]">
+                  <div className="border-border bg-surface-1 hidden items-center gap-3 rounded-md border px-3 py-2 md:flex">
+                    <div className="bg-accent-soft text-accent flex h-8 w-8 items-center justify-center rounded-full">
                       <FiUser className="text-sm" />
                     </div>
                     <div className="text-right">
-                      <p className="text-xs text-[#6b7280]">کاربر</p>
-                      <p className="text-sm font-bold text-[#111827]">{user?.name ?? 'مدیر'}</p>
+                      <p className="text-muted text-xs">کاربر</p>
+                      <p className="text-foreground text-sm font-bold">{user?.name ?? 'مدیر'}</p>
                     </div>
                   </div>
+
+                  <AdminThemeToggle />
 
                   <button
                     type="button"
                     onClick={handleLogout}
-                    className="inline-flex items-center gap-2 rounded-xl border border-[#d1d5db] bg-[#f3f4f6] px-3 py-2 text-sm font-bold text-[#374151] transition hover:bg-[#e5e7eb] hover:text-[#111827]"
+                    className="border-border bg-surface-1 text-foreground hover:bg-surface-3 inline-flex h-10 items-center gap-2 rounded-md border px-3 text-sm font-bold transition"
                   >
                     <FiLogOut />
                     خروج
@@ -156,26 +159,26 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
         {mobileOpen && (
           <div
-            className="fixed inset-0 z-50 bg-white/70 backdrop-blur-sm lg:hidden"
+            className="fixed inset-0 z-50 bg-black/30 backdrop-blur-sm lg:hidden"
             onClick={() => setMobileOpen(false)}
           >
             <div
-              className="absolute top-0 right-0 h-full w-72 border-l border-[#e5e7eb] bg-white p-4"
+              className="border-border bg-surface absolute top-0 right-0 h-full w-72 border-l p-4"
               onClick={(event) => event.stopPropagation()}
             >
               <div className="mb-6 flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#22c55e]/10 text-lg font-black text-[#16a34a] ring-1 ring-[#22c55e]/30">
+                  <div className="bg-accent-soft text-accent flex h-10 w-10 items-center justify-center rounded-lg text-lg font-black">
                     S
                   </div>
                   <div>
-                    <p className="text-xs text-[#6b7280]">Management</p>
-                    <p className="font-black text-[#111827]">Showcase</p>
+                    <p className="text-muted text-xs">Management</p>
+                    <p className="text-foreground font-black">Showcase</p>
                   </div>
                 </div>
                 <button
                   type="button"
-                  className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#f3f4f6] text-[#374151]"
+                  className="bg-surface-1 text-foreground flex h-9 w-9 items-center justify-center rounded-md"
                   onClick={() => setMobileOpen(false)}
                 >
                   <FiX />
@@ -192,10 +195,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                       href={href}
                       onClick={() => setMobileOpen(false)}
                       className={[
-                        'flex items-center justify-between rounded-xl border px-3 py-3 text-sm font-bold',
+                        'flex min-h-11 items-center justify-between rounded-md border px-3 py-2.5 text-sm font-bold',
                         isActive
-                          ? 'border-[#22c55e]/40 bg-[#22c55e]/10 text-[#166534]'
-                          : 'border-transparent bg-[#f3f4f6] text-[#374151] hover:bg-[#e5e7eb] hover:text-[#111827]',
+                          ? 'border-accent/40 bg-accent-soft text-accent'
+                          : 'bg-surface-1 text-foreground hover:bg-surface-3 border-transparent',
                       ].join(' ')}
                     >
                       <span className="flex items-center gap-3">

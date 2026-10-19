@@ -58,7 +58,7 @@ function ActionsCell({
       <button
         type="button"
         onClick={() => onEdit(data)}
-        className="border-border bg-surface text-foreground hover:border-accent hover:text-accent inline-flex h-9 items-center gap-1.5 rounded-md border px-3 text-xs font-black transition"
+        className="border-border bg-surface text-foreground hover:border-accent hover:text-accent inline-flex h-10 items-center gap-1.5 rounded-md border px-3 text-xs font-black transition"
       >
         <FiEdit aria-hidden />
         ویرایش
@@ -66,7 +66,7 @@ function ActionsCell({
       <button
         type="button"
         onClick={() => onRemove(data)}
-        className="border-danger-soft bg-danger-soft text-danger hover:bg-danger/10 inline-flex h-9 items-center gap-1.5 rounded-md border px-3 text-xs font-black transition"
+        className="border-danger-soft bg-danger-soft text-danger hover:bg-danger/10 inline-flex h-10 items-center gap-1.5 rounded-md border px-3 text-xs font-black transition"
       >
         <FiTrash2 aria-hidden />
         حذف
