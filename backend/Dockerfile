@@ -1,16 +1,29 @@
-FROM node:20-bookworm-slim
+FROM node:20-bookworm-slim AS builder
 
 WORKDIR /app
 
-RUN apt-get update && apt-get install -y python3 make g++ \
-  && rm -rf /var/lib/apt/lists/*
+RUN corepack enable
 
-COPY package*.json ./
-RUN npm ci
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+RUN pnpm install --frozen-lockfile
 
 COPY . .
-RUN npm run build
+RUN pnpm run build
+
+
+FROM node:20-bookworm-slim AS runtime
+
+WORKDIR /app
+ENV NODE_ENV=production
+
+RUN corepack enable
+
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+RUN pnpm install --frozen-lockfile --prod
+
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/public ./public
 
 EXPOSE 4000
 
-CMD ["npm", "run", "start"]
+CMD ["node", "dist/main.js"]
