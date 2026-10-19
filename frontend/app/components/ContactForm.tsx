@@ -20,7 +20,7 @@ export default function ContactForm() {
         setSubmitted(true);
         event.currentTarget.reset();
       }}
-      className="border-border bg-card space-y-5 rounded-md border p-6 sm:p-8"
+      className="glass space-y-5 rounded-md p-6 sm:p-8"
     >
       <div className="grid gap-5 sm:grid-cols-2">
         <label className="text-foreground grid gap-2 text-sm font-bold">
@@ -29,7 +29,7 @@ export default function ContactForm() {
             type="text"
             name="name"
             required
-            className="border-border bg-surface h-11 w-full rounded-md border px-3 text-sm font-normal"
+            className="glass-input h-11 w-full rounded-md px-3 text-sm font-normal transition-colors focus:border-accent"
           />
         </label>
         <label className="text-foreground grid gap-2 text-sm font-bold">
@@ -38,7 +38,7 @@ export default function ContactForm() {
             type="email"
             name="email"
             required
-            className="border-border bg-surface h-11 w-full rounded-md border px-3 text-sm font-normal"
+            className="glass-input h-11 w-full rounded-md px-3 text-sm font-normal transition-colors focus:border-accent"
           />
         </label>
         <label className="text-foreground grid gap-2 text-sm font-bold">
@@ -47,7 +47,7 @@ export default function ContactForm() {
             type="text"
             name="phone"
             required
-            className="border-border bg-surface h-11 w-full rounded-md border px-3 text-sm font-normal"
+            className="glass-input h-11 w-full rounded-md px-3 text-sm font-normal transition-colors focus:border-accent"
           />
         </label>
         <label className="text-foreground grid gap-2 text-sm font-bold">
@@ -56,7 +56,7 @@ export default function ContactForm() {
             name="subject"
             defaultValue=""
             required
-            className="border-border bg-surface h-11 w-full rounded-md border px-3 text-sm font-normal"
+            className="glass-input h-11 w-full rounded-md px-3 text-sm font-normal transition-colors focus:border-accent"
           >
             <option value="" disabled>
               انتخاب موضوع
@@ -74,13 +74,13 @@ export default function ContactForm() {
           name="message"
           required
           rows={6}
-          className="border-border bg-surface w-full rounded-md border px-3 py-2 text-sm font-normal"
+          className="glass-input w-full rounded-md px-3 py-2 text-sm font-normal transition-colors focus:border-accent"
         />
       </label>
 
       <button
         type="submit"
-        className="bg-accent text-black hover:bg-accent-strong h-11 w-full rounded-md text-sm font-black transition-colors sm:w-auto sm:px-8"
+        className="bg-accent text-black hover:bg-accent-strong active:scale-[0.97] h-11 w-full rounded-md text-sm font-black transition-[background-color,transform] duration-150 ease-out sm:w-auto sm:px-8"
       >
         ارسال درخواست
       </button>

@@ -67,10 +67,20 @@
   --ui-radius-md: 10px;
   --ui-radius-lg: 14px;
   --ui-radius-xl: 18px;
-  --glass-bg: rgba(255, 255, 255, 0.55);
-  --glass-bg-strong: rgba(255, 255, 255, 0.72);
-  --glass-border: rgba(255, 255, 255, 0.65);
-  --glass-shadow: 0 8px 32px rgba(31, 38, 135, 0.08);
+  --glass-blur-soft: 10px;
+  --glass-blur: 16px;
+  --glass-blur-strong: 20px;
+  --glass-bg-soft: rgba(255, 255, 255, 0.08);
+  --glass-bg: rgba(255, 255, 255, 0.14);
+  --glass-bg-strong: rgba(255, 255, 255, 0.22);
+  --glass-border: rgba(255, 255, 255, 0.35);
+  --glass-highlight: rgba(255, 255, 255, 0.55);
+  --glass-shadow: 0 8px 32px rgba(15, 23, 42, 0.12);
+  --glass-footer-bg: rgba(10, 10, 10, 0.78);
+  --glass-footer-border: rgba(255, 255, 255, 0.08);
+  --motion-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --motion-ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --motion-ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
 }
 
 :root.dark {
@@ -98,10 +108,14 @@
   --shadow-hover: 0 10px 30px rgba(0, 0, 0, 0.45);
   --shadow-dropdown: 0 12px 32px rgba(0, 0, 0, 0.5);
   --shadow-modal: 0 20px 60px rgba(0, 0, 0, 0.6);
+  --glass-bg-soft: rgba(255, 255, 255, 0.035);
   --glass-bg: rgba(255, 255, 255, 0.06);
-  --glass-bg-strong: rgba(255, 255, 255, 0.1);
-  --glass-border: rgba(255, 255, 255, 0.12);
-  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+  --glass-bg-strong: rgba(255, 255, 255, 0.09);
+  --glass-border: rgba(255, 255, 255, 0.14);
+  --glass-highlight: rgba(255, 255, 255, 0.16);
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+  --glass-footer-bg: rgba(5, 5, 6, 0.85);
+  --glass-footer-border: rgba(255, 255, 255, 0.06);
 }
 
 @theme inline {
@@ -183,8 +197,8 @@ textarea:focus-visible,
 summary:focus-visible,
 [role='button']:focus-visible,
 [tabindex]:focus-visible {
-  outline: none;
-  box-shadow: none;
+  outline: 2px solid transparent;
+  box-shadow: 0 0 0 1.5px var(--accent), 0 0 0 4px var(--accent-soft);
 }
 
 .admin-input,
@@ -216,17 +230,6 @@ summary:focus-visible,
   box-shadow: 0 0 0 2px var(--accent-soft);
 }
 
-button:focus-visible,
-a:focus-visible,
-input:focus-visible,
-textarea:focus-visible,
-select:focus-visible,
-summary:focus-visible,
-[role='button']:focus-visible,
-[tabindex]:focus-visible {
-  outline: none;
-  box-shadow: none;
-}
 .tabular-fa {
   font-variant-numeric: tabular-nums;
   letter-spacing: 0.01em;
@@ -244,25 +247,78 @@ summary:focus-visible,
 
 @layer utilities {
   .glass,
-  .glass-strong {
+  .glass-strong,
+  .glass-input {
     border: 1px solid var(--glass-border);
-    box-shadow: var(--glass-shadow);
-    backdrop-filter: blur(16px) saturate(150%);
-    -webkit-backdrop-filter: blur(16px) saturate(150%);
+    box-shadow: var(--glass-shadow), inset 0 1px 0 var(--glass-highlight);
+    backdrop-filter: blur(var(--glass-blur)) saturate(160%);
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(160%);
+    transition:
+      border-color var(--motion-hover),
+      box-shadow var(--motion-hover),
+      background-color var(--motion-hover);
   }
   .glass {
     background: var(--glass-bg);
   }
   .glass-strong {
     background: var(--glass-bg-strong);
-    backdrop-filter: blur(20px) saturate(150%);
-    -webkit-backdrop-filter: blur(20px) saturate(150%);
+    backdrop-filter: blur(var(--glass-blur-strong)) saturate(160%);
+    -webkit-backdrop-filter: blur(var(--glass-blur-strong)) saturate(160%);
+  }
+  .glass-input {
+    background: var(--glass-bg-strong);
+    box-shadow: inset 0 1px 0 var(--glass-highlight);
+    backdrop-filter: blur(var(--glass-blur-soft));
+    -webkit-backdrop-filter: blur(var(--glass-blur-soft));
+  }
+  .glass-nav {
+    background: var(--glass-bg-soft);
+    border-bottom: 1px solid var(--glass-border);
+    backdrop-filter: blur(var(--glass-blur)) saturate(160%);
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(160%);
+  }
+  .glass-footer {
+    background: var(--glass-footer-bg);
+    border-top: 1px solid var(--glass-footer-border);
+    backdrop-filter: blur(var(--glass-blur)) saturate(140%);
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(140%);
   }
   @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
     .glass,
-    .glass-strong {
-      background: rgba(255, 255, 255, 0.92);
+    .glass-strong,
+    .glass-input {
+      background: var(--surface);
     }
+    .glass-nav {
+      background: var(--background);
+    }
+    .glass-footer {
+      background: var(--color-footer);
+    }
+  }
+}
+
+@keyframes blob-drift {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(3%, -4%) scale(1.06);
+  }
+  66% {
+    transform: translate(-3%, 3%) scale(0.95);
+  }
+}
+
+.blob {
+  animation: blob-drift 26s var(--motion-ease-in-out) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .blob {
+    animation: none;
   }
 }
 

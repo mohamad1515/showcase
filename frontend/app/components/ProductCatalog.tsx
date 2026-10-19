@@ -105,7 +105,7 @@ export default function ProductCatalog({
   return (
     <div className="grid gap-8 lg:grid-cols-[260px_minmax(0,1fr)] lg:items-start">
       <aside
-        className="border-border bg-card h-fit space-y-6 rounded-md border p-4 sm:p-5"
+        className="glass h-fit space-y-6 rounded-md p-4 sm:p-5"
         aria-label="فیلتر محصولات"
       >
         <div className="flex items-center justify-between gap-3">
@@ -203,7 +203,7 @@ export default function ProductCatalog({
                 setSort(event.target.value);
                 setPage(1);
               }}
-              className="border-border bg-surface h-10 max-w-[190px] rounded-md border px-3 text-sm font-normal"
+              className="glass-input h-10 max-w-[190px] rounded-md px-3 text-sm font-normal transition-colors focus:border-accent"
             >
               <option value="newest">جدیدترین</option>
               <option value="rating">بالاترین امتیاز</option>
@@ -229,7 +229,7 @@ export default function ProductCatalog({
             <button
               type="button"
               onClick={resetFilters}
-              className="bg-accent text-black mt-5 min-h-10 rounded-md px-4 text-sm font-bold"
+              className="bg-accent text-black hover:bg-accent-strong active:scale-[0.97] mt-5 min-h-10 rounded-md px-4 text-sm font-bold transition-[background-color,transform] duration-150 ease-out"
             >
               پاک‌کردن فیلترها
             </button>

@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useState } from "react";
 import { FiX, FiChevronLeft, FiChevronRight } from "react-icons/fi";
+import { useOpenState } from "../lib/useOpenState";
 
 type Props = {
   images: string[];
@@ -12,6 +13,7 @@ type Props = {
 export default function ProductImageGallery({ images, productName }: Props) {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+  const lightbox = useOpenState(isLightboxOpen, 200);
 
   const displayImages =
     (images ?? []).filter(
@@ -91,13 +93,24 @@ export default function ProductImageGallery({ images, productName }: Props) {
       </div>
 
       {/* Lightbox Modal */}
-      {isLightboxOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
-          <div className="relative max-h-screen max-w-4xl w-full">
+      {lightbox.mounted && (
+        <div
+          className={`fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 transition-opacity duration-200 ease-out ${
+            lightbox.visible ? 'opacity-100' : 'opacity-0'
+          }`}
+          onClick={() => setIsLightboxOpen(false)}
+        >
+          <div
+            className={`relative max-h-screen max-w-4xl w-full transition-[transform,opacity] duration-200 ${
+              lightbox.visible ? 'scale-100 opacity-100' : 'scale-95 opacity-0'
+            }`}
+            style={{ transitionTimingFunction: 'var(--motion-ease-out)' }}
+            onClick={(event) => event.stopPropagation()}
+          >
             {/* Close Button */}
             <button
               onClick={() => setIsLightboxOpen(false)}
-              className="absolute -top-12 right-0 text-white hover:text-accent transition-colors"
+              className="absolute -top-12 right-0 text-white hover:text-accent transition-colors active:scale-[0.97]"
               aria-label="بستن"
             >
               <FiX size={32} />

@@ -37,7 +37,7 @@ export default function ArticleComments() {
 
       <ul className="mt-5 space-y-4">
         {comments.map((comment) => (
-          <li key={comment.id} className="border-border bg-card rounded-md border p-4">
+          <li key={comment.id} className="glass rounded-md p-4">
             <p className="text-foreground text-sm font-black">{comment.name}</p>
             <p className="text-muted mt-1.5 text-sm leading-6">{comment.text}</p>
           </li>
@@ -52,7 +52,7 @@ export default function ArticleComments() {
           onChange={(event) => setName(event.target.value)}
           placeholder="نام شما"
           required
-          className="border-border bg-surface h-11 w-full rounded-md border px-3 text-sm"
+          className="glass-input h-11 w-full rounded-md px-3 text-sm transition-colors focus:border-accent"
         />
         <textarea
           value={text}
@@ -60,11 +60,11 @@ export default function ArticleComments() {
           placeholder="نظر شما..."
           required
           rows={4}
-          className="border-border bg-surface w-full rounded-md border px-3 py-2 text-sm"
+          className="glass-input w-full rounded-md px-3 py-2 text-sm transition-colors focus:border-accent"
         />
         <button
           type="submit"
-          className="bg-accent text-black hover:bg-accent-strong h-11 rounded-md px-6 text-sm font-black transition-colors"
+          className="bg-accent text-black hover:bg-accent-strong active:scale-[0.97] h-11 rounded-md px-6 text-sm font-black transition-[background-color,transform] duration-150 ease-out"
         >
           ثبت نظر
         </button>

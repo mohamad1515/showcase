@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { FiLoader, FiSearch, FiX } from 'react-icons/fi';
 import { getProducts } from '../lib/graphql';
+import { useOpenState } from '../lib/useOpenState';
 import type { Product } from '../lib/products';
 
 export default function SearchBox() {
@@ -16,6 +17,7 @@ export default function SearchBox() {
 
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const dropdown = useOpenState(isFocused, 150);
 
   // Load all products on first render
   useEffect(() => {
@@ -93,7 +95,7 @@ export default function SearchBox() {
   return (
     <div ref={containerRef} className="relative w-full max-w-full">
       {/* Search Input */}
-      <div className="border-border focus-within:border-accent focus-within:ring-accent-soft bg-surface-1 relative flex h-12 items-center rounded-md border px-3 transition-colors focus-within:ring-2">
+      <div className="glass-input focus-within:border-accent focus-within:ring-accent-soft relative flex h-12 items-center rounded-md px-3 transition-colors focus-within:ring-2">
         <FiSearch className="text-muted absolute left-3 shrink-0" size={16} aria-hidden />
 
         <input
@@ -120,8 +122,13 @@ export default function SearchBox() {
       </div>
 
       {/* Search Dropdown */}
-      {isFocused && (
-        <div className="bg-surface absolute top-full right-0 z-50 mt-2 w-full min-w-60 rounded-md border-0 shadow-lg">
+      {dropdown.mounted && (
+        <div
+          className={`glass-strong absolute top-full right-0 z-50 mt-2 w-full min-w-60 origin-top-right rounded-md transition-[opacity,transform] duration-200 ${
+            dropdown.visible ? 'scale-100 opacity-100' : 'scale-95 opacity-0'
+          }`}
+          style={{ transitionTimingFunction: 'var(--motion-ease-out)' }}
+        >
           {!isInitialized ? (
             <div className="text-muted p-4 text-center text-sm">درحال بارگیری...</div>
           ) : !query.trim() ? (

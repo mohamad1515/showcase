@@ -8,7 +8,7 @@ export default function CtaBanner() {
       </h2>
       <Link
         href="/contact"
-        className="bg-accent text-black hover:bg-accent-strong inline-flex h-11 shrink-0 items-center rounded-md px-6 text-sm font-black transition-colors"
+        className="bg-accent text-black hover:bg-accent-strong active:scale-[0.97] inline-flex h-11 shrink-0 items-center rounded-md px-6 text-sm font-black transition-[background-color,transform] duration-150 ease-out"
       >
         ثبت درخواست مشاوره
       </Link>

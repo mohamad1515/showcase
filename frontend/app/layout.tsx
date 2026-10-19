@@ -3,6 +3,7 @@ import "./globals.css";
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
 import AppShell from "./components/AppShell";
+import BackgroundBlobs from "./components/BackgroundBlobs";
 import { AuthProvider } from "./providers/AuthProvider";
 
 export const metadata = {
@@ -24,6 +25,7 @@ export default function RootLayout({ children }: PropsWithChildren) {
         className="min-h-screen bg-background font-sans text-foreground antialiased"
         suppressHydrationWarning
       >
+        <BackgroundBlobs />
         <AuthProvider>
           <AppShell>{children}</AppShell>
         </AuthProvider>

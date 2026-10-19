@@ -16,6 +16,7 @@ import {
 } from 'react-icons/fi';
 import { SiInstagram, SiTelegram } from 'react-icons/si';
 import { getCart, removeCartItem, updateCartItem } from '../lib/graphql';
+import { useOpenState } from '../lib/useOpenState';
 import type { Cart } from '../lib/products';
 import { errorMessage, notifyError, notifySuccess } from '../lib/toast';
 import { useAuth } from '../providers/AuthProvider';
@@ -52,6 +53,8 @@ export default function HeaderActions() {
   const [cart, setCart] = useState<Cart>(emptyCart);
   const [busyId, setBusyId] = useState<string | null>(null);
   const isSignedIn = Boolean(token);
+  const menu = useOpenState(open, 150);
+  const drawer = useOpenState(cartOpen, 300);
 
   useEffect(() => {
     if (!token) {
@@ -190,8 +193,13 @@ export default function HeaderActions() {
       </button>
 
       {/* Mobile Menu */}
-      {open && (
-        <div className="border-border bg-surface absolute inset-x-3 top-12 z-50 border p-2 shadow-[0_4px_16px_rgba(0,0,0,.3)] md:hidden">
+      {menu.mounted && (
+        <div
+          className={`glass-strong absolute inset-x-3 top-12 z-50 origin-top rounded-md p-2 transition-[opacity,transform] duration-200 ${
+            menu.visible ? 'translate-y-0 scale-100 opacity-100' : '-translate-y-1 scale-95 opacity-0'
+          } md:hidden`}
+          style={{ transitionTimingFunction: 'var(--motion-ease-out)' }}
+        >
           {/* Mobile Search */}
           <div className="border-border mb-2 border-b pb-2">
             <SearchBox />
@@ -255,9 +263,20 @@ export default function HeaderActions() {
       )}
 
       {/* Cart Drawer */}
-      {cartOpen && (
-        <div className="fixed inset-0 z-[60] bg-black/45 backdrop-blur-[1px]">
-          <div className="border-border bg-background absolute top-0 left-0 flex h-full w-full max-w-md flex-col border-l shadow-2xl">
+      {drawer.mounted && (
+        <div
+          className={`fixed inset-0 z-[60] bg-black/45 backdrop-blur-[2px] transition-opacity duration-300 ease-out ${
+            drawer.visible ? 'opacity-100' : 'opacity-0'
+          }`}
+          onClick={() => setCartOpen(false)}
+        >
+          <div
+            className={`glass-strong absolute top-0 left-0 flex h-full w-full max-w-md flex-col shadow-2xl transition-transform duration-300 ${
+              drawer.visible ? 'translate-x-0' : '-translate-x-full'
+            }`}
+            style={{ transitionTimingFunction: 'var(--motion-ease-drawer)' }}
+            onClick={(event) => event.stopPropagation()}
+          >
             {/* Header */}
             <div className="border-border flex items-center justify-between border-b p-4">
               <h2 className="text-foreground text-lg font-black">سبد خرید</h2>

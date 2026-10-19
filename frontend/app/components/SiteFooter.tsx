@@ -5,7 +5,7 @@ import { navItems, socialLinks } from './HeaderActions';
 
 export default function SiteFooter() {
   return (
-    <footer id="contact" className="bg-[var(--color-footer)] text-white">
+    <footer id="contact" className="glass-footer text-white">
       <div className="mx-auto grid max-w-[1200px] gap-10 px-4 py-12 sm:grid-cols-2 sm:px-5 lg:grid-cols-4 lg:px-6 lg:py-16">
         <div>
           <h2 className="text-xl font-black">فیت مکمل</h2>

@@ -15,7 +15,7 @@ export default function ProductCard({ product }: { product: Product }) {
     ) ?? '/images/product.png';
 
   return (
-    <article className="group border-border bg-card relative flex h-full flex-col overflow-hidden rounded-lg border transition-[border-color,transform,box-shadow] duration-200 ease-out [@media(hover:hover)_and_(pointer:fine)]:hover:border-accent [@media(hover:hover)_and_(pointer:fine)]:hover:-translate-y-1 [@media(hover:hover)_and_(pointer:fine)]:hover:shadow-lg">
+    <article className="group glass relative flex h-full flex-col overflow-hidden rounded-lg transition-[border-color,transform,box-shadow] duration-200 ease-out [@media(hover:hover)_and_(pointer:fine)]:hover:border-accent/70 [@media(hover:hover)_and_(pointer:fine)]:hover:-translate-y-1 [@media(hover:hover)_and_(pointer:fine)]:hover:shadow-lg">
       {/* Product title */}
       <Link href={`/products/${product.slug}`} className="pt-2 pr-4">
         <h2 className="text-foreground group-hover:text-accent line-clamp-2 min-h-10 text-sm leading-5 font-medium transition-colors duration-300">

@@ -21,7 +21,7 @@ export default function OfferBanner() {
           </p>
           <Link
             href="/products"
-            className="mt-5 inline-flex min-h-11 items-center rounded-md bg-[#171717] px-5 text-sm font-bold text-white transition-colors hover:bg-black/80"
+            className="active:scale-[0.97] mt-5 inline-flex min-h-11 items-center rounded-md bg-[#171717] px-5 text-sm font-bold text-white transition-[background-color,transform] duration-150 ease-out hover:bg-black/80"
           >
             دیدن محصولات
           </Link>
