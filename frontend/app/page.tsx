@@ -39,8 +39,13 @@ export default async function Home() {
           glass panels below; never affects layout or interaction. */}
       <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
         <div className="bg-accent/25 absolute -top-24 -right-32 h-[420px] w-[420px] rounded-full blur-3xl" />
+        <div className="bg-gold/15 absolute -top-10 -left-28 h-[260px] w-[260px] rounded-full blur-2xl" />
+        <div className="bg-accent/18 absolute top-[20%] -right-20 h-[320px] w-[320px] rounded-full blur-3xl" />
+        <div className="bg-gold/22 absolute top-[34%] left-[6%] h-[240px] w-[240px] rounded-full blur-2xl" />
         <div className="bg-gold/20 absolute top-[55%] -left-32 h-[380px] w-[380px] rounded-full blur-3xl" />
+        <div className="bg-accent/20 absolute top-[68%] -right-24 h-[300px] w-[300px] rounded-full blur-3xl" />
         <div className="bg-accent/15 absolute top-[85%] right-[10%] h-[320px] w-[320px] rounded-full blur-3xl" />
+        <div className="bg-gold/18 absolute top-[96%] -left-20 h-[260px] w-[260px] rounded-full blur-2xl" />
       </div>
 
       <div className="mx-auto w-full max-w-[1200px] px-4 pt-6 sm:px-5 lg:px-6">
