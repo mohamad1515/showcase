@@ -30,7 +30,7 @@ const OfferProducts = () => {
                 <p className="text-sm leading-6 text-white/80">{item.description}</p>
                 <Link
                   href="/products"
-                  className="bg-accent text-foreground hover:bg-accent-strong inline-flex min-h-10 items-center gap-2 rounded-md px-4 text-sm font-bold transition-colors"
+                  className="bg-accent text-black hover:bg-accent-strong inline-flex min-h-10 items-center gap-2 rounded-md px-4 text-sm font-bold transition-colors"
                 >
                   مشاهده محصولات
                   <FiArrowLeft size={16} aria-hidden />

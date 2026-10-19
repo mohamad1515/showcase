@@ -20,6 +20,7 @@ import type { Cart } from '../lib/products';
 import { errorMessage, notifyError, notifySuccess } from '../lib/toast';
 import { useAuth } from '../providers/AuthProvider';
 import SearchBox from './SearchBox';
+import ThemeToggle from './ThemeToggle';
 
 export const navItems = [
   { href: '/', label: 'صفحه اصلی' },
@@ -111,6 +112,9 @@ export default function HeaderActions() {
 
   return (
     <div className="flex items-center gap-2 sm:gap-3">
+      {/* Theme Toggle */}
+      <ThemeToggle />
+
       {/* Cart Icon */}
       {isSignedIn ? (
         <button

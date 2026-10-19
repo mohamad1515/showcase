@@ -60,7 +60,7 @@ export default function SliderHero({ slides }: { slides: Slider[] }) {
                   sizes="100vw"
                   className="object-cover object-[64%_center] sm:object-center"
                 />
-                <span className="bg-accent text-foreground hover:bg-accent-strong absolute bottom-4 left-4 inline-flex min-h-10 items-center gap-2 rounded-md px-4 text-sm font-bold transition-colors sm:bottom-6 sm:left-6">
+                <span className="bg-accent text-black hover:bg-accent-strong absolute bottom-4 left-4 inline-flex min-h-10 items-center gap-2 rounded-md px-4 text-sm font-bold transition-colors sm:bottom-6 sm:left-6">
                   مشاهده محصولات
                   <FiArrowLeft size={16} aria-hidden />
                 </span>

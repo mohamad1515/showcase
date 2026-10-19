@@ -13,6 +13,13 @@ export const metadata = {
 export default function RootLayout({ children }: PropsWithChildren) {
   return (
     <html lang="fa" dir="rtl" suppressHydrationWarning>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var t=localStorage.getItem('site-theme');var d=t?t==='dark':window.matchMedia('(prefers-color-scheme: dark)').matches;if(d){document.documentElement.classList.add('dark');document.documentElement.style.colorScheme='dark';}}catch(e){}})();`,
+          }}
+        />
+      </head>
       <body
         className="min-h-screen bg-background font-sans text-foreground antialiased"
         suppressHydrationWarning

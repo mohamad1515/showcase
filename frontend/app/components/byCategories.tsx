@@ -27,7 +27,7 @@ export default function ByCategories({ categories }: { categories: Category[] })
         type="button"
         onClick={() => scroll('left')}
         aria-label="Previous categories"
-        className="hover:bg-accent absolute top-1/2 left-0 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-white shadow-md transition"
+        className="hover:bg-accent bg-surface absolute top-1/2 left-0 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full shadow-md transition"
       >
         <FiChevronLeft size={20} />
       </button>
@@ -54,7 +54,7 @@ export default function ByCategories({ categories }: { categories: Category[] })
 
               <div className="group-hover:bg-accent absolute top-[19px] -z-10 h-[125px] w-[125px] rounded-full p-2 opacity-0 transition-all duration-300 group-hover:opacity-100" />
             </div>
-            <p className="mt-6 text-lg font-bold text-black">{item.name}</p>
+            <p className="text-foreground mt-6 text-lg font-bold">{item.name}</p>
           </Link>
         ))}
       </div>
@@ -64,7 +64,7 @@ export default function ByCategories({ categories }: { categories: Category[] })
         type="button"
         onClick={() => scroll('right')}
         aria-label="Next categories"
-        className="hover:bg-accent absolute top-1/2 right-0 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-white shadow-md transition"
+        className="hover:bg-accent bg-surface absolute top-1/2 right-0 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full shadow-md transition"
       >
         <FiChevronRight size={20} />
       </button>

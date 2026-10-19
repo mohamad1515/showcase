@@ -39,7 +39,7 @@ export default function ThemeToggle() {
     <button
       type="button"
       onClick={toggleTheme}
-      className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-border bg-surface text-sm font-black text-foreground shadow-sm transition hover:border-accent hover:bg-accent/10"
+      className="text-foreground hover:border-accent hover:text-accent inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-full text-base transition-colors"
       aria-label="تغییر تم سایت"
       title={mounted ? themes[theme].label : "تم"}
     >

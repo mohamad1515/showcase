@@ -9,7 +9,7 @@ export default function HomeEditorial() {
       className="glass-strong grid overflow-hidden rounded-lg md:grid-cols-2"
       dir="rtl"
     >
-      <div className="relative min-h-64 bg-white sm:min-h-80">
+      <div className="bg-surface relative min-h-64 sm:min-h-80">
         <Image
           src="/images/products/img-6.png"
           alt="ظرف مکمل پروتئین وی"
@@ -28,7 +28,7 @@ export default function HomeEditorial() {
         </p>
         <Link
           href="/products"
-          className="bg-foreground mt-6 inline-flex min-h-11 items-center gap-2 rounded-md px-5 text-sm font-bold text-white transition-colors hover:bg-black/80"
+          className="mt-6 inline-flex min-h-11 items-center gap-2 rounded-md bg-[#171717] px-5 text-sm font-bold text-white transition-colors hover:bg-black/80"
         >
           دیدن محصولات
           <FiArrowLeft size={16} aria-hidden />

@@ -82,7 +82,7 @@ function PricingBox({ plan }: { plan: Plan }) {
       }
     >
       {plan.bestValue && (
-        <span className="bg-accent text-foreground absolute -top-3 right-6 rounded-full px-3 py-1 text-xs font-black">
+        <span className="bg-accent absolute -top-3 right-6 rounded-full px-3 py-1 text-xs font-black text-black">
           بهترین ارزش
         </span>
       )}
@@ -108,7 +108,7 @@ function PricingBox({ plan }: { plan: Plan }) {
           href="/products"
           className={
             plan.bestValue
-              ? 'bg-accent text-foreground hover:bg-accent-strong mt-5 flex h-11 w-full items-center justify-center rounded-md text-sm font-black transition-colors'
+              ? 'bg-accent text-black hover:bg-accent-strong mt-5 flex h-11 w-full items-center justify-center rounded-md text-sm font-black transition-colors'
               : 'border-border text-foreground hover:border-accent mt-5 flex h-11 w-full items-center justify-center rounded-md border text-sm font-black transition-colors'
           }
         >

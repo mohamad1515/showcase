@@ -36,7 +36,7 @@ export default function GalleryFilter({
           onClick={() => setActiveCategory('all')}
           className={
             activeCategory === 'all'
-              ? 'bg-accent text-foreground h-10 rounded-md px-4 text-sm font-black'
+              ? 'bg-accent text-black h-10 rounded-md px-4 text-sm font-black'
               : 'border-border text-foreground hover:border-accent h-10 rounded-md border px-4 text-sm font-bold transition-colors'
           }
         >
@@ -49,7 +49,7 @@ export default function GalleryFilter({
             onClick={() => setActiveCategory(category.slug)}
             className={
               activeCategory === category.slug
-                ? 'bg-accent text-foreground h-10 rounded-md px-4 text-sm font-black'
+                ? 'bg-accent text-black h-10 rounded-md px-4 text-sm font-black'
                 : 'border-border text-foreground hover:border-accent h-10 rounded-md border px-4 text-sm font-bold transition-colors'
             }
           >

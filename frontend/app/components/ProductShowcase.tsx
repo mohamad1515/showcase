@@ -21,7 +21,7 @@ export default function ProductShowcase({ products }: { products: Product[] }) {
       <div className="flex justify-center">
         <Link
           href="/products"
-          className="bg-accent text-foreground hover:bg-accent-strong inline-flex min-h-11 items-center gap-2 rounded-md px-5 text-sm font-bold transition"
+          className="bg-accent text-black hover:bg-accent-strong inline-flex min-h-11 items-center gap-2 rounded-md px-5 text-sm font-bold transition"
         >
           مشاهدهٔ همهٔ محصولات
           <FiArrowLeft aria-hidden />

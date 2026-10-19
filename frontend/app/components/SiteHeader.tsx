@@ -9,7 +9,7 @@ import { LuAlignJustify } from 'react-icons/lu';
 
 export default function SiteHeader() {
   return (
-    <header className="border-border top-0 z-50 border-b bg-white" dir="rtl">
+    <header className="border-border bg-background top-0 z-50 border-b" dir="rtl">
       <div className="bg-accent overflow-hidden border-b border-black">
         <div className="relative flex h-9 items-center overflow-hidden">
           <div className="announcement-track text-foreground absolute text-sm font-bold whitespace-nowrap">

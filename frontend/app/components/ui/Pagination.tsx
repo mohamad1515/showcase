@@ -35,7 +35,7 @@ export default function Pagination({
           aria-current={p === page}
           className={
             p === page
-              ? 'bg-accent text-foreground grid h-10 w-10 place-items-center rounded-md text-sm font-black'
+              ? 'bg-accent text-black grid h-10 w-10 place-items-center rounded-md text-sm font-black'
               : 'border-border text-foreground hover:border-accent grid h-10 w-10 place-items-center rounded-md border text-sm font-bold transition-colors'
           }
         >

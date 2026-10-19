@@ -52,7 +52,7 @@ export default function ArticleComments() {
           onChange={(event) => setName(event.target.value)}
           placeholder="نام شما"
           required
-          className="border-border h-11 w-full rounded-md border bg-white px-3 text-sm"
+          className="border-border bg-surface h-11 w-full rounded-md border px-3 text-sm"
         />
         <textarea
           value={text}
@@ -60,11 +60,11 @@ export default function ArticleComments() {
           placeholder="نظر شما..."
           required
           rows={4}
-          className="border-border w-full rounded-md border bg-white px-3 py-2 text-sm"
+          className="border-border bg-surface w-full rounded-md border px-3 py-2 text-sm"
         />
         <button
           type="submit"
-          className="bg-accent text-foreground hover:bg-accent-strong h-11 rounded-md px-6 text-sm font-black transition-colors"
+          className="bg-accent text-black hover:bg-accent-strong h-11 rounded-md px-6 text-sm font-black transition-colors"
         >
           ثبت نظر
         </button>

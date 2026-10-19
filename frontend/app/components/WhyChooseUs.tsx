@@ -34,7 +34,7 @@ export default function WhyChooseUs() {
         </p>
         <Link
           href="/contact"
-          className="bg-foreground mt-6 inline-flex h-11 w-fit items-center gap-2 rounded-md px-5 text-sm font-bold text-white transition-colors hover:bg-black/80"
+          className="mt-6 inline-flex h-11 w-fit items-center gap-2 rounded-md bg-[#171717] px-5 text-sm font-bold text-white transition-colors hover:bg-black/80"
         >
           بیشتر بدانید
           <FiArrowLeft size={16} aria-hidden />

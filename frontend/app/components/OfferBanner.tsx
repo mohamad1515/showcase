@@ -12,16 +12,16 @@ export default function OfferBanner() {
         dir="rtl"
       >
         <div className="flex flex-col items-start justify-center px-6 py-8 sm:px-10 md:py-10">
-          <p className="text-foreground/70 text-sm font-bold">برای تمرین بعدی</p>
-          <h2 className="text-foreground mt-3 max-w-xl text-3xl leading-tight font-black sm:text-4xl">
+          <p className="text-[#111111]/70 text-sm font-bold">برای تمرین بعدی</p>
+          <h2 className="mt-3 max-w-xl text-3xl leading-tight font-black text-[#111111] sm:text-4xl">
             تمرینت را قدرتمند شروع کن
           </h2>
-          <p className="text-foreground/80 mt-3 max-w-lg text-sm leading-6">
+          <p className="text-[#111111]/80 mt-3 max-w-lg text-sm leading-6">
             محصولات پروتئینی و اطلاعات هر محصول را در فروشگاه بررسی کن.
           </p>
           <Link
             href="/products"
-            className="bg-foreground mt-5 inline-flex min-h-11 items-center rounded-md px-5 text-sm font-bold text-white transition-colors hover:bg-black/80"
+            className="mt-5 inline-flex min-h-11 items-center rounded-md bg-[#171717] px-5 text-sm font-bold text-white transition-colors hover:bg-black/80"
           >
             دیدن محصولات
           </Link>

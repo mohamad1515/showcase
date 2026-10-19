@@ -203,7 +203,7 @@ export default function ProductCatalog({
                 setSort(event.target.value);
                 setPage(1);
               }}
-              className="border-border h-10 max-w-[190px] rounded-md border bg-white px-3 text-sm font-normal"
+              className="border-border bg-surface h-10 max-w-[190px] rounded-md border px-3 text-sm font-normal"
             >
               <option value="newest">جدیدترین</option>
               <option value="rating">بالاترین امتیاز</option>
@@ -229,7 +229,7 @@ export default function ProductCatalog({
             <button
               type="button"
               onClick={resetFilters}
-              className="bg-accent text-foreground mt-5 min-h-10 rounded-md px-4 text-sm font-bold"
+              className="bg-accent text-black mt-5 min-h-10 rounded-md px-4 text-sm font-bold"
             >
               پاک‌کردن فیلترها
             </button>
