@@ -13,6 +13,7 @@ import {
   FiMenu,
   FiMessageSquare,
   FiShield,
+  FiShoppingBag,
   FiUser,
   FiUsers,
   FiX,
@@ -22,6 +23,7 @@ import AdminGuard from '../components/AdminGuard';
 import { useAuth } from '../providers/AuthProvider';
 
 const navigation = [
+  { href: '/admin/orders', label: 'مدیریت سفارش‌ها', icon: FiShoppingBag },
   { href: '/admin', label: 'داشبورد مدیریت', icon: FiBarChart2 },
   { href: '/admin/products', label: 'مدیریت محصولات', icon: FiBox },
   { href: '/admin/categories', label: 'مدیریت دسته‌بندی‌ها', icon: FiLayers },

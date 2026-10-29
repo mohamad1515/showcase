@@ -58,15 +58,11 @@ export default function SiteFooter() {
         <div>
           <h3 className="text-sm font-black">تماس با ما</h3>
           <p className="mt-4 text-sm leading-7 text-[var(--color-footer-text)]">
-            تهران، خیابان ورزش، پلاک ۲۴
+            برای پیگیری سفارش یا طرح پرسش، از صفحهٔ تماس با ما استفاده کنید.
             <br />
-            <a href="tel:02112345678" className="hover:text-accent">
-              ۰۲۱-۱۲۳۴۵۶۷۸
-            </a>
-            <br />
-            <a href="mailto:info@fitmokamel.ir" className="hover:text-accent">
-              info@fitmokamel.ir
-            </a>
+            <Link href="/contact" className="hover:text-accent">
+              رفتن به صفحهٔ تماس
+            </Link>
           </p>
         </div>
       </div>

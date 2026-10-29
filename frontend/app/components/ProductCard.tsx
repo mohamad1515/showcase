@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import type { Product } from '../lib/products';
+import { getProductCategoryName, type Product } from '../lib/products';
 import AddToCartButton from './AddToCartButton';
 import StarRating from './reviews/StarRating';
 
@@ -28,6 +28,9 @@ export default function ProductCard({ product }: { product: Product }) {
       >
         {/* Product image */}
         <div className="bg-background relative aspect-[4/3.6] overflow-hidden">
+          <span className="bg-surface/95 text-muted absolute top-3 right-3 z-10 rounded-full border border-border px-2.5 py-1 text-[10px] font-bold">
+            {product.categoryName || getProductCategoryName(product.category)}
+          </span>
           <Image
             src={image}
             alt={product.name || product.persianName || 'تصویر محصول'}
@@ -53,11 +56,9 @@ export default function ProductCard({ product }: { product: Product }) {
 
           {/* Reserved height even with no reviews, so prices stay aligned row-to-row */}
           <span className="flex min-h-4 items-center gap-1.5">
+            <StarRating value={product.rating} size="sm" />
             {product.reviewCount > 0 && (
-              <>
-                <StarRating value={product.rating} size="sm" />
-                <span className="text-muted text-[11px]">({product.reviewCount})</span>
-              </>
+              <span className="text-muted text-[11px]">({product.reviewCount})</span>
             )}
           </span>
 

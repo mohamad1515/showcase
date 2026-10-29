@@ -1,23 +1,23 @@
-import { FiAward, FiShield, FiTruck } from 'react-icons/fi';
+import { FiBookOpen, FiPackage, FiSearch } from 'react-icons/fi';
 
 const features = [
   {
-    icon: FiAward,
-    count: '۰۱',
-    title: 'کیفیت تضمین‌شده',
-    description: 'ترکیبات هر محصول پیش از ورود به فروشگاه بررسی و مستند می‌شود.',
+    id: 1,
+    icon: FiSearch,
+    title: 'بررسی مشخصات',
+    description: 'اطلاعات درج‌شده برای هر محصول را پیش از خرید بررسی کنید.',
   },
   {
-    icon: FiTruck,
-    count: '۰۲',
-    title: 'ارسال سریع',
-    description: 'سفارش‌ها در سریع‌ترین زمان ممکن بسته‌بندی و ارسال می‌شوند.',
+    id: 2,
+    icon: FiPackage,
+    title: 'تنوع محصولات',
+    description: 'محصولات را بر اساس دسته‌بندی و برند مرور کنید.',
   },
   {
-    icon: FiShield,
-    count: '۰۳',
-    title: 'پشتیبانی مطمئن',
-    description: 'پیش و پس از خرید، تیم پشتیبانی پاسخگوی سوالات شماست.',
+    id: 3,
+    icon: FiBookOpen,
+    title: 'مطالعه و مقایسه',
+    description: 'مشخصات محصولات را کنار هم بررسی و انتخاب آگاهانه‌تری داشته باشید.',
   },
 ];
 
@@ -26,22 +26,14 @@ export default function Features() {
     <section id="features" className="space-y-10">
       <div className="mx-auto max-w-xl text-center">
         <p className="text-muted text-sm font-bold">افزایش انرژی با فیت مکمل</p>
-        <h2 className="text-foreground mt-2 text-2xl font-black sm:text-[28px]">
-          ویژگی‌های محصول
-        </h2>
+        <h2 className="text-foreground mt-2 text-2xl font-black sm:text-[28px]">ویژگی‌های محصول</h2>
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         {features.map((feature) => {
           const Icon = feature.icon;
           return (
-            <div
-              key={feature.count}
-              className="glass relative rounded-lg p-6 text-center"
-            >
-              <span className="text-border absolute top-4 right-5 text-3xl font-black">
-                {feature.count}
-              </span>
+            <div key={feature.id} className="glass relative rounded-lg p-6 text-center">
               <div className="bg-accent/15 text-accent-strong mx-auto grid h-14 w-14 place-items-center rounded-full">
                 <Icon size={26} aria-hidden />
               </div>

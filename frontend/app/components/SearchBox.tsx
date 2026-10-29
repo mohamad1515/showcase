@@ -2,12 +2,14 @@
 
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { FiLoader, FiSearch, FiX } from 'react-icons/fi';
 import { getProducts } from '../lib/graphql';
 import { useOpenState } from '../lib/useOpenState';
 import type { Product } from '../lib/products';
 
 export default function SearchBox() {
+  const router = useRouter();
   const [isFocused, setIsFocused] = useState(false);
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<Product[]>([]);
@@ -51,6 +53,11 @@ export default function SearchBox() {
         const filtered = allProducts.filter(
           (product) =>
             product.name.toLowerCase().includes(searchQuery) ||
+            product.englishName?.toLowerCase().includes(searchQuery) ||
+            product.brand?.toLowerCase().includes(searchQuery) ||
+            product.brands?.some((brand) => brand.toLowerCase().includes(searchQuery)) ||
+            product.flavors?.some((flavor) => flavor.toLowerCase().includes(searchQuery)) ||
+            product.tags?.some((tag) => tag.toLowerCase().includes(searchQuery)) ||
             product.tagline?.toLowerCase().includes(searchQuery) ||
             product.summary?.toLowerCase().includes(searchQuery),
         );
@@ -104,6 +111,13 @@ export default function SearchBox() {
           placeholder="جستجو ..."
           value={query}
           onChange={(e) => setQuery(e.target.value)}
+          onKeyDown={(event) => {
+            if (event.key === 'Enter' && query.trim()) {
+              event.preventDefault();
+              closeDropdown();
+              router.push(`/search?q=${encodeURIComponent(query.trim())}`);
+            }
+          }}
           onFocus={() => setIsFocused(true)}
           className="text-foreground h-full w-full border-0 bg-transparent pr-3 pl-9 text-right text-sm ring-0 outline-none placeholder:text-right placeholder:text-xs focus:border-0 focus:ring-0 focus:outline-none focus-visible:border-0 focus-visible:ring-0 focus-visible:outline-none"
           dir="rtl"
@@ -163,7 +177,7 @@ export default function SearchBox() {
 
               <div className="border-border border-t">
                 <Link
-                  href="/products"
+                  href={`/search?q=${encodeURIComponent(query.trim())}`}
                   onClick={closeDropdown}
                   className="text-accent hover:text-foreground block p-3 text-center text-sm font-bold transition-colors"
                 >
@@ -177,7 +191,7 @@ export default function SearchBox() {
 
               <div className="border-border border-t">
                 <Link
-                  href="/products"
+                  href={`/search?q=${encodeURIComponent(query.trim())}`}
                   onClick={closeDropdown}
                   className="text-accent hover:text-foreground block p-3 text-center text-sm font-bold transition-colors"
                 >

@@ -181,6 +181,7 @@ export default function AdminPage() {
   ];
 
   const quickLinks = [
+    { href: '/admin/orders', label: 'مدیریت سفارش‌ها', meta: `${metrics.orders} سفارش` },
     { href: '/admin/products', label: 'مدیریت محصولات', meta: `${metrics.products} کالا` },
     { href: '/admin/categories', label: 'مدیریت دسته‌بندی‌ها', meta: `${metrics.categories} دسته` },
     { href: '/admin/users', label: 'مدیریت کاربران', meta: `${metrics.users} حساب` },

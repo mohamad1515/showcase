@@ -2,6 +2,7 @@ import { Injectable, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
 import { Pool } from 'pg';
 import { drizzle, NodePgDatabase } from 'drizzle-orm/node-postgres';
 import * as schema from './schema';
+import { sampleBrands, sampleFlavors, sampleProducts } from './seed-data';
 
 @Injectable()
 export class DatabaseService implements OnModuleInit, OnModuleDestroy {
@@ -52,6 +53,16 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
         category TEXT NOT NULL,
         summary TEXT NOT NULL,
         description TEXT NOT NULL,
+        ingredients TEXT NOT NULL DEFAULT '',
+        nutrition_facts TEXT NOT NULL DEFAULT '',
+        usage_instructions TEXT NOT NULL DEFAULT '',
+        warnings TEXT NOT NULL DEFAULT '',
+        manufacturer TEXT NOT NULL DEFAULT '',
+        country_of_origin TEXT NOT NULL DEFAULT '',
+        serving_size TEXT NOT NULL DEFAULT '',
+        servings_per_container TEXT NOT NULL DEFAULT '',
+        traceability_code TEXT NOT NULL DEFAULT '',
+        expiry_info TEXT NOT NULL DEFAULT '',
         features JSONB NOT NULL,
         price TEXT NOT NULL,
         compare_at_price TEXT,
@@ -187,6 +198,16 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
     await this.ensureColumn('products', 'product_type', "TEXT NOT NULL DEFAULT 'powder'");
     await this.ensureColumn('products', 'brands', "JSONB NOT NULL DEFAULT '[]'::jsonb");
     await this.ensureColumn('products', 'flavors', "JSONB NOT NULL DEFAULT '[]'::jsonb");
+    await this.ensureColumn('products', 'ingredients', "TEXT NOT NULL DEFAULT ''");
+    await this.ensureColumn('products', 'nutrition_facts', "TEXT NOT NULL DEFAULT ''");
+    await this.ensureColumn('products', 'usage_instructions', "TEXT NOT NULL DEFAULT ''");
+    await this.ensureColumn('products', 'warnings', "TEXT NOT NULL DEFAULT ''");
+    await this.ensureColumn('products', 'manufacturer', "TEXT NOT NULL DEFAULT ''");
+    await this.ensureColumn('products', 'country_of_origin', "TEXT NOT NULL DEFAULT ''");
+    await this.ensureColumn('products', 'serving_size', "TEXT NOT NULL DEFAULT ''");
+    await this.ensureColumn('products', 'servings_per_container', "TEXT NOT NULL DEFAULT ''");
+    await this.ensureColumn('products', 'traceability_code', "TEXT NOT NULL DEFAULT ''");
+    await this.ensureColumn('products', 'expiry_info', "TEXT NOT NULL DEFAULT ''");
     await this.migratePersianNames();
     await this.migrateProductSlugs();
   }
@@ -250,8 +271,18 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
     );
 
     const defaultCategories = [
-      { slug: 'sports-supplements', name: 'مکمل های ورزشی' },
-      { slug: 'food-supplements', name: 'مکمل های غذایی' },
+      { slug: 'sports-supplements', name: 'مکمل‌های ورزشی' },
+      { slug: 'food-supplements', name: 'مکمل‌های غذایی' },
+      { slug: 'whey-protein', name: 'پروتئین وی' },
+      { slug: 'creatine', name: 'کراتین' },
+      { slug: 'bcaa', name: 'آمینو و BCAA' },
+      { slug: 'gainer', name: 'گینر' },
+      { slug: 'electrolyte', name: 'الکترولیت' },
+      { slug: 'pre-workout', name: 'پیش‌تمرین' },
+      { slug: 'omega-3', name: 'امگا ۳' },
+      { slug: 'collagen', name: 'کلاژن' },
+      { slug: 'cla-carnitine', name: 'CLA و کارنیتین' },
+      { slug: 'whey-isolate', name: 'پروتئین وی ایزوله' },
     ];
     for (const category of defaultCategories) {
       await this.pool.query(
@@ -261,6 +292,51 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
         [category.slug, category.name, '', now, now],
       );
     }
+
+    await this.db.insert(schema.brands)
+      .values(sampleBrands.map((name) => ({ name, createdAt: now, updatedAt: now })))
+      .onConflictDoNothing({ target: schema.brands.name });
+    await this.db.insert(schema.flavors)
+      .values(sampleFlavors.map((name) => ({ name, createdAt: now, updatedAt: now })))
+      .onConflictDoNothing({ target: schema.flavors.name });
+    await this.db.insert(schema.products)
+      .values(sampleProducts.map((product) => ({ ...product, createdAt: now, updatedAt: now })))
+      .onConflictDoNothing({ target: schema.products.slug });
+
+    for (const product of sampleProducts) {
+      await this.pool.query(
+        `UPDATE products
+         SET category = $1,
+             rating = CASE WHEN review_count = 0 THEN 5 ELSE rating END
+         WHERE slug = $2`,
+        [product.category, product.slug],
+      );
+    }
+    await this.pool.query(
+      `UPDATE products
+       SET rating = 5, review_count = 0
+       WHERE NOT EXISTS (
+         SELECT 1 FROM comments WHERE comments.product_id = products.id
+       )`,
+    );
+    await this.pool.query(
+      `UPDATE products
+       SET rating = GREATEST(1, ROUND(((reviews.total_rating + 50.0) / (reviews.total_count + 10))::numeric, 1)::double precision),
+           review_count = reviews.total_count
+       FROM (
+         SELECT product_id, COUNT(*)::int AS total_count, SUM(rating)::int AS total_rating
+         FROM comments
+         GROUP BY product_id
+       ) AS reviews
+       WHERE products.id = reviews.product_id`,
+    );
+    await this.pool.query(
+      `UPDATE products
+       SET main_image = '/images/products/creatine-monohydrate.jpg',
+           gallery_images = '["/images/products/creatine-monohydrate.jpg", "/images/products/02.webp"]'::jsonb
+       WHERE slug = 'apex-creatine-monohydrate'
+         AND main_image = '/images/products/cratine.jpg'`,
+    );
 
     await this.pool.query(
       `INSERT INTO sliders (id, title, subtitle, image, link, created_at, updated_at)

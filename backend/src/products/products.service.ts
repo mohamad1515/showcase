@@ -3,9 +3,9 @@ import {
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
-import { eq } from "drizzle-orm";
+import { and, eq, inArray, sql } from "drizzle-orm";
 import { DatabaseService } from "../db/database.service";
-import { categories, NewProductRow, products } from "../db/schema";
+import { categories, NewProductRow, orderItems, orders, products } from "../db/schema";
 import { CreateProductInput, UpdateProductInput } from "./product.input";
 
 const productTypes = [
@@ -28,7 +28,15 @@ export class ProductsService {
           .where(eq(products.category, await this.toCategory(category)))
       : await this.database.db.select().from(products);
 
-    return rows.map((product) => this.normalizeProduct(product));
+    const [sales, categoryNames] = await Promise.all([
+      this.salesCounts(),
+      this.categoryNames(),
+    ]);
+    return rows.map((product) => this.normalizeProduct({
+      ...product,
+      categoryName: categoryNames.get(product.category),
+      salesCount: sales.get(product.id) ?? 0,
+    }));
   }
 
   async findBySlug(slug: string) {
@@ -41,7 +49,34 @@ export class ProductsService {
     if (!product)
       throw new NotFoundException(`Product with slug "${slug}" was not found.`);
 
-    return this.normalizeProduct(product);
+    const [sales, categoryNames] = await Promise.all([
+      this.salesCounts([product.id]),
+      this.categoryNames(),
+    ]);
+    return this.normalizeProduct({
+      ...product,
+      categoryName: categoryNames.get(product.category),
+      salesCount: sales.get(product.id) ?? 0,
+    });
+  }
+
+  private async salesCounts(productIds?: number[]) {
+    const query = this.database.db
+      .select({ productId: orderItems.productId, count: sql<number>`COALESCE(SUM(${orderItems.quantity}), 0)::int` })
+      .from(orderItems)
+      .innerJoin(orders, eq(orders.id, orderItems.orderId))
+      .where(productIds?.length
+        ? and(inArray(orders.status, ["paid", "shipped"]), inArray(orderItems.productId, productIds))
+        : inArray(orders.status, ["paid", "shipped"]));
+    const rows = await query.groupBy(orderItems.productId);
+    return new Map(rows.map((row) => [row.productId, Number(row.count)]));
+  }
+
+  private async categoryNames() {
+    const rows = await this.database.db
+      .select({ slug: categories.slug, name: categories.name })
+      .from(categories);
+    return new Map(rows.map((category) => [category.slug, category.name]));
   }
 
   async create(input: CreateProductInput) {
@@ -62,12 +97,22 @@ export class ProductsService {
         brands: this.normalizeNames(input.brands, input.brand),
         status: input.status,
         // rating and reviewCount are derived from comments (CommentsService)
-        rating: 0,
+        rating: 5,
         flavor: input.flavors?.[0]?.trim() || flavor,
         flavors: this.normalizeNames(input.flavors, input.flavor),
         productType,
         summary: input.summary,
         description: input.description,
+        ingredients: input.ingredients?.trim() ?? "",
+        nutritionFacts: input.nutritionFacts?.trim() ?? "",
+        usageInstructions: input.usageInstructions?.trim() ?? "",
+        warnings: input.warnings?.trim() ?? "",
+        manufacturer: input.manufacturer?.trim() ?? "",
+        countryOfOrigin: input.countryOfOrigin?.trim() ?? "",
+        servingSize: input.servingSize?.trim() ?? "",
+        servingsPerContainer: input.servingsPerContainer?.trim() ?? "",
+        traceabilityCode: input.traceabilityCode?.trim() ?? "",
+        expiryInfo: input.expiryInfo?.trim() ?? "",
         features: input.features,
         category,
         price: this.formatPrice(input.price),

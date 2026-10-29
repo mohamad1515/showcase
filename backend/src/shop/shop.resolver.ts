@@ -70,4 +70,16 @@ export class ShopResolver {
     const user = await this.session.requireUser(req);
     return await this.shopService.getOrders(user.id);
   }
+
+  @Query(() => [Order])
+  async allOrders(@Context("req") req: Request) {
+    await this.session.requireAdmin(req);
+    return this.shopService.getAllOrders();
+  }
+
+  @Mutation(() => Order)
+  async updateOrderStatus(@Args("orderId") orderId: number, @Args("status") status: string, @Context("req") req: Request) {
+    await this.session.requireAdmin(req);
+    return this.shopService.updateOrderStatus(orderId, status);
+  }
 }

@@ -38,6 +38,25 @@ export class CreateProductInput {
   @Field()
   description!: string;
 
+  @Field({ nullable: true })
+  ingredients?: string;
+
+  @Field({ nullable: true })
+  nutritionFacts?: string;
+
+  @Field({ nullable: true })
+  usageInstructions?: string;
+
+  @Field({ nullable: true })
+  warnings?: string;
+
+  @Field({ nullable: true }) manufacturer?: string;
+  @Field({ nullable: true }) countryOfOrigin?: string;
+  @Field({ nullable: true }) servingSize?: string;
+  @Field({ nullable: true }) servingsPerContainer?: string;
+  @Field({ nullable: true }) traceabilityCode?: string;
+  @Field({ nullable: true }) expiryInfo?: string;
+
   @Field()
   price!: string;
 

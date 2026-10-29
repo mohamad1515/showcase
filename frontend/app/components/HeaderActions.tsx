@@ -26,6 +26,7 @@ import ThemeToggle from './ThemeToggle';
 export const navItems = [
   { href: '/', label: 'صفحه اصلی' },
   { href: '/products', label: 'محصولات' },
+  { href: '/brands', label: 'برندها' },
   { href: '/blog', label: 'مقالات' },
   { href: '/#about', label: 'درباره ما' },
   { href: '/contact', label: 'تماس با ما' },
@@ -152,7 +153,7 @@ export default function HeaderActions() {
           {isSignedIn ? (
             <>
               <Link
-                href="/admin"
+                href={user?.role === 'ADMIN' ? '/admin' : '/account'}
                 title={user?.name || 'پروفایل'}
                 className="text-foreground hover:border-accent hover:text-accent inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-full transition-colors"
               >
@@ -265,13 +266,13 @@ export default function HeaderActions() {
       {/* Cart Drawer */}
       {drawer.mounted && (
         <div
-          className={`fixed inset-0 z-[60] bg-black/45 backdrop-blur-[2px] transition-opacity duration-300 ease-out ${
+          className={`fixed inset-0 z-[60] bg-black/55 transition-opacity duration-300 ease-out ${
             drawer.visible ? 'opacity-100' : 'opacity-0'
           }`}
           onClick={() => setCartOpen(false)}
         >
           <div
-            className={`glass-strong absolute top-0 left-0 flex h-full w-full max-w-md flex-col shadow-2xl transition-transform duration-300 ${
+            className={`absolute top-0 left-0 flex h-full w-full max-w-lg flex-col border-r border-border bg-surface shadow-2xl transition-transform duration-300 ${
               drawer.visible ? 'translate-x-0' : '-translate-x-full'
             }`}
             style={{ transitionTimingFunction: 'var(--motion-ease-drawer)' }}

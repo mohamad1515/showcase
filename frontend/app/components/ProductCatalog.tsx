@@ -22,15 +22,25 @@ function numericPrice(value: string) {
 export default function ProductCatalog({
   products,
   initialCategory = 'all',
+  initialQuery = '',
+  initialBrand = 'all',
   categoryOptions,
 }: {
   products: Product[];
   initialCategory?: string;
+  initialQuery?: string;
+  initialBrand?: string;
   categoryOptions?: CategoryOption[];
 }) {
   const [category, setCategory] = useState(initialCategory);
   const [availability, setAvailability] = useState(false);
   const [sort, setSort] = useState('newest');
+  const [brand, setBrand] = useState(initialBrand);
+  const [flavor, setFlavor] = useState('all');
+  const weightValues = products.map((product) => weightInGrams(product.weight)).filter((weight): weight is number => weight !== null);
+  const minWeight = weightValues.length ? Math.min(...weightValues) : 0;
+  const maxWeight = weightValues.length ? Math.max(...weightValues) : 0;
+  const [weightRange, setWeightRange] = useState<[number, number]>([minWeight, maxWeight]);
   const [page, setPage] = useState(1);
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
 
@@ -53,6 +63,9 @@ export default function ProductCatalog({
 
   const activeFilterCount =
     (category !== 'all' ? 1 : 0) +
+    (brand !== 'all' ? 1 : 0) +
+    (flavor !== 'all' ? 1 : 0) +
+    (weightRange[0] !== minWeight || weightRange[1] !== maxWeight ? 1 : 0) +
     (availability ? 1 : 0) +
     (sort !== 'newest' ? 1 : 0) +
     (priceRange[0] !== priceBounds.min || priceRange[1] !== priceBounds.max ? 1 : 0);
@@ -67,6 +80,9 @@ export default function ProductCatalog({
     [categoryOptions, products],
   );
 
+  const brands = useMemo(() => [...new Set(products.flatMap((product) => product.brands?.length ? product.brands : [product.brand]).filter(Boolean))].sort(), [products]);
+  const flavors = useMemo(() => [...new Set(products.flatMap((product) => product.flavors?.length ? product.flavors : [product.flavor]).filter(Boolean))].sort(), [products]);
+
   const categoryCounts = useMemo(() => {
     const counts = new Map<string, number>();
     for (const product of products) {
@@ -78,7 +94,15 @@ export default function ProductCatalog({
   const filteredProducts = useMemo(() => {
     const filtered = products.filter((product) => {
       if (category !== 'all' && product.category !== category) return false;
+      const productBrands = product.brands?.length ? product.brands : [product.brand];
+      const productFlavors = product.flavors?.length ? product.flavors : [product.flavor];
+      if (brand !== 'all' && !productBrands.some((item) => normalizeSearch(item) === normalizeSearch(brand))) return false;
+      if (flavor !== 'all' && !productFlavors.includes(flavor)) return false;
+      const weight = weightInGrams(product.weight);
+      if (weight !== null && (weight < weightRange[0] || weight > weightRange[1])) return false;
       if (availability && product.stock <= 0) return false;
+      const query = normalizeSearch(initialQuery);
+      if (query && !normalizeSearch([product.name, product.englishName, product.brand, ...productBrands, ...productFlavors, product.summary, ...product.tags].join(' ')).includes(query)) return false;
       const price = numericPrice(product.price);
       if (price < priceRange[0] || price > priceRange[1]) return false;
       return true;
@@ -88,13 +112,14 @@ export default function ProductCatalog({
       if (sort === 'rating') {
         return right.rating - left.rating || right.reviewCount - left.reviewCount;
       }
+      if (sort === 'best-selling') return (right.salesCount ?? 0) - (left.salesCount ?? 0);
       if (sort === 'price-asc') return numericPrice(left.price) - numericPrice(right.price);
       if (sort === 'price-desc') return numericPrice(right.price) - numericPrice(left.price);
       const leftDate = left.createdAt ? Date.parse(left.createdAt) : 0;
       const rightDate = right.createdAt ? Date.parse(right.createdAt) : 0;
       return rightDate - leftDate;
     });
-  }, [availability, category, priceRange, products, sort]);
+  }, [availability, brand, category, flavor, initialQuery, priceRange, products, sort, weightRange]);
 
   const pageCount = Math.max(1, Math.ceil(filteredProducts.length / PAGE_SIZE));
   const currentPage = Math.min(page, pageCount);
@@ -105,6 +130,9 @@ export default function ProductCatalog({
 
   function resetFilters() {
     setCategory('all');
+    setBrand('all');
+    setFlavor('all');
+    setWeightRange([minWeight, maxWeight]);
     setAvailability(false);
     setPriceRange([priceBounds.min, priceBounds.max]);
     setSort('newest');
@@ -211,6 +239,10 @@ export default function ProductCatalog({
                 </ul>
               </div>
 
+              {brands.length > 0 && <label className="grid gap-2 border-t border-border/60 pt-5 text-sm font-black">برند<select value={brand} onChange={(event) => { setBrand(event.target.value); setPage(1); }} className="glass-input h-10 rounded-md px-3 text-sm font-normal"><option value="all">همهٔ برندها</option>{brands.map((item) => <option key={item} value={item}>{item}</option>)}</select></label>}
+              {flavors.length > 0 && <label className="grid gap-2 border-t border-border/60 pt-5 text-sm font-black">طعم<select value={flavor} onChange={(event) => { setFlavor(event.target.value); setPage(1); }} className="glass-input h-10 rounded-md px-3 text-sm font-normal"><option value="all">همهٔ طعم‌ها</option>{flavors.map((item) => <option key={item} value={item}>{item}</option>)}</select></label>}
+              {maxWeight > minWeight && <div className="grid gap-2 border-t border-border/60 pt-5"><span className="text-sm font-black">وزن (گرم)</span><div className="flex gap-2"><input aria-label="حداقل وزن به گرم" type="number" min={minWeight} max={weightRange[1]} value={weightRange[0]} onChange={(event) => { setWeightRange([Number(event.target.value), weightRange[1]]); setPage(1); }} className="glass-input h-10 w-1/2 rounded-md px-2 text-sm"/><input aria-label="حداکثر وزن به گرم" type="number" min={weightRange[0]} max={maxWeight} value={weightRange[1]} onChange={(event) => { setWeightRange([weightRange[0], Number(event.target.value)]); setPage(1); }} className="glass-input h-10 w-1/2 rounded-md px-2 text-sm"/></div></div>}
+
               <label className="text-foreground flex min-h-10 items-center gap-3 border-t border-border/60 pt-5 text-sm font-bold">
                 <input
                   type="checkbox"
@@ -245,6 +277,7 @@ export default function ProductCatalog({
             >
               <option value="newest">جدیدترین</option>
               <option value="rating">بالاترین امتیاز</option>
+              <option value="best-selling">پرفروش‌ترین</option>
               <option value="price-asc">ارزان‌ترین</option>
               <option value="price-desc">گران‌ترین</option>
             </select>
@@ -280,4 +313,17 @@ export default function ProductCatalog({
       </section>
     </div>
   );
+}
+
+function normalizeSearch(value: string) {
+  return value.toLocaleLowerCase('fa-IR').replace(/[يى]/g, 'ی').replace(/ك/g, 'ک').replace(/\s+/g, ' ').trim();
+}
+
+function weightInGrams(value: string) {
+  const normalized = value.replace(/[۰-۹]/g, (digit) => String('۰۱۲۳۴۵۶۷۸۹'.indexOf(digit))).replace(/[٠-٩]/g, (digit) => String('٠١٢٣٤٥٦٧٨٩'.indexOf(digit)));
+  const match = normalized.match(/([\d.]+)\s*(kg|kilograms?|g|gr|grams?|کیلوگرم|کیلو|گرم)?/i);
+  if (!match) return null;
+  const amount = Number(match[1]);
+  if (!Number.isFinite(amount)) return null;
+  return /kg|kilo/i.test(match[2] ?? '') ? amount * 1000 : amount;
 }

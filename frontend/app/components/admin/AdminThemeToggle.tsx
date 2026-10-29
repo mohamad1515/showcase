@@ -9,17 +9,17 @@ export default function AdminThemeToggle() {
   const [theme, setTheme] = useState<AdminTheme>('light');
 
   useEffect(() => {
-    const savedTheme = window.localStorage.getItem('admin-theme');
-    const activeTheme = savedTheme === 'dark' ? 'dark' : 'light';
+    const savedTheme = window.localStorage.getItem('site-theme');
+    const activeTheme = savedTheme === 'dark' || (!savedTheme && document.documentElement.classList.contains('dark')) ? 'dark' : 'light';
     setTheme(activeTheme);
-    document.querySelector('.admin-theme')?.setAttribute('data-theme', activeTheme);
+    document.documentElement.classList.toggle('dark', activeTheme === 'dark');
   }, []);
 
   function toggleTheme() {
     const nextTheme = theme === 'dark' ? 'light' : 'dark';
     setTheme(nextTheme);
-    window.localStorage.setItem('admin-theme', nextTheme);
-    document.querySelector('.admin-theme')?.setAttribute('data-theme', nextTheme);
+    window.localStorage.setItem('site-theme', nextTheme);
+    document.documentElement.classList.toggle('dark', nextTheme === 'dark');
   }
 
   const Icon = theme === 'dark' ? FiSun : FiMoon;

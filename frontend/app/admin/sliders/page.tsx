@@ -159,7 +159,7 @@ function ActionsCell({
       <button
         type="button"
         onClick={() => onEdit(data)}
-        className="border-border text-foreground hover:border-accent hover:text-accent inline-flex h-9 items-center gap-1.5 rounded-md border bg-[#d5d6d6] px-3 text-xs font-black transition"
+        className="border-border bg-surface text-foreground hover:border-accent hover:text-accent inline-flex h-10 items-center gap-1.5 rounded-md border px-3 text-xs font-black transition"
       >
         <FiEdit aria-hidden />
         ویرایش

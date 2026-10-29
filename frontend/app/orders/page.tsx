@@ -125,6 +125,7 @@ export default function OrdersPage() {
                   </div>
                 ))}
               </div>
+              <Link href={`/orders/${order.id}`} className="mt-4 inline-flex text-sm font-bold text-accent">مشاهدهٔ جزئیات سفارش</Link>
             </article>
           ))}
         </section>

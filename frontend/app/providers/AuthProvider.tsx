@@ -28,6 +28,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const handleInvalidSession = () => {
+      try {
+        window.localStorage.removeItem('auth-token');
+        window.localStorage.removeItem('auth-user');
+      } catch {
+        // Keep the in-memory session cleared even when browser storage is blocked.
+      }
+      setToken(null);
+      setUser(null);
+    };
+    window.addEventListener('auth:session-invalid', handleInvalidSession);
     try {
       const t = window.localStorage.getItem("auth-token");
       const savedUser = window.localStorage.getItem("auth-user");
@@ -40,6 +51,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } finally {
       setLoading(false);
     }
+    return () => window.removeEventListener('auth:session-invalid', handleInvalidSession);
   }, []);
 
   async function handleLogin(email: string, password: string) {

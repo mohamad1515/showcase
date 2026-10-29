@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from 'next/navigation';
 import { FiShoppingCart } from "react-icons/fi";
 import { addCartItem } from "../lib/graphql";
 import { errorMessage, notifyError, notifySuccess } from "../lib/toast";
@@ -15,6 +16,7 @@ export default function AddToCartButton({
   disabled?: boolean;
   className?: string;
 }) {
+  const router = useRouter();
   const { token } = useAuth();
   const [loading, setLoading] = useState(false);
 
@@ -30,6 +32,7 @@ export default function AddToCartButton({
       window.dispatchEvent(new CustomEvent("cart:refresh"));
       notifySuccess("محصول به سبد خرید اضافه شد.");
     } catch (err) {
+      if (errorMessage(err, '').includes('نشست شما منقضی شده')) router.push('/auth?mode=login');
       notifyError(errorMessage(err, "افزودن به سبد خرید ناموفق بود."));
     } finally {
       setLoading(false);

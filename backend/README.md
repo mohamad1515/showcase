@@ -176,7 +176,7 @@ query {
 - There is no migration tool. Schema changes are made in both `src/db/schema.ts` (Drizzle) and `src/db/database.service.ts` (DDL / `ensureColumn`).
 - Prices are stored as formatted strings such as `"1,250,000"`.
 - Reviews live in `comments`, `replies` and `comment_votes` (one review per user per product, one admin reply per review, one vote per user per review). Deleting a review removes its reply and votes; deleting a product removes its reviews.
-- A product's `rating` (average, one decimal) and `review_count` are calculated from its reviews whenever one is created or deleted. They are not editable through the product API.
+- A product's displayed `rating` uses ten five-star baseline ratings to avoid sharp swings from a small number of low reviews; it is rounded to one decimal, defaults to five with no reviews, and has a floor of one. `review_count` and the star distribution still reflect actual reviews. Both values update whenever a review is created or deleted.
 - To reset, stop the server and delete the `data/` folder.
 
 ## Docker

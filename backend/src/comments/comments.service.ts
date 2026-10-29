@@ -230,8 +230,13 @@ export class CommentsService {
       sum += row.rating * row.total;
       total += row.total;
     }
+    // Ten five-star baseline ratings keep a small number of low reviews from
+    // swinging a product's score sharply. The displayed score never drops below 1.
+    const average = total
+      ? Math.max(1, Math.round(((sum + 50) / (total + 10)) * 10) / 10)
+      : 5;
     return {
-      average: total ? Math.round((sum / total) * 10) / 10 : 0,
+      average,
       count: total,
       distribution,
     };

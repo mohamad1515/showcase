@@ -115,6 +115,7 @@ async function setup(t: test.TestContext) {
         englishName: slug,
         brand: "B",
         category: "sports-supplements",
+        rating: 5,
         summary: "s",
         description: "d",
         features: [],
@@ -241,7 +242,7 @@ test("rating summary and products.rating / review_count stay in sync with commen
 
   assert.deepEqual(
     { rating: (await product(whey.id)).rating, reviews: (await product(whey.id)).reviewCount },
-    { rating: 0, reviews: 0 },
+    { rating: 5, reviews: 0 },
   );
 
   const five = await at(a.id, 5);
@@ -249,21 +250,21 @@ test("rating summary and products.rating / review_count stay in sync with commen
   await at(c.id, 4);
   const summary = await commentsService.findByProduct("whey", null);
   assert.equal(summary.count, 3);
-  assert.equal(summary.average, 4.3, "13 / 3 rounded to one decimal");
+  assert.equal(summary.average, 4.8, "ten five-star baseline ratings smooth the average");
   assert.deepEqual(summary.distribution, [0, 0, 0, 2, 1]);
-  assert.equal((await product(whey.id)).rating, 4.3);
+  assert.equal((await product(whey.id)).rating, 4.8);
   assert.equal((await product(whey.id)).reviewCount, 3);
 
   await commentsService.remove(admin.id, Number(five.id));
-  assert.equal((await product(whey.id)).rating, 4);
+  assert.equal((await product(whey.id)).rating, 4.8);
   assert.equal((await product(whey.id)).reviewCount, 2);
 
   for (const row of (await commentsService.findByProduct("whey", null)).comments) {
     await commentsService.remove(admin.id, Number(row.id));
   }
-  assert.equal((await product(whey.id)).rating, 0);
+  assert.equal((await product(whey.id)).rating, 5);
   assert.equal((await product(whey.id)).reviewCount, 0);
-  assert.equal((await commentsService.findByProduct("whey", null)).average, 0);
+  assert.equal((await commentsService.findByProduct("whey", null)).average, 5);
 });
 
 test("voteComment: one rule for like, dislike, remove and switch; one vote per user", async (t) => {

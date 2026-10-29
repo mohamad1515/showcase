@@ -40,6 +40,16 @@ const emptyForm: ProductInput = {
   productType: 'powder',
   summary: '',
   description: '',
+  ingredients: '',
+  nutritionFacts: '',
+  usageInstructions: '',
+  warnings: '',
+  manufacturer: '',
+  countryOfOrigin: '',
+  servingSize: '',
+  servingsPerContainer: '',
+  traceabilityCode: '',
+  expiryInfo: '',
   features: [],
   category: '',
   price: '',
@@ -140,6 +150,16 @@ export default function ProductForm({
         productType: product.productType,
         summary: product.summary,
         description: product.description,
+        ingredients: product.ingredients ?? '',
+        nutritionFacts: product.nutritionFacts ?? '',
+        usageInstructions: product.usageInstructions ?? '',
+        warnings: product.warnings ?? '',
+        manufacturer: product.manufacturer ?? '',
+        countryOfOrigin: product.countryOfOrigin ?? '',
+        servingSize: product.servingSize ?? '',
+        servingsPerContainer: product.servingsPerContainer ?? '',
+        traceabilityCode: product.traceabilityCode ?? '',
+        expiryInfo: product.expiryInfo ?? '',
         features: product.features,
         category: product.category,
         price: product.price,
@@ -574,6 +594,29 @@ export default function ProductForm({
               placeholder="برچسب‌ها را با کاما جدا کنید"
             />
           </FormField>
+        </Section>
+
+        <Section title="اطلاعات مصرف و ترکیبات" description="این اطلاعات را از برچسب یا منبع معتبر محصول وارد کنید؛ مقدار خالی در صفحهٔ محصول نمایش داده نمی‌شود.">
+          <FormField label="ترکیبات">
+            <textarea value={form.ingredients ?? ''} onChange={(e) => updateField('ingredients', e.target.value)} rows={4} className={textareaClass} />
+          </FormField>
+          <FormField label="جدول یا اطلاعات تغذیه‌ای">
+            <textarea value={form.nutritionFacts ?? ''} onChange={(e) => updateField('nutritionFacts', e.target.value)} rows={4} className={textareaClass} />
+          </FormField>
+          <FormField label="روش مصرف درج‌شده روی محصول">
+            <textarea value={form.usageInstructions ?? ''} onChange={(e) => updateField('usageInstructions', e.target.value)} rows={3} className={textareaClass} />
+          </FormField>
+          <FormField label="هشدارها و شرایط نگهداری">
+            <textarea value={form.warnings ?? ''} onChange={(e) => updateField('warnings', e.target.value)} rows={3} className={textareaClass} />
+          </FormField>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <FormField label="شرکت سازنده"><input value={form.manufacturer ?? ''} onChange={(e) => updateField('manufacturer', e.target.value)} className={inputClass} /></FormField>
+            <FormField label="کشور مبدأ"><input value={form.countryOfOrigin ?? ''} onChange={(e) => updateField('countryOfOrigin', e.target.value)} className={inputClass} /></FormField>
+            <FormField label="اندازهٔ هر وعده"><input value={form.servingSize ?? ''} onChange={(e) => updateField('servingSize', e.target.value)} className={inputClass} placeholder="مثال: ۳۰ گرم" /></FormField>
+            <FormField label="تعداد وعده در بسته"><input value={form.servingsPerContainer ?? ''} onChange={(e) => updateField('servingsPerContainer', e.target.value)} className={inputClass} /></FormField>
+            <FormField label="شناسه/کد رهگیری محصول"><input value={form.traceabilityCode ?? ''} onChange={(e) => updateField('traceabilityCode', e.target.value)} className={inputClass} /></FormField>
+            <FormField label="اطلاعات تاریخ انقضا" hint="تاریخ بچ‌های مختلف را جدا از این متن و مطابق موجودی واقعی اعلام کنید."><input value={form.expiryInfo ?? ''} onChange={(e) => updateField('expiryInfo', e.target.value)} className={inputClass} /></FormField>
+          </div>
         </Section>
       </div>
 

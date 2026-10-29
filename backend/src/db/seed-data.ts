@@ -1,68 +1,26 @@
-import { NewProductRow } from "./schema";
+import { NewProductRow } from './schema';
 
-export const seedProducts: NewProductRow[] = [];
-/*
-export const legacySeedProducts: NewProductRow[] = [
-  {
-    slug: "whey-protein-gold",
-    name: "Whey Protein Gold",
-    tagline: "Fast protein support for recovery and lean muscle goals",
-    summary:
-      "A training-friendly whey protein for daily shakes and post-workout recovery.",
-    description:
-      "Whey Protein Gold is designed for athletes who want a practical protein source after training. It fits well beside a balanced nutrition plan and regular strength work.",
-    features: [
-      "24g protein per serving",
-      "Easy mixing",
-      "Good for lean bulking",
-    ],
-    category: "popular",
-    price: "2,450,000",
-    weight: "2 kg",
-    quantity: "1",
-    images: [
-      "/images/products/protein-1-1.webp",
-      "/images/products/protein-1-2.webp",
-    ],
-    createdAt: now,
-    updatedAt: now,
-  },
-  {
-    slug: "creatine-monohydrate",
-    name: "Creatine Monohydrate",
-    tagline: "Strength and power support for heavy sets",
-    summary:
-      "A simple creatine formula for strength training and repeated high-effort movement.",
-    description:
-      "Creatine Monohydrate is one of the most common sports supplements for supporting training output. Use it with enough water and a consistent plan.",
-    features: ["Pure formula", "Unflavored", "Good for strength cycles"],
-    category: "best-selling",
-    price: "890,000",
-    weight: "300 g",
-    quantity: "1",
-    images: [
-      "/images/products/bpi-sports-micronized-creatine-powder-3-1.png",
-      "/images/products/bpi-sports-micronized-creatine-powder-3-2.jpg",
-    ],
-    createdAt: now,
-    updatedAt: now,
-  },
-  {
-    slug: "bcaa-aminos",
-    name: "BCAA Aminos",
-    tagline: "Amino support for long training sessions",
-    summary:
-      "A branched-chain amino blend for before, during, or after demanding workouts.",
-    description:
-      "BCAA Aminos is suitable for athletes with long sessions or reduced-calorie diets who want an easy flavored drink around training.",
-    features: ["2:1:1 ratio", "Light fruit taste", "Good for cutting phases"],
-    category: "popular",
-    price: "1,120,000",
-    weight: "400 g",
-    quantity: "1",
-    images: ["/images/products/qnt-energy-2-1.jpg"],
-    createdAt: now,
-    updatedAt: now,
-  },
+export const sampleBrands = [
+  'Atlas Nutrition', 'Apex Sport', 'NovaFit', 'IronPeak', 'CoreLab',
+  'PowerMax', 'VitaPro', 'MuscleBase', 'Endura', 'FitFuel',
 ];
-*/
+
+export const sampleFlavors = [
+  'وانیل', 'بدون طعم', 'لیمویی', 'شکلاتی', 'توت‌فرنگی',
+  'میوه‌ای', 'بلوبری', 'پرتقالی', 'موزی', 'پسته‌ای',
+];
+
+const products: Omit<NewProductRow, 'id' | 'createdAt' | 'updatedAt'>[] = [
+  { slug: 'atlas-whey-protein-900g', persianName: 'پروتئین وی اطلس', englishName: 'Atlas Whey Protein', brand: sampleBrands[0], brands: [sampleBrands[0]], status: 'active', rating: 5, flavor: sampleFlavors[0], flavors: [sampleFlavors[0]], productType: 'powder', category: 'whey-protein', summary: 'پودر پروتئین وی با طعم وانیل؛ مشخصات کامل را روی بسته‌بندی محصول بررسی کنید.', description: 'یک نمونهٔ نمایشی برای نمایش صفحهٔ محصول، گزینهٔ طعم و مشخصات فروشگاه. اطلاعات ترکیبات و مصرف باید با برچسب کالای واقعی جایگزین شود.', ingredients: 'اطلاعات نمونه؛ پیش از عرضه با برچسب واقعی جایگزین شود.', nutritionFacts: 'اطلاعات تغذیه‌ای نمونه', usageInstructions: 'مطابق راهنمای درج‌شده روی بسته‌بندی محصول مصرف شود.', warnings: 'نمونهٔ نمایشی؛ اطلاعات نهایی را از برچسب محصول ثبت کنید.', manufacturer: sampleBrands[0], countryOfOrigin: 'اطلاعات نمونه', servingSize: '۳۰ گرم (نمونه)', servingsPerContainer: '۳۰ وعده (نمونه)', traceabilityCode: '', expiryInfo: 'تاریخ هر سری کالا هنگام آماده‌سازی سفارش بررسی شود.', features: ['طعم وانیل', 'وزن بسته: ۹۰۰ گرم', 'اطلاعات نمونه برای پیش‌نمایش'], price: '2450000', compareAtPrice: null, weight: '900 گرم', reviewCount: 0, tags: ['نمونه نمایشی', 'پروتئین'], stock: 12, mainImage: '/images/products/WHEY-HD-50-Servs-BlueberryMuffin_TS.webp', galleryImages: ['/images/products/WHEY-HD-50-Servs-BlueberryMuffin_TS.webp', '/images/products/back-whey.jpg'] },
+  { slug: 'apex-creatine-monohydrate', persianName: 'کراتین مونوهیدرات اپکس', englishName: 'Apex Creatine Monohydrate', brand: sampleBrands[1], brands: [sampleBrands[1]], status: 'active', rating: 5, flavor: sampleFlavors[1], flavors: [sampleFlavors[1]], productType: 'powder', category: 'creatine', summary: 'کراتین مونوهیدرات بدون طعم؛ محصول نمونه برای پیش‌نمایش فروشگاه.', description: 'این رکورد نمایشی است و برای تست مرور محصول، موجودی و سبد خرید درج شده است.', ingredients: 'کراتین مونوهیدرات (نمونه)', nutritionFacts: 'اطلاعات نمونه', usageInstructions: 'مطابق برچسب واقعی کالا.', warnings: 'نمونهٔ نمایشی؛ پیش از فروش بررسی و اصلاح شود.', manufacturer: sampleBrands[1], countryOfOrigin: 'اطلاعات نمونه', servingSize: '۵ گرم (نمونه)', servingsPerContainer: '۶۰ وعده (نمونه)', traceabilityCode: '', expiryInfo: 'تاریخ هر سری هنگام ارسال بررسی شود.', features: ['بدون طعم', 'وزن بسته: ۳۰۰ گرم', 'رکورد نمایشی'], price: '890000', compareAtPrice: null, weight: '300 گرم', reviewCount: 0, tags: ['نمونه نمایشی', 'کراتین'], stock: 20, mainImage: '/images/products/creatine-monohydrate.jpg', galleryImages: ['/images/products/creatine-monohydrate.jpg', '/images/products/02.webp'] },
+  { slug: 'novafit-bcaa-citrus', persianName: 'آمینو بی‌سی‌ای‌ای نوا فیت', englishName: 'NovaFit BCAA Citrus', brand: sampleBrands[2], brands: [sampleBrands[2]], status: 'active', rating: 5, flavor: sampleFlavors[2], flavors: [sampleFlavors[2]], productType: 'powder', category: 'bcaa', summary: 'پودر آمینو با طعم لیمویی؛ اطلاعات این محصول برای نمایش آزمایشی است.', description: 'نمونهٔ نمایشی کاتالوگ. محتوای بسته و اطلاعات علمی باید پیش از عرضه با اطلاعات سازنده تطبیق داده شوند.', ingredients: 'اطلاعات نمونه', nutritionFacts: 'اطلاعات نمونه', usageInstructions: 'مطابق برچسب واقعی محصول.', warnings: 'نمونهٔ نمایشی.', manufacturer: sampleBrands[2], countryOfOrigin: 'اطلاعات نمونه', servingSize: '۱۰ گرم (نمونه)', servingsPerContainer: '۴۰ وعده (نمونه)', traceabilityCode: '', expiryInfo: 'تاریخ هر سری هنگام آماده‌سازی سفارش بررسی شود.', features: ['طعم لیمویی', 'وزن بسته: ۴۰۰ گرم', 'رکورد نمایشی'], price: '1120000', compareAtPrice: null, weight: '400 گرم', reviewCount: 0, tags: ['نمونه نمایشی', 'آمینو'], stock: 14, mainImage: '/images/products/kale.PNG', galleryImages: ['/images/products/kale.PNG', '/images/products/kale-detail.PNG'] },
+  { slug: 'ironpeak-mass-gainer-chocolate', persianName: 'گینر آیرون پیک', englishName: 'IronPeak Mass Gainer', brand: sampleBrands[3], brands: [sampleBrands[3]], status: 'active', rating: 5, flavor: sampleFlavors[3], flavors: [sampleFlavors[3]], productType: 'powder', category: 'gainer', summary: 'پودر گینر با طعم شکلات؛ رکورد نمونه برای مشاهدهٔ فروشگاه کامل.', description: 'اطلاعات محصول حاضر نمایشی است. مقادیر تغذیه‌ای و دستور مصرف را فقط از بسته‌بندی محصول واقعی ثبت کنید.', ingredients: 'اطلاعات نمونه', nutritionFacts: 'اطلاعات نمونه', usageInstructions: 'مطابق دستور درج‌شده روی بسته.', warnings: 'نمونهٔ نمایشی؛ برای عرضه باید بازبینی شود.', manufacturer: sampleBrands[3], countryOfOrigin: 'اطلاعات نمونه', servingSize: '۱۰۰ گرم (نمونه)', servingsPerContainer: '۲۰ وعده (نمونه)', traceabilityCode: '', expiryInfo: 'تاریخ هر سری باید بررسی شود.', features: ['طعم شکلات', 'وزن بسته: ۱ کیلوگرم', 'رکورد نمایشی'], price: '1980000', compareAtPrice: null, weight: '1 کیلوگرم', reviewCount: 0, tags: ['نمونه نمایشی', 'گینر'], stock: 9, mainImage: '/images/products/BESTPROTEIN-69SERVS-CHOCOLATEBROWNIE-TS.webp', galleryImages: ['/images/products/BESTPROTEIN-69SERVS-CHOCOLATEBROWNIE-TS.webp', '/images/products/71.webp'] },
+  { slug: 'corelab-electrolyte-strawberry', persianName: 'نوشیدنی الکترولیت کورلب', englishName: 'CoreLab Electrolyte', brand: sampleBrands[4], brands: [sampleBrands[4]], status: 'active', rating: 5, flavor: sampleFlavors[4], flavors: [sampleFlavors[4]], productType: 'beverage', category: 'electrolyte', summary: 'پودر نوشیدنی با طعم توت‌فرنگی؛ نمونهٔ نمایشی فروشگاه.', description: 'این محصول برای نمایش دسته‌بندی نوشیدنی و محتوای نمونه در کاتالوگ اضافه شده است.', ingredients: 'اطلاعات نمونه', nutritionFacts: 'اطلاعات نمونه', usageInstructions: 'مطابق برچسب کالای واقعی.', warnings: 'نمونهٔ نمایشی.', manufacturer: sampleBrands[4], countryOfOrigin: 'اطلاعات نمونه', servingSize: '۵ گرم (نمونه)', servingsPerContainer: '۳۰ وعده (نمونه)', traceabilityCode: '', expiryInfo: 'تاریخ هر سری کالا بررسی شود.', features: ['طعم توت‌فرنگی', 'وزن بسته: ۱۵۰ گرم', 'رکورد نمایشی'], price: '760000', compareAtPrice: null, weight: '150 گرم', reviewCount: 0, tags: ['نمونه نمایشی', 'نوشیدنی'], stock: 18, mainImage: '/images/products/03.webp', galleryImages: ['/images/products/03.webp', '/images/products/04.webp'] },
+  { slug: 'powermax-pre-workout-berry', persianName: 'پودر پیش‌تمرین پاورمکس', englishName: 'PowerMax Pre-Workout', brand: sampleBrands[5], brands: [sampleBrands[5]], status: 'active', rating: 5, flavor: sampleFlavors[5], flavors: [sampleFlavors[5]], productType: 'powder', category: 'pre-workout', summary: 'پودر پیش‌تمرین با طعم میوه‌ای؛ نمونه برای پیش‌نمایش رابط فروشگاه.', description: 'اطلاعات اثر، ترکیب و مصرف این رکورد واقعی نیست و پیش از عرضه باید با اطلاعات محصول جایگزین شود.', ingredients: 'اطلاعات نمونه', nutritionFacts: 'اطلاعات نمونه', usageInstructions: 'مطابق برچسب واقعی؛ از اطلاعات نمونه استفاده نکنید.', warnings: 'نمونهٔ نمایشی؛ اطلاعات حساس باید از بسته‌بندی ثبت شود.', manufacturer: sampleBrands[5], countryOfOrigin: 'اطلاعات نمونه', servingSize: '۸ گرم (نمونه)', servingsPerContainer: '۲۵ وعده (نمونه)', traceabilityCode: '', expiryInfo: 'تاریخ هر سری هنگام آماده‌سازی سفارش بررسی شود.', features: ['طعم میوه‌ای', 'وزن بسته: ۲۰۰ گرم', 'رکورد نمایشی'], price: '1340000', compareAtPrice: null, weight: '200 گرم', reviewCount: 0, tags: ['نمونه نمایشی', 'پیش‌تمرین'], stock: 7, mainImage: '/images/products/cafi2.PNG', galleryImages: ['/images/products/cafi2.PNG', '/images/products/cafi.PNG'] },
+  { slug: 'vitapro-omega-3', persianName: 'امگا ۳ ویتاپرو', englishName: 'VitaPro Omega-3', brand: sampleBrands[6], brands: [sampleBrands[6]], status: 'active', rating: 5, flavor: sampleFlavors[6], flavors: [sampleFlavors[6]], productType: 'capsule', category: 'omega-3', summary: 'مکمل کپسولی؛ رکورد نمونه برای مشاهدهٔ نوع‌های متنوع محصول.', description: 'این اطلاعات صرفاً برای پیش‌نمایش قابلیت‌های فروشگاه است و نباید به عنوان مشخصات کالای واقعی تلقی شود.', ingredients: 'اطلاعات نمونه', nutritionFacts: 'اطلاعات نمونه', usageInstructions: 'مطابق برچسب محصول واقعی.', warnings: 'نمونهٔ نمایشی.', manufacturer: sampleBrands[6], countryOfOrigin: 'اطلاعات نمونه', servingSize: '۱ کپسول (نمونه)', servingsPerContainer: '۶۰ عدد (نمونه)', traceabilityCode: '', expiryInfo: 'تاریخ هر سری کالا بررسی شود.', features: ['نوع: کپسول', 'بسته: ۶۰ عدد (نمونه)', 'رکورد نمایشی'], price: '980000', compareAtPrice: null, weight: '۶۰ کپسول', reviewCount: 0, tags: ['نمونه نمایشی', 'کپسول'], stock: 16, mainImage: '/images/products/05.webp', galleryImages: ['/images/products/05.webp', '/images/products/04.webp'] },
+  { slug: 'musclebase-collagen-peach', persianName: 'کلاژن ماسل‌بیس', englishName: 'MuscleBase Collagen', brand: sampleBrands[7], brands: [sampleBrands[7]], status: 'active', rating: 5, flavor: sampleFlavors[7], flavors: [sampleFlavors[7]], productType: 'powder', category: 'collagen', summary: 'پودر کلاژن با طعم پرتقالی؛ نمونهٔ نمایشی برای دستهٔ مکمل غذایی.', description: 'نمونهٔ کاتالوگ است؛ هر ادعای محصول و اطلاعات تغذیه‌ای باید با مستندات سازنده بررسی شود.', ingredients: 'اطلاعات نمونه', nutritionFacts: 'اطلاعات نمونه', usageInstructions: 'مطابق برچسب واقعی محصول.', warnings: 'نمونهٔ نمایشی.', manufacturer: sampleBrands[7], countryOfOrigin: 'اطلاعات نمونه', servingSize: '۱۰ گرم (نمونه)', servingsPerContainer: '۳۰ وعده (نمونه)', traceabilityCode: '', expiryInfo: 'تاریخ هر سری کالا بررسی شود.', features: ['طعم پرتقالی', 'وزن بسته: ۳۰۰ گرم', 'رکورد نمایشی'], price: '1560000', compareAtPrice: null, weight: '300 گرم', reviewCount: 0, tags: ['نمونه نمایشی', 'پودر'], stock: 11, mainImage: '/images/products/04.webp', galleryImages: ['/images/products/04.webp', '/images/products/03.webp'] },
+  { slug: 'endura-cla-carnitine', persianName: 'کپسول سی‌ال‌ای اندورا', englishName: 'Endura CLA', brand: sampleBrands[8], brands: [sampleBrands[8]], status: 'active', rating: 5, flavor: sampleFlavors[8], flavors: [sampleFlavors[8]], productType: 'capsule', category: 'cla-carnitine', summary: 'مکمل کپسولی؛ نمونهٔ آزمایشی با تصویر محصول برای پیش‌نمایش.', description: 'این رکورد صرفاً نمونهٔ ساختاری است و اطلاعات محصول واقعی محسوب نمی‌شود.', ingredients: 'اطلاعات نمونه', nutritionFacts: 'اطلاعات نمونه', usageInstructions: 'مطابق بسته‌بندی واقعی.', warnings: 'نمونهٔ نمایشی.', manufacturer: sampleBrands[8], countryOfOrigin: 'اطلاعات نمونه', servingSize: '۱ کپسول (نمونه)', servingsPerContainer: '۵۰ عدد (نمونه)', traceabilityCode: '', expiryInfo: 'تاریخ هر سری کالا بررسی شود.', features: ['نوع: کپسول', 'بسته: ۵۰ عدد (نمونه)', 'رکورد نمایشی'], price: '1220000', compareAtPrice: null, weight: '۵۰ کپسول', reviewCount: 0, tags: ['نمونه نمایشی', 'کپسول'], stock: 10, mainImage: '/images/products/BPI_Sports_CLA_Carnitine_-_Non-Stimulant_Weight_Loss_Supplement_50_servings.webp', galleryImages: ['/images/products/BPI_Sports_CLA_Carnitine_-_Non-Stimulant_Weight_Loss_Supplement_50_servings.webp', '/images/products/71.webp'] },
+  { slug: 'fitfuel-whey-isolate-blueberry', persianName: 'وی ایزوله فیت‌فیول', englishName: 'FitFuel Whey Isolate', brand: sampleBrands[9], brands: [sampleBrands[9]], status: 'active', rating: 5, flavor: sampleFlavors[9], flavors: [sampleFlavors[9]], productType: 'powder', category: 'whey-isolate', summary: 'پودر پروتئین با طعم پسته‌ای؛ رکورد پیش‌فرض جهت نمایش امکانات.', description: 'پیش‌نمایش فروشگاه است. مشخصات واقعی، ترکیبات و روش مصرف را پیش از فروش از برچسب سازنده وارد کنید.', ingredients: 'اطلاعات نمونه', nutritionFacts: 'اطلاعات نمونه', usageInstructions: 'مطابق بسته‌بندی واقعی محصول.', warnings: 'نمونهٔ نمایشی.', manufacturer: sampleBrands[9], countryOfOrigin: 'اطلاعات نمونه', servingSize: '۳۰ گرم (نمونه)', servingsPerContainer: '۲۵ وعده (نمونه)', traceabilityCode: '', expiryInfo: 'تاریخ هر سری کالا بررسی شود.', features: ['طعم پسته‌ای', 'وزن بسته: ۷۵۰ گرم', 'رکورد نمایشی'], price: '2890000', compareAtPrice: null, weight: '750 گرم', reviewCount: 0, tags: ['نمونه نمایشی', 'پروتئین'], stock: 8, mainImage: '/images/products/71.webp', galleryImages: ['/images/products/71.webp', '/images/products/05.webp'] },
+];
+
+export const sampleProducts = products;

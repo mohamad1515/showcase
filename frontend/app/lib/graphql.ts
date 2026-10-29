@@ -32,12 +32,24 @@ const productFields = `
   productType
   summary
   description
+  ingredients
+  nutritionFacts
+  usageInstructions
+  warnings
+  manufacturer
+  countryOfOrigin
+  servingSize
+  servingsPerContainer
+  traceabilityCode
+  expiryInfo
   features
   category
+  categoryName
   price
   compareAtPrice
   weight
   reviewCount
+  salesCount
   tags
   stock
   mainImage
@@ -171,7 +183,18 @@ export async function graphqlRequest<T>(
   };
 
   if (payload.errors?.length) {
-    throw new Error(payload.errors.map((error) => error.message).join(", "));
+    const message = payload.errors.map((error) => error.message).join(", ");
+    if (/invalid session|session expired/i.test(message) && typeof window !== 'undefined') {
+      try {
+        window.localStorage.removeItem('auth-token');
+        window.localStorage.removeItem('auth-user');
+      } catch {
+        // Session state in React is still cleared if browser storage is unavailable.
+      }
+      window.dispatchEvent(new Event('auth:session-invalid'));
+      throw new Error('نشست شما منقضی شده است؛ دوباره وارد حساب کاربری شوید.');
+    }
+    throw new Error(message);
   }
 
   if (!payload.data) {
@@ -335,6 +358,19 @@ export async function getOrders() {
   return data.myOrders;
 }
 
+export async function getAdminOrders() {
+  const data = await graphqlRequest<{ allOrders: Order[] }>(`query AllOrders { allOrders { ${orderFields} } }`);
+  return data.allOrders;
+}
+
+export async function updateOrderStatus(orderId: string, status: 'pending' | 'shipped' | 'canceled') {
+  const data = await graphqlRequest<{ updateOrderStatus: Order }>(
+    `mutation UpdateOrderStatus($orderId: Float!, $status: String!) { updateOrderStatus(orderId: $orderId, status: $status) { ${orderFields} } }`,
+    { orderId: Number(orderId), status },
+  );
+  return data.updateOrderStatus;
+}
+
 export async function getUsers() {
   const data = await graphqlRequest<{ users: AdminUser[] }>(`
     query Users {
@@ -344,6 +380,19 @@ export async function getUsers() {
     }
   `);
   return data.users;
+}
+
+export async function getMyProfile() {
+  const data = await graphqlRequest<{ myProfile: AdminUser }>(`query MyProfile { myProfile { ${userFields} } }`);
+  return data.myProfile;
+}
+
+export async function updateMyProfile(name: string) {
+  const data = await graphqlRequest<{ updateMyProfile: AdminUser }>(
+    `mutation UpdateMyProfile($name: String!) { updateMyProfile(name: $name) { ${userFields} } }`,
+    { name },
+  );
+  return data.updateMyProfile;
 }
 
 export async function createUser(input: {

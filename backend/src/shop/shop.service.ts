@@ -17,6 +17,16 @@ type ProductRecord = {
   flavors: unknown;
   summary: string;
   description: string;
+  ingredients?: string;
+  nutritionFacts?: string;
+  usageInstructions?: string;
+  warnings?: string;
+  manufacturer?: string;
+  countryOfOrigin?: string;
+  servingSize?: string;
+  servingsPerContainer?: string;
+  traceabilityCode?: string;
+  expiryInfo?: string;
   features: unknown;
   category: string;
   productType?: string | null;
@@ -25,6 +35,7 @@ type ProductRecord = {
   compareAtPrice: string | null;
   weight: string;
   reviewCount: number;
+  salesCount?: number;
   stock: number;
   mainImage: string;
   galleryImages: unknown;
@@ -228,6 +239,26 @@ export class ShopService {
     return Promise.all(ordered.map((order) => this.buildOrder(db, order)));
   }
 
+  async getAllOrders() {
+    const db = this.database.db;
+    const rows = await db.select({ id: orders.id, status: orders.status, total: orders.total, createdAt: orders.createdAt }).from(orders).orderBy(desc(orders.id));
+    return Promise.all(rows.map((row) => this.buildOrder(db, { ...row, created_at: row.createdAt })));
+  }
+
+  async updateOrderStatus(orderId: number, status: string) {
+    const db = this.database.db;
+    const [current] = await db.select({ id: orders.id, status: orders.status }).from(orders).where(eq(orders.id, orderId));
+    if (!current) throw new NotFoundException('Order was not found.');
+    const allowed = current.status === 'pending'
+      ? ['canceled']
+      : current.status === 'paid'
+        ? ['shipped', 'canceled']
+        : [];
+    if (!allowed.includes(status)) throw new BadRequestException('Invalid order status transition.');
+    const [order] = await db.update(orders).set({ status: status as 'pending' | 'paid' | 'shipped' | 'canceled', updatedAt: new Date().toISOString() }).where(eq(orders.id, orderId)).returning({ id: orders.id, status: orders.status, total: orders.total, createdAt: orders.createdAt });
+    return this.buildOrder(db, { ...order, created_at: order.createdAt });
+  }
+
   private async buildCart(db: Db, cartId: number) {
     const rows = await db
       .select({
@@ -245,6 +276,16 @@ export class ShopService {
         flavors: products.flavors,
         summary: products.summary,
         description: products.description,
+        ingredients: products.ingredients,
+        nutritionFacts: products.nutritionFacts,
+        usageInstructions: products.usageInstructions,
+        warnings: products.warnings,
+        manufacturer: products.manufacturer,
+        countryOfOrigin: products.countryOfOrigin,
+        servingSize: products.servingSize,
+        servingsPerContainer: products.servingsPerContainer,
+        traceabilityCode: products.traceabilityCode,
+        expiryInfo: products.expiryInfo,
         features: products.features,
         category: products.category,
         productType: products.productType,
@@ -356,6 +397,16 @@ export class ShopService {
         flavors: products.flavors,
         summary: products.summary,
         description: products.description,
+        ingredients: products.ingredients,
+        nutritionFacts: products.nutritionFacts,
+        usageInstructions: products.usageInstructions,
+        warnings: products.warnings,
+        manufacturer: products.manufacturer,
+        countryOfOrigin: products.countryOfOrigin,
+        servingSize: products.servingSize,
+        servingsPerContainer: products.servingsPerContainer,
+        traceabilityCode: products.traceabilityCode,
+        expiryInfo: products.expiryInfo,
         features: products.features,
         category: products.category,
         productType: products.productType,
@@ -399,6 +450,16 @@ export class ShopService {
       flavors: this.asList(row.flavors, []),
       summary: row.summary,
       description: row.description,
+      ingredients: row.ingredients ?? "",
+      nutritionFacts: row.nutritionFacts ?? "",
+      usageInstructions: row.usageInstructions ?? "",
+      warnings: row.warnings ?? "",
+      manufacturer: row.manufacturer ?? "",
+      countryOfOrigin: row.countryOfOrigin ?? "",
+      servingSize: row.servingSize ?? "",
+      servingsPerContainer: row.servingsPerContainer ?? "",
+      traceabilityCode: row.traceabilityCode ?? "",
+      expiryInfo: row.expiryInfo ?? "",
       features: this.asList(row.features, []),
       category: row.category,
       productType: row.productType ?? 'powder',
@@ -411,6 +472,7 @@ export class ShopService {
       mainImage: row.mainImage,
       galleryImages,
       reviewCount: row.reviewCount,
+      salesCount: row.salesCount ?? 0,
       name: persianName,
       tagline: row.englishName,
       images: galleryImages,

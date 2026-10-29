@@ -13,7 +13,7 @@ export default function SiteHeader() {
       <div className="bg-accent overflow-hidden border-b border-black">
         <div className="relative flex h-9 items-center overflow-hidden">
           <div className="announcement-track text-foreground absolute text-sm font-bold whitespace-nowrap">
-            تخفیف ویژه محصولات منتخب فیت مکمل — ارسال رایگان برای سفارش‌های بالای یک میلیون تومان
+            محصولات مکمل ورزشی را بررسی و با هم مقایسه کنید
           </div>
         </div>
       </div>
